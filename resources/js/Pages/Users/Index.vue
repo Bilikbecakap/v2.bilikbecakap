@@ -3,6 +3,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
+import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -11,6 +12,23 @@ const props = defineProps({
 
 const { can } = usePermissions();
 const { t } = useTranslations();
+
+const page = usePage();
+const currentUser = page.props.auth.user;
+
+// Function to check if user is super-admin
+const isSuperAdmin = (user) => {
+    return user.roles?.some(role => role.name === 'super-admin');
+};
+
+// Function to check if current user can modify this user
+const canModifyUser = (user) => {
+    // If target user is super-admin and current user is not super-admin, deny access
+    if (isSuperAdmin(user) && !currentUser.roles?.includes('super-admin')) {
+        return false;
+    }
+    return true;
+};
 
 const deleteUser = (id) => {
     if (confirm('Are you sure you want to delete this user?')) {
@@ -30,7 +48,8 @@ const deleteUser = (id) => {
         <div class="mb-6 md:mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 dark:text-white">{{ t('messages.all_users') }}</h2>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 dark:text-white">{{ t('messages.all_users')
+                        }}</h2>
                     <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">{{ t('messages.manage_users') }}</p>
                 </div>
                 <!-- Tombol Create - hanya muncul jika punya permission -->
@@ -47,7 +66,8 @@ const deleteUser = (id) => {
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-6">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-6">
                 <div class="flex items-center">
                     <div
                         class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center mr-4">
@@ -57,13 +77,15 @@ const deleteUser = (id) => {
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ t('messages.total_users') }}</p>
+                        <p class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ t('messages.total_users')
+                            }}</p>
                         <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ users.length }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-6">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-6">
                 <div class="flex items-center">
                     <div
                         class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center mr-4">
@@ -73,7 +95,8 @@ const deleteUser = (id) => {
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ t('messages.active_users') }}</p>
+                        <p class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ t('messages.active_users')
+                            }}</p>
                         <p class="text-2xl font-bold text-slate-900 dark:text-white">{{users.filter(user =>
                             user.email_verified_at).length}}
                         </p>
@@ -81,7 +104,8 @@ const deleteUser = (id) => {
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-6">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-6">
                 <div class="flex items-center">
                     <div
                         class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center mr-4">
@@ -91,8 +115,10 @@ const deleteUser = (id) => {
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ t('messages.with_roles') }}</p>
-                        <p class="text-2xl font-bold text-slate-900 dark:text-white">{{users.filter(user => user.roles &&
+                        <p class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ t('messages.with_roles') }}
+                        </p>
+                        <p class="text-2xl font-bold text-slate-900 dark:text-white">{{users.filter(user => user.roles
+                            &&
                             user.roles.length >
                             0).length}}</p>
                     </div>
@@ -101,7 +127,8 @@ const deleteUser = (id) => {
         </div>
 
         <!-- Users Table -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <!-- Table Header -->
             <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
                 <h3 class="text-lg font-semibold text-slate-800 dark:text-white">{{ t('messages.users_list') }}</h3>
@@ -137,13 +164,14 @@ const deleteUser = (id) => {
                             class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-                                        <img :src="user.profile?.photo ? `/storage/${user.profile.photo}` : '/default.jpg'" 
-                                            :alt="user.name" 
-                                            class="w-full h-full object-cover">
+                                    <div
+                                        class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                        <img :src="user.profile?.photo ? `/storage/${user.profile.photo}` : '/default.jpg'"
+                                            :alt="user.name" class="w-full h-full object-cover">
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-medium text-slate-900 dark:text-white">{{ user.name }}</div>
+                                        <div class="text-sm font-medium text-slate-900 dark:text-white">{{ user.name }}
+                                        </div>
                                         <div class="text-sm text-slate-500 dark:text-slate-400">ID: {{ user.id }}</div>
                                     </div>
                                 </div>
@@ -158,7 +186,8 @@ const deleteUser = (id) => {
                                         {{ role.name }}
                                     </span>
                                 </div>
-                                <span v-else class="text-xs text-slate-400 dark:text-slate-500 italic">No roles assigned</span>
+                                <span v-else class="text-xs text-slate-400 dark:text-slate-500 italic">No roles
+                                    assigned</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                                 {{ new Date(user.created_at).toLocaleDateString('id-ID', {
@@ -181,7 +210,8 @@ const deleteUser = (id) => {
                                     {{ t('messages.view') }}
                                     </Link>
 
-                                    <Link v-if="can('edit users')" :href="`/users/${user.id}/edit`"
+                                    <Link v-if="can('edit users') && canModifyUser(user)"
+                                        :href="`/users/${user.id}/edit`"
                                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors duration-150"
                                         title="Edit User">
                                     <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -191,7 +221,8 @@ const deleteUser = (id) => {
                                     {{ t('messages.edit') }}
                                     </Link>
 
-                                    <button v-if="can('delete users')" @click="deleteUser(user.id)"
+                                    <button v-if="can('delete users') && canModifyUser(user)"
+                                        @click="deleteUser(user.id)"
                                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors duration-150"
                                         title="Delete User">
                                         <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -208,8 +239,8 @@ const deleteUser = (id) => {
 
                 <!-- Empty State -->
                 <div v-if="users.length === 0" class="text-center py-12">
-                    <svg class="w-16 h-16 text-slate-400 dark:text-slate-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
+                    <svg class="w-16 h-16 text-slate-400 dark:text-slate-600 mx-auto mb-4" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>

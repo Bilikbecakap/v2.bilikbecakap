@@ -1,13 +1,25 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { useTranslations } from '@/composables/useTranslations';
+import { computed } from 'vue';
 
 const { t } = useTranslations();
 
 const props = defineProps({
     user: Object,
     roles: Array,
+});
+
+const page = usePage();
+const currentUser = page.props.auth.user;
+
+// Filter roles
+const availableRoles = computed(() => {
+    if (currentUser.roles?.includes('super-admin')) {
+        return props.roles;
+    }
+    return props.roles.filter(role => role.name !== 'super-admin');
 });
 
 const form = useForm({
@@ -133,7 +145,8 @@ const submit = () => {
                             {{ t('messages.roles') }}
                         </label>
                         <div class="space-y-2">
-                            <div v-for="role in roles" :key="role.id" class="flex items-center p-3 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                            <div v-for="role in availableRoles" :key="role.id"
+                                class="flex items-center p-3 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-200">
                                 <input
                                     :id="`role-${role.id}`"
                                     v-model="form.roles"

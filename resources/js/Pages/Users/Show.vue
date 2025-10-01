@@ -9,7 +9,7 @@ const props = defineProps({
     user: Object,
 });
 
-const { can } = usePermissions();
+const { can, hasRole } = usePermissions();
 const { t } = useTranslations();
 
 
@@ -70,7 +70,7 @@ const deleteUser = (id) => {
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
                         <Link 
-                            v-if="can('edit users')"
+                            v-if="hasRole('super-admin')"
                             :href="`/users/${user.id}/edit`" 
                             class="inline-flex items-center justify-center px-4 py-2.5 bg-white/20 backdrop-blur-sm text-white font-medium text-sm rounded-xl hover:bg-white/30 transition-all duration-200 border border-white/30"
                         >
@@ -80,7 +80,7 @@ const deleteUser = (id) => {
                             Edit {{ t('messages.users') }}
                         </Link>
                         <button 
-                            v-if="can('delete users')"
+                            v-if="hasRole('super-admin')"
                             @click="deleteUser(user.id)" 
                             class="inline-flex items-center justify-center px-4 py-2.5 bg-red-500/80 backdrop-blur-sm text-white font-medium text-sm rounded-xl hover:bg-red-600/80 transition-all duration-200 border border-red-400/50"
                         >

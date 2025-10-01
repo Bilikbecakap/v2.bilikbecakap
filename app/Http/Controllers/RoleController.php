@@ -96,7 +96,6 @@ class RoleController extends Controller implements HasMiddleware
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
             'permissions' => 'nullable|array',
-            'permissions.*' => 'exists:permissions,id'
         ]);
 
         DB::beginTransaction();
@@ -105,8 +104,11 @@ class RoleController extends Controller implements HasMiddleware
                 'name' => $validated['name'],
             ]);
 
+            // Sync permissions by name instead of ID
             if (isset($validated['permissions'])) {
                 $role->syncPermissions($validated['permissions']);
+            } else {
+                $role->syncPermissions([]);
             }
 
             DB::commit();

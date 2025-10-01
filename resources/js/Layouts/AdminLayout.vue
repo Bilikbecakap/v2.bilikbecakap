@@ -131,12 +131,13 @@ onUnmounted(() => {
                         <font-awesome-icon icon="tachometer-alt" class="w-5 h-5 mr-3 flex-shrink-0" />
                         <span v-if="showingSidebar">Dashboard</span>
                         </Link>
-                        <Link href="/data-master" @click="isMobile ? toggleSidebar() : null" :class="[
-                            'group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 border',
-                            $page.url === '#'
-                                ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
-                                : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
-                        ]" :title="!showingSidebar ? 'Data Master' : ''">
+                        <Link v-if="can('view data master')" href="/data-master"
+                            @click="isMobile ? toggleSidebar() : null" :class="[
+                                'group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 border',
+                                $page.url.startsWith('/data-master') 
+                                    ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
+                                    : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
+                            ]" :title="!showingSidebar ? 'Data Master' : ''">
                         <font-awesome-icon icon="database" class="w-5 h-5 mr-3 flex-shrink-0" />
                         <span v-if="showingSidebar">Data Master</span>
                         </Link>

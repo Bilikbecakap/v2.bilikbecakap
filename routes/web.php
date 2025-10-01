@@ -48,25 +48,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // User Management
     Route::resource('users', UserController::class);
 
+    // Project Management
+
     // Role Management
     Route::resource('roles', RoleController::class);
 
     // Permission Management
-    Route::resource('permissions', PermissionController::class)
-        ->only(['index', 'create', 'store', 'destroy']);
+    Route::resource('permissions', PermissionController::class)->only(['index', 'create', 'store', 'destroy']);
 
-    Route::get('/activity-logs', [ActivityLogController::class, 'index'])
-        ->middleware('role:super-admin')
-        ->name('activity-logs.index');
-    
-    Route::get('/activity-logs/{activity}', [ActivityLogController::class, 'show'])
-        ->middleware('role:super-admin')
-        ->name('activity-logs.show');
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->middleware('role:super-admin')->name('activity-logs.index');
+    Route::get('/activity-logs/{activity}', [ActivityLogController::class, 'show'])->middleware('role:super-admin')->name('activity-logs.show');
 
     // Data Master Routes
-    Route::get('/data-master', function () {
-        return Inertia::render('DataMaster/Index');
-    })->name('data-master.index');
+    Route::get('/data-master', function () {return Inertia::render('DataMaster/Index');})->middleware('permission:view data master')->name('data-master.index');
 
 });
 

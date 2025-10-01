@@ -2,10 +2,13 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePermissions } from '@/composables/usePermissions';
+import { useTranslations } from '@/composables/useTranslations';
 
 const props = defineProps({
     permissions: Array,
 });
+
+const { t } = useTranslations();
 
 const { hasRole } = usePermissions();
 
@@ -26,8 +29,8 @@ const deletePermission = (id, name) => {
         <div class="mb-6 md:mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 dark:text-white">All Permissions</h2>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Manage system permissions (Super Admin Only)</p>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 dark:text-white">{{ t('messages.all_permissions') }}</h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">{{ t('messages.manage_permissions') }}</p>
                 </div>
                 <Link 
                     href="/permissions/create" 
@@ -44,7 +47,7 @@ const deletePermission = (id, name) => {
         <!-- Permissions Table -->
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Permissions List</h3>
+                <h3 class="text-lg font-semibold text-slate-800 dark:text-white">{{ t('messages.permissions_list') }}</h3>
             </div>
 
             <div class="overflow-x-auto">

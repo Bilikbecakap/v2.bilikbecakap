@@ -1,6 +1,7 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
+import { useTranslations } from '@/composables/useTranslations';
 
 const props = defineProps({
     permissions: Array,
@@ -14,6 +15,9 @@ const form = useForm({
 const submit = () => {
     form.post('/roles');
 };
+
+const { t } = useTranslations();
+
 </script>
 
 <template>
@@ -25,11 +29,11 @@ const submit = () => {
         <!-- Breadcrumb -->
         <div class="mb-6 md:mb-8">
             <nav class="flex items-center space-x-2 text-sm">
-                <Link href="/roles" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Roles</Link>
+                <Link href="/roles" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">{{ t('messages.roles') }}</Link>
                 <svg class="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
-                <span class="text-slate-900 dark:text-white font-medium">Create New Role</span>
+                <span class="text-slate-900 dark:text-white font-medium">{{ t('messages.create_new_role') }}</span>
             </nav>
         </div>
 
@@ -45,8 +49,8 @@ const submit = () => {
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Role Information</h3>
-                            <p class="text-sm text-slate-600 dark:text-slate-400">Create a new role with specific permissions</p>
+                            <h3 class="text-lg font-semibold text-slate-800 dark:text-white">{{ t('messages.role_information') }}</h3>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">{{ t('messages.fill_role') }}</p>
                         </div>
                     </div>
                 </div>
@@ -56,7 +60,7 @@ const submit = () => {
                     <!-- Role Name Field -->
                     <div>
                         <label for="name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Role Name
+                            {{ t('messages.roles') }} {{ t('messages.name') }}
                         </label>
                         <input
                             id="name"
@@ -74,7 +78,7 @@ const submit = () => {
                     <!-- Permissions Selection -->
                     <div>
                         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                            Permissions
+                            {{ t('messages.permissions') }}
                         </label>
                         <div v-if="permissions.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-80 overflow-y-auto border border-slate-200 dark:border-slate-600 rounded-xl p-4 bg-slate-50 dark:bg-slate-700/30">
                             <div v-for="permission in permissions" :key="permission.id" class="flex items-center p-3 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-200 bg-white dark:bg-slate-800">
@@ -107,7 +111,7 @@ const submit = () => {
                             href="/roles" 
                             class="inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-200"
                         >
-                            Cancel
+                            {{ t('messages.cancel') }}
                         </Link>
 
                         <button
@@ -116,7 +120,7 @@ const submit = () => {
                             class="inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-green-600 to-blue-600 text-white font-medium text-sm rounded-xl hover:from-green-700 hover:to-blue-700 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                         >
                             <span v-if="form.processing">Creating...</span>
-                            <span v-else>Create Role</span>
+                            <span v-else>{{ t('messages.create_role') }}</span>
                         </button>
                     </div>
                 </form>

@@ -1,6 +1,9 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
+import { useTranslations } from '@/composables/useTranslations';
+
+const { t } = useTranslations();
 
 const props = defineProps({
     role: Object,
@@ -26,11 +29,11 @@ const submit = () => {
         <!-- Breadcrumb -->
         <div class="mb-6 md:mb-8">
             <nav class="flex items-center space-x-2 text-sm">
-                <Link href="/roles" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Roles</Link>
+                <Link href="/roles" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">{{ t('messages.roles') }}</Link>
                 <svg class="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
-                <span class="text-slate-900 dark:text-white font-medium">Edit Role</span>
+                <span class="text-slate-900 dark:text-white font-medium">Edit {{ t('messages.roles') }}</span>
             </nav>
         </div>
 
@@ -46,7 +49,7 @@ const submit = () => {
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Edit Role Information</h3>
+                            <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Edit {{ t('messages.role_information') }}</h3>
                             <p class="text-sm text-slate-600 dark:text-slate-400">Update role details and permissions</p>
                         </div>
                     </div>

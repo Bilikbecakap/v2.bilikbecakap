@@ -62,6 +62,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/activity-logs/{activity}', [ActivityLogController::class, 'show'])
         ->middleware('role:super-admin')
         ->name('activity-logs.show');
+
+    // Data Master Routes
+    Route::get('/data-master', function () {
+        return Inertia::render('DataMaster/Index');
+    })->name('data-master.index');
+
 });
 
 /*

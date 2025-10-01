@@ -27,7 +27,10 @@ import {
     faUser,
     faMoon,   
     faSun,
-    faHome
+    faHome,
+    faDatabase,
+    faGlobe,
+    faCheck
 } from '@fortawesome/free-solid-svg-icons';
 
 // Add Font Awesome icons to the library
@@ -51,7 +54,10 @@ library.add(
     faUser,
     faMoon,   
     faSun,
-    faHome     
+    faHome,
+    faDatabase,
+    faGlobe,
+    faCheck
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

@@ -6,6 +6,7 @@ return [
     'users' => 'Users',
     'roles' => 'Roles',
     'permissions' => 'Permissions',
+    'activity_log' => 'Activity log',
     'settings' => 'Settings',
     'logout' => 'Logout',
     'login' => 'Login',
@@ -14,12 +15,18 @@ return [
     'all_roles' => 'All Roles',
     'all_permissions' => 'All Permissions',
 
+    'manage_roles' => 'Manage system roles and their permissions',
     'manage_users' => 'Manage system users and their permissions',
+    'manage_permissions' => 'Manage system permissions (Super Admin Only)',
     'total_users' => 'Total Users',
+    'total_roles' => 'Total Roles',
     'active_users' => 'Active Users',
     'with_roles' => 'With Roles',
     'users_list' => 'Users List',
+    'roles_list' => 'Roles List',
+    'permissions_list' => 'Permissions List',
     'create_user' => 'Create User',
+    'create_role' => 'Create Role',
 
     'name' => 'Name',
     'password' => 'Password',
@@ -34,9 +41,13 @@ return [
     'update' => 'Update',
 
     'add_new_user' => 'Add New User',
+    'add_new_role' => 'Add New Role',
     'create_new_user' => 'Create New User',
+    'create_new_role' => 'Create New Role',
     'user_information' => 'User Information',
+    'role_information' => 'Role Information',
     'fill_details' => 'Fill in the details for the new user',
+    'fill_role' => 'Create a new role with specific permissions',
     'blank_confirm' => 'Leave blank to keep current password',
 
 ];

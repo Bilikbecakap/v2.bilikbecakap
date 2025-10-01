@@ -2,12 +2,14 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePermissions } from '@/composables/usePermissions';
+import { useTranslations } from '@/composables/useTranslations';
 
 const props = defineProps({
     role: Object,
 });
 
 const { can } = usePermissions();
+const { t } = useTranslations();
 
 const deleteRole = (id) => {
     if (confirm('Are you sure you want to delete this role?')) {
@@ -25,7 +27,7 @@ const deleteRole = (id) => {
         <!-- Breadcrumb -->
         <div class="mb-6 md:mb-8">
             <nav class="flex items-center space-x-2 text-sm">
-                <Link href="/roles" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Roles</Link>
+                <Link href="/roles" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">{{ t('messages.roles') }}</Link>
                 <svg class="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
@@ -44,14 +46,14 @@ const deleteRole = (id) => {
                     </div>
                     <div class="flex-1">
                         <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">{{ role.name }}</h2>
-                        <p class="text-green-100 text-lg">Role ID: {{ role.id }}</p>
+                        <p class="text-green-100 text-lg">{{ t('messages.roles') }} ID: {{ role.id }}</p>
                         <div class="flex items-center mt-3">
                             <span v-if="role.permissions && role.permissions.length > 0" 
                                   class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800">
                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                                 </svg>
-                                {{ role.permissions.length }} Permissions
+                                {{ role.permissions.length }} {{ t('messages.permissions') }}
                             </span>
                             <span v-else 
                                   class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800">
@@ -94,7 +96,7 @@ const deleteRole = (id) => {
             <div class="lg:col-span-2">
                 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
                     <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                        <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Role Information</h3>
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-white">{{ t('messages.role_information') }}</h3>
                     </div>
                     <div class="p-6">
                         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">

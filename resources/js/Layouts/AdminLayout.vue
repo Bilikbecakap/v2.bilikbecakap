@@ -10,6 +10,7 @@ const showingSidebar = ref(false);
 const isMobile = ref(false);
 const showSettingsMenu = ref(true);
 const showUserDropdown = ref(false);
+const showLanguageDropdown = ref(false);
 const page = usePage();
 
 const user = page.props.auth.user;
@@ -17,8 +18,16 @@ const { can, hasRole } = usePermissions();
 const { t, locale } = useTranslations();
 const { isDark, toggleDarkMode, initTheme } = useDarkMode();
 
+// Language options
+const languages = {
+    id: { name: 'Bahasa Indonesia' },
+    en: { name: 'English' },
+    mb: { name: 'Bahasa Melayu' }
+};
+
 // Function switch language
 const switchLanguage = (newLocale) => {
+    showLanguageDropdown.value = false;
     router.visit(`/language/${newLocale}`, {
         preserveState: false,
         preserveScroll: true,
@@ -32,6 +41,10 @@ const toggleSettingsMenu = () => {
 
 const toggleUserDropdown = () => {
     showUserDropdown.value = !showUserDropdown.value;
+};
+
+const toggleLanguageDropdown = () => {
+    showLanguageDropdown.value = !showLanguageDropdown.value;
 };
 
 const checkMobile = () => {
@@ -55,12 +68,15 @@ const closeSidebarOnMobile = (event) => {
 
 // Close dropdown when clicking outside
 onMounted(() => {
-    initTheme(); // Initialize theme
+    initTheme();
     checkMobile();
     window.addEventListener('resize', checkMobile);
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.user-dropdown-container')) {
             showUserDropdown.value = false;
+        }
+        if (!e.target.closest('.language-dropdown-container')) {
+            showLanguageDropdown.value = false;
         }
     });
 });
@@ -115,6 +131,15 @@ onUnmounted(() => {
                         <font-awesome-icon icon="tachometer-alt" class="w-5 h-5 mr-3 flex-shrink-0" />
                         <span v-if="showingSidebar">Dashboard</span>
                         </Link>
+                        <Link href="/data-master" @click="isMobile ? toggleSidebar() : null" :class="[
+                            'group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 border',
+                            $page.url === '#'
+                                ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
+                                : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
+                        ]" :title="!showingSidebar ? 'Data Master' : ''">
+                        <font-awesome-icon icon="database" class="w-5 h-5 mr-3 flex-shrink-0" />
+                        <span v-if="showingSidebar">Data Master</span>
+                        </Link>
                     </div>
 
                     <!-- Settings Section -->
@@ -131,7 +156,7 @@ onUnmounted(() => {
                                         : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
                                 ]" :title="!showingSidebar ? 'Users' : ''">
                             <font-awesome-icon icon="users" class="w-5 h-5 mr-3 flex-shrink-0" />
-                            <span v-if="showingSidebar">Users</span>
+                            <span v-if="showingSidebar">{{ t('messages.users') }}</span>
                             </Link>
 
                             <Link v-if="can('view roles')" href="/roles" @click="isMobile ? toggleSidebar() : null"
@@ -142,7 +167,7 @@ onUnmounted(() => {
                                         : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
                                 ]" :title="!showingSidebar ? 'Roles' : ''">
                             <font-awesome-icon icon="shield-alt" class="w-5 h-5 mr-3 flex-shrink-0" />
-                            <span v-if="showingSidebar">Roles</span>
+                            <span v-if="showingSidebar">{{ t('messages.roles') }}</span>
                             </Link>
 
                             <Link v-if="hasRole('super-admin')" href="/permissions"
@@ -153,7 +178,7 @@ onUnmounted(() => {
                                         : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
                                 ]" :title="!showingSidebar ? 'Permissions' : ''">
                             <font-awesome-icon icon="lock" class="w-5 h-5 mr-3 flex-shrink-0" />
-                            <span v-if="showingSidebar">Permissions</span>
+                            <span v-if="showingSidebar">{{ t('messages.permissions') }}</span>
                             </Link>
 
                             <Link v-if="hasRole('super-admin')" href="/activity-logs"
@@ -164,17 +189,12 @@ onUnmounted(() => {
                                         : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
                                 ]" :title="!showingSidebar ? 'Activity Logs' : ''">
                             <font-awesome-icon icon="history" class="w-5 h-5 mr-3 flex-shrink-0" />
-                            <span v-if="showingSidebar">Activity Logs</span>
+                            <span v-if="showingSidebar">{{ t('messages.activity_log') }}</span>
                             </Link>
-
-
-                            
-
                         </div>
                     </div>
                 </nav>
 
-                <!--  (Bottom) -->
                 <!-- Back to Home Button (Bottom) -->
                 <div v-if="showingSidebar" class="p-4 border-t border-slate-100 dark:border-slate-700">
                     <a href="/"
@@ -205,21 +225,40 @@ onUnmounted(() => {
                         </button>
                     </div>
 
-                    <div class="flex items-center space-x-3">
+                    <div class="flex items-center space-x-2">
                         <!-- Dark Mode Toggle -->
                         <button @click="toggleDarkMode"
                             class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all duration-200">
-                            <font-awesome-icon :icon="isDark ? 'sun' : 'moon'" class="h-5 w-5" />
+                            <font-awesome-icon :icon="isDark ? 'sun' : 'moon'" class="h-4 w-4" />
                         </button>
 
                         <!-- Language Switcher Dropdown -->
-                        <div class="relative mr-3">
-                            <select :value="locale" @change="switchLanguage($event.target.value)"
-                                class="appearance-none bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm rounded-lg px-4 py-2 pr-8 hover:border-slate-400 dark:hover:border-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer">
-                                <option value="id">Bahasa Indonesia</option>
-                                <option value="en">English</option>
-                                <option value="mb">Bahasa Melayu</option>
-                            </select>
+                        <div class="relative language-dropdown-container">
+                            <button @click="toggleLanguageDropdown"
+                                class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                <font-awesome-icon icon="globe" class="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                <span class="text-sm font-medium text-slate-700 dark:text-slate-200 hidden md:inline">
+                                    {{ languages[locale].name }}
+                                </span>
+                                <font-awesome-icon icon="chevron-down"
+                                    class="w-3 h-3 text-slate-500 dark:text-slate-400" />
+                            </button>
+
+                            <!-- Language Dropdown Menu -->
+                            <div v-if="showLanguageDropdown"
+                                class="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 py-1 z-50">
+                                <button v-for="(lang, code) in languages" :key="code" @click="switchLanguage(code)"
+                                    :class="[
+                                        'flex items-center justify-between w-full px-4 py-2.5 text-sm transition-colors',
+                                        locale === code
+                                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'
+                                    ]">
+                                    <span>{{ lang.name }}</span>
+                                    <font-awesome-icon v-if="locale === code" icon="check"
+                                        class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                </button>
+                            </div>
                         </div>
 
                         <!-- User Dropdown -->

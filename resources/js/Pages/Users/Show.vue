@@ -29,7 +29,7 @@ const deleteUser = (id) => {
         <!-- Breadcrumb -->
         <div class="mb-6 md:mb-8">
             <nav class="flex items-center space-x-2 text-sm">
-                <Link href="/users" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Users</Link>
+                <Link href="/users" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">{{ t('messages.users') }}</Link>
                 <svg class="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
@@ -77,7 +77,7 @@ const deleteUser = (id) => {
                             <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
-                            Edit User
+                            Edit {{ t('messages.users') }}
                         </Link>
                         <button 
                             v-if="can('delete users')"
@@ -87,7 +87,7 @@ const deleteUser = (id) => {
                             <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
-                            Delete
+                            {{ t('messages.delete') }}
                         </button>
                     </div>
                 </div>
@@ -158,7 +158,7 @@ const deleteUser = (id) => {
             <div>
                 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
                     <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                        <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Roles & Permissions</h3>
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-white">{{ t('messages.roles') }} & {{ t('messages.permissions') }}</h3>
                     </div>
                     <div class="p-6">
                         <div v-if="user.roles && user.roles.length > 0">

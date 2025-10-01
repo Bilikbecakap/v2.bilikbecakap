@@ -2,6 +2,7 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePermissions } from '@/composables/usePermissions';
+import { useTranslations } from '@/composables/useTranslations';
 
 
 const props = defineProps({
@@ -9,6 +10,7 @@ const props = defineProps({
 });
 
 const { can } = usePermissions();
+const { t } = useTranslations();
 
 
 const deleteUser = (id) => {
@@ -98,7 +100,7 @@ const deleteUser = (id) => {
             <div class="lg:col-span-2">
                 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
                     <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                        <h3 class="text-lg font-semibold text-slate-800 dark:text-white">User Information</h3>
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-white">{{ t('messages.user_information') }}</h3>
                     </div>
                     <div class="p-6">
                         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">

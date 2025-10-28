@@ -40,7 +40,7 @@ class PermissionController extends Controller implements HasMiddleware
                 'string', 
                 'max:255', 
                 'unique:permissions',
-                'regex:/^(view|create|edit|delete)\s[a-z\s]+$/', // Format: view blogs, create users, dll
+                'regex:/^(view|create|edit|delete|validasi)\s[a-z\s]+$/',
             ],
         ], [
             'name.regex' => 'Permission format must be: action + resource (e.g., "view blogs", "create users")',

@@ -27,9 +27,19 @@ class AdminKamusController extends Controller implements HasMiddleware
     {
         $query = Kamus::with(['creator', 'updater']);
 
-        // Filter berdasarkan huruf A-Z jika ada parameter
-        if ($request->has('letter') && $request->letter !== '') {
-            $query->where('bahasa_melayu', 'LIKE', $request->letter . '%');
+        // Filter berdasarkan search (bahasa_melayu atau bahasa_indonesia)
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('bahasa_melayu', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('bahasa_indonesia', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('keterangan', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        // Filter berdasarkan status - menggunakan filled() untuk memastikan nilai tidak kosong
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
         // Sorting berdasarkan parameter
@@ -37,20 +47,34 @@ class AdminKamusController extends Controller implements HasMiddleware
             $direction = $request->direction === 'asc' ? 'asc' : 'desc';
             $query->orderBy('created_at', $direction);
         } else {
-            // Default sorting
+            // Default sorting - prioritas status menunggu, kemudian alfabetis
             $query->orderByRaw('CASE WHEN status = 3 THEN 0 ELSE 1 END')
                 ->orderBy('bahasa_melayu', 'asc');
         }
 
         $kamus = $query->paginate(15)->appends($request->query());
-        $letters = range('A', 'Z');
+
+        // Tambahkan informasi permission dan ownership
+        $currentUserId = auth()->id();
+        $hasValidationPermission = auth()->user()->can('validasi kamus');
+
+        // Transform data untuk menambahkan informasi ownership
+        $kamusData = $kamus->getCollection()->map(function ($item) use ($currentUserId, $hasValidationPermission) {
+            $item->can_edit = $hasValidationPermission || $item->create_by == $currentUserId;
+            $item->can_delete = $hasValidationPermission || $item->create_by == $currentUserId;
+            return $item;
+        });
+
+        $kamus->setCollection($kamusData);
 
         return Inertia::render('Kamus/Index', [
             'kamus' => $kamus,
-            'letters' => $letters,
-            'selectedLetter' => $request->letter,
+            'search' => $request->search,
+            'status' => $request->status,
             'sort' => $request->sort,
-            'direction' => $request->direction
+            'direction' => $request->direction,
+            'hasValidationPermission' => $hasValidationPermission,
+            'currentUserId' => $currentUserId
         ]);
     }
 
@@ -64,8 +88,17 @@ class AdminKamusController extends Controller implements HasMiddleware
         $request->validate([
             'bahasa_melayu' => 'required|string|max:255',
             'bahasa_indonesia' => 'required|string|max:255',
-            'audio' => 'nullable|file|mimes:mp3,wav,ogg|max:10240',
+            'audio' => 'nullable|file|mimes:mp3,wav,ogg,m4a,webm,mp4,mpeg,x-wav,wave|max:10240',
             'keterangan' => 'nullable|string|max:1000',
+        ], [
+            'bahasa_melayu.required' => 'Bahasa Melayu wajib diisi.',
+            'bahasa_melayu.max' => 'Bahasa Melayu maksimal 255 karakter.',
+            'bahasa_indonesia.required' => 'Bahasa Indonesia wajib diisi.',
+            'bahasa_indonesia.max' => 'Bahasa Indonesia maksimal 255 karakter.',
+            'audio.file' => 'File audio tidak valid.',
+            'audio.mimes' => 'Format audio harus MP3, WAV, OGG, M4A, atau WEBM.',
+            'audio.max' => 'Ukuran file audio maksimal 10MB.',
+            'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
         ]);
 
         DB::beginTransaction();
@@ -110,6 +143,14 @@ class AdminKamusController extends Controller implements HasMiddleware
 
     public function edit(Kamus $kamus)
     {
+        // Cek apakah user bisa mengedit data ini
+        $hasValidationPermission = auth()->user()->can('validasi kamus');
+        $isOwner = $kamus->create_by == auth()->id();
+
+        if (!$hasValidationPermission && !$isOwner) {
+            return back()->withErrors(['error' => 'Anda tidak memiliki izin untuk mengedit kamus ini.']);
+        }
+
         return Inertia::render('Kamus/Edit', [
             'kamus' => $kamus
         ]);
@@ -117,17 +158,32 @@ class AdminKamusController extends Controller implements HasMiddleware
 
     public function update(Request $request, Kamus $kamus)
     {
+        // Cek apakah user bisa mengedit data ini
+        $hasValidationPermission = auth()->user()->can('validasi kamus');
+        $isOwner = $kamus->create_by == auth()->id();
+
+        if (!$hasValidationPermission && !$isOwner) {
+            return back()->withErrors(['error' => 'Anda tidak memiliki izin untuk mengedit kamus ini.']);
+        }
+
         $request->validate([
             'bahasa_melayu' => 'required|string|max:255',
             'bahasa_indonesia' => 'required|string|max:255',
-            'audio' => 'nullable|file|mimes:mp3,wav,ogg|max:10240',
+            'audio' => 'nullable|file|mimes:mp3,wav,ogg,m4a,webm,mp4,mpeg,x-wav,wave|max:10240',
             'keterangan' => 'nullable|string|max:1000',
+        ], [
+            'bahasa_melayu.required' => 'Bahasa Melayu wajib diisi.',
+            'bahasa_melayu.max' => 'Bahasa Melayu maksimal 255 karakter.',
+            'bahasa_indonesia.required' => 'Bahasa Indonesia wajib diisi.',
+            'bahasa_indonesia.max' => 'Bahasa Indonesia maksimal 255 karakter.',
+            'audio.file' => 'File audio tidak valid.',
+            'audio.mimes' => 'Format audio harus MP3, WAV, OGG, M4A, atau WEBM.',
+            'audio.max' => 'Ukuran file audio maksimal 10MB.',
+            'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
         ]);
 
         DB::beginTransaction();
         try {
-            $hasValidationPermission = auth()->user()->can('validasi kamus');
-            
             if (!$hasValidationPermission && $kamus->status == 1) {
                 $status = 3;
             } elseif ($hasValidationPermission) {
@@ -140,12 +196,21 @@ class AdminKamusController extends Controller implements HasMiddleware
             $data['status'] = $status;
             $data['update_by'] = auth()->id();
 
+            // Handle audio upload/removal
             if ($request->hasFile('audio')) {
+                // Remove old audio if exists
                 if ($kamus->audio) {
                     Storage::disk('public')->delete($kamus->audio);
                 }
+                // Upload new audio
                 $audioPath = $request->file('audio')->store('kamus-audio', 'public');
                 $data['audio'] = $audioPath;
+            } elseif ($request->has('audio') && $request->audio === null) {
+                // Remove existing audio if explicitly set to null
+                if ($kamus->audio) {
+                    Storage::disk('public')->delete($kamus->audio);
+                }
+                $data['audio'] = null;
             }
 
             $kamus->update($data);
@@ -156,7 +221,8 @@ class AdminKamusController extends Controller implements HasMiddleware
                 ->withProperties([
                     'old_status' => $kamus->getOriginal('status'),
                     'new_status' => $status,
-                    'has_validation_permission' => $hasValidationPermission
+                    'has_validation_permission' => $hasValidationPermission,
+                    'is_owner' => $isOwner
                 ])
                 ->log('Updated kamus entry');
 
@@ -179,7 +245,14 @@ class AdminKamusController extends Controller implements HasMiddleware
         DB::beginTransaction();
         try {
             $hasValidationPermission = auth()->user()->can('validasi kamus');
-            
+            $isOwner = $kamus->create_by == auth()->id();
+
+            // Cek permission: harus punya validasi permission ATAU owner dari data
+            if (!$hasValidationPermission && !$isOwner) {
+                return back()->withErrors(['error' => 'Anda tidak memiliki izin untuk menghapus kamus ini.']);
+            }
+
+            // User biasa tidak bisa menghapus kamus yang sudah aktif (kecuali punya permission validasi)
             if (!$hasValidationPermission && $kamus->status == 1) {
                 return back()->withErrors(['error' => 'Anda tidak dapat menghapus kamus yang sudah aktif.']);
             }
@@ -191,7 +264,11 @@ class AdminKamusController extends Controller implements HasMiddleware
             activity()
                 ->causedBy(auth()->user())
                 ->performedOn($kamus)
-                ->withProperties(['deleted_kamus' => $kamus->toArray()])
+                ->withProperties([
+                    'deleted_kamus' => $kamus->toArray(),
+                    'has_validation_permission' => $hasValidationPermission,
+                    'is_owner' => $isOwner
+                ])
                 ->log('Deleted kamus entry');
 
             $kamus->delete();
@@ -204,11 +281,6 @@ class AdminKamusController extends Controller implements HasMiddleware
             DB::rollBack();
             return back()->withErrors(['error' => 'Gagal menghapus kamus: ' . $e->getMessage()]);
         }
-    }
-
-    public function validate()
-    {
-        //
     }
 
     public function approve(Kamus $kamus)

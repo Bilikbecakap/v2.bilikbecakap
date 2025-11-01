@@ -12,7 +12,8 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdminKamusController; 
 use App\Http\Controllers\TranslateController;
-use App\Http\Controllers\MasterArtikelController;  
+use App\Http\Controllers\MasterArtikelController;
+use App\Http\Controllers\ArtikelController;  
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -86,6 +87,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/kamus/bulk-delete', [AdminKamusController::class, 'bulkDelete'])->name('kamus.bulk-delete');
         Route::post('/kamus/bulk-approve', [AdminKamusController::class, 'bulkApprove'])->name('kamus.bulk-approve');
         Route::post('/kamus/bulk-reject', [AdminKamusController::class, 'bulkReject'])->name('kamus.bulk-reject');
+
+        // Artikel Management
+        Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
+        Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('artikel.create');
+        Route::post('/artikel', [ArtikelController::class, 'store'])->name('artikel.store');
+        Route::get('/artikel/{artikel}', [ArtikelController::class, 'show'])->name('artikel.show');
+        Route::get('/artikel/{artikel}/edit', [ArtikelController::class, 'edit'])->name('artikel.edit');
+        Route::put('/artikel/{artikel}', [ArtikelController::class, 'update'])->name('artikel.update');
+        Route::delete('/artikel/{artikel}', [ArtikelController::class, 'destroy'])->name('artikel.destroy');
+        Route::patch('/artikel/{artikel}/approve', [ArtikelController::class, 'approve'])->name('artikel.approve');
+        Route::patch('/artikel/{artikel}/reject', [ArtikelController::class, 'reject'])->name('artikel.reject');
+        Route::post('/artikel/upload-image', [ArtikelController::class, 'uploadImage'])->name('artikel.upload-image');
+
     });
     // Translate Management
     Route::get('/translate-test', [TranslateController::class, 'index'])->name('translate.index');

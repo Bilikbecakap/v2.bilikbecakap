@@ -21,9 +21,16 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
+        "@ckeditor/ckeditor5-build-classic": "^41.4.2",
+        "@ckeditor/ckeditor5-vue": "^7.3.0",
         "@fortawesome/fontawesome-svg-core": "^7.0.1",
         "@fortawesome/free-solid-svg-icons": "^7.0.1",
         "@fortawesome/vue-fontawesome": "^3.1.2",
-        "@heroicons/vue": "^2.2.0"
+        "@heroicons/vue": "^2.2.0",
+        "@tinymce/tinymce-vue": "^6.3.0",
+        "@vueup/vue-quill": "^1.2.0",
+        "quill": "^2.0.3",
+        "tinymce": "^8.2.0",
+        "vue-quill-editor": "^3.0.6"
     }
 }

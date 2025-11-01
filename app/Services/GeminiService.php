@@ -406,4 +406,32 @@ class GeminiService
             'sample_data' => $data
         ];
     }
+
+    public function translateToEnglish($text)
+    {
+        $prompt = "Translate this Indonesian text to English. Only return the translation, no explanation: \"{$text}\"";
+        
+        $response = Http::timeout(30)->post($this->apiUrl . '?key=' . $this->apiKey, [
+            'contents' => [
+                [
+                    'parts' => [
+                        ['text' => $prompt]
+                    ]
+                ]
+            ]
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            $translation = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            
+            return [
+                'success' => true,
+                'translation' => trim($translation)
+            ];
+        }
+        
+        return ['success' => false, 'error' => 'Translation failed'];
+    }
+
 }

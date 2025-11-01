@@ -127,7 +127,7 @@ class TranslateController extends Controller implements HasMiddleware
     public function translate(Request $request)
     {
         $request->validate([
-            'text' => 'required|string|max:1000',
+            'text' => 'required|string',
             'direction' => 'required|in:melayu_to_indonesia,indonesia_to_melayu',
             'method' => 'required|in:hybrid,rule_based',
         ], [
@@ -617,68 +617,35 @@ class TranslateController extends Controller implements HasMiddleware
         }
     }
 
-    public function batchTranslate(Request $request)
+    public function translateToEnglish(Request $request)
     {
         $request->validate([
-            'texts' => 'required|array|max:10',
-            'texts.*' => 'required|string|max:500',
-            'direction' => 'required|in:melayu_to_indonesia,indonesia_to_melayu',
-            'method' => 'required|in:hybrid,rule_based',
+            'text' => 'required|string',
         ]);
 
         try {
-            $results = [];
-            $totalTime = 0;
-
-            foreach ($request->texts as $index => $text) {
-                $startTime = microtime(true);
-                
-                if ($request->method === 'hybrid') {
-                    $result = $this->translateHybrid($text, $request->direction);
-                } else {
-                    $result = $this->translateRuleBased($text, $request->direction);
-                }
-                
-                $endTime = microtime(true);
-                $processingTime = round(($endTime - $startTime) * 1000, 2);
-                $totalTime += $processingTime;
-
-                $results[] = [
-                    'index' => $index + 1,
-                    'input' => $text,
-                    'success' => $result['success'],
-                    'translation' => $result['translation'] ?? null,
-                    'method' => $result['method'] ?? null,
-                    'confidence' => $result['confidence'] ?? null,
-                    'processing_time_ms' => $processingTime,
-                    'word_count' => str_word_count(trim($text)),
-                    'error' => $result['error'] ?? null,
-                    'ai_used' => $result['ai_used'] ?? false,
-                    'translation_rate' => $result['translation_rate'] ?? null,
-                ];
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'results' => $results,
-                    'summary' => [
-                        'total_texts' => count($request->texts),
-                        'successful' => count(array_filter($results, fn($r) => $r['success'])),
-                        'failed' => count(array_filter($results, fn($r) => !$r['success'])),
-                        'total_time_ms' => $totalTime,
-                        'average_time_ms' => round($totalTime / count($request->texts), 2),
-                        'selected_method' => $request->method,
-                        'ai_usage_count' => count(array_filter($results, fn($r) => $r['ai_used'] ?? false)),
+            $result = $this->geminiService->translateToEnglish($request->text);
+            
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'translation' => $result['translation']
                     ]
-                ]
-            ]);
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['error']
+                ], 422);
+            }
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan sistem saat batch translate.',
+                'message' => 'Terjadi kesalahan sistem.'
             ], 500);
         }
     }
+
 }

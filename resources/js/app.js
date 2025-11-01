@@ -6,6 +6,8 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { library } from '@fortawesome/fontawesome-svg-core';
+import Toast from "vue-toastification";
+import "vue-toastification/dist/index.css";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { 
     faTachometerAlt, 
@@ -92,4 +94,10 @@ createInertiaApp({
     progress: {
         color: '#4B5563',
     },
+});
+
+app.use(Toast, {
+  transition: "Vue-Toastification__bounce",
+  maxToasts: 3,
+  newestOnTop: true
 });

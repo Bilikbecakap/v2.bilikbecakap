@@ -104,6 +104,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Translate Management
     Route::get('/translate-test', [TranslateController::class, 'index'])->name('translate.index');
     Route::post('/translate-test/process', [TranslateController::class, 'translate'])->name('translate.process');
+    Route::post('/translate-to-english', [TranslateController::class, 'translateToEnglish'])->name('translate.to-english');
     
     // Translate Management - Routes tambahan baru
     Route::get('/translate-test/connection', [TranslateController::class, 'testConnection'])->name('translate.test-connection');

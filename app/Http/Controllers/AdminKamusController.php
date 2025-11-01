@@ -18,8 +18,8 @@ class AdminKamusController extends Controller implements HasMiddleware
             new Middleware('permission:view kamus', only: ['index']),
             new Middleware('permission:create kamus', only: ['create', 'store']),
             new Middleware('permission:edit kamus', only: ['edit', 'update']),
-            new Middleware('permission:delete kamus', only: ['destroy']),
-            new Middleware('permission:validasi kamus', only: ['validate', 'approve', 'reject']),
+            new Middleware('permission:delete kamus', only: ['destroy', 'bulkDelete']),
+            new Middleware('permission:validasi kamus', only: ['validate', 'approve', 'reject', 'bulkApprove', 'bulkReject']),
         ];
     }
 
@@ -324,6 +324,180 @@ class AdminKamusController extends Controller implements HasMiddleware
             DB::commit();
 
             return back()->with('success', 'Kamus berhasil ditolak.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal menolak kamus: ' . $e->getMessage()]);
+        }
+    }
+
+    // BULK ACTION METHODS
+    
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:kamus,id'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $currentUserId = auth()->id();
+            $hasValidationPermission = auth()->user()->can('validasi kamus');
+
+            // Get the kamus records with validation
+            $kamusRecords = Kamus::whereIn('id', $request->ids)->get();
+            
+            $deletedCount = 0;
+            $skippedCount = 0;
+            $errors = [];
+
+            foreach ($kamusRecords as $kamus) {
+                $isOwner = $kamus->create_by == $currentUserId;
+                
+                // Check permissions
+                if (!$hasValidationPermission && !$isOwner) {
+                    $skippedCount++;
+                    $errors[] = "Tidak memiliki izin untuk menghapus '{$kamus->bahasa_melayu}'";
+                    continue;
+                }
+
+                // User biasa tidak bisa menghapus kamus yang sudah aktif
+                if (!$hasValidationPermission && $kamus->status == 1) {
+                    $skippedCount++;
+                    $errors[] = "Tidak dapat menghapus '{$kamus->bahasa_melayu}' karena sudah aktif";
+                    continue;
+                }
+
+                try {
+                    // Delete audio file if exists
+                    if ($kamus->audio) {
+                        Storage::disk('public')->delete($kamus->audio);
+                    }
+
+                    activity()
+                        ->causedBy(auth()->user())
+                        ->performedOn($kamus)
+                        ->withProperties([
+                            'deleted_kamus' => $kamus->toArray(),
+                            'bulk_action' => true,
+                            'has_validation_permission' => $hasValidationPermission,
+                            'is_owner' => $isOwner
+                        ])
+                        ->log('Bulk deleted kamus entry');
+
+                    $kamus->delete();
+                    $deletedCount++;
+
+                } catch (\Exception $e) {
+                    $skippedCount++;
+                    $errors[] = "Gagal menghapus '{$kamus->bahasa_melayu}': " . $e->getMessage();
+                }
+            }
+
+            DB::commit();
+
+            // Prepare response message
+            $message = "Berhasil menghapus {$deletedCount} kamus.";
+            if ($skippedCount > 0) {
+                $message .= " {$skippedCount} kamus dilewati.";
+            }
+
+            if (!empty($errors) && count($errors) <= 5) {
+                $message .= " Error: " . implode(', ', $errors);
+            } elseif (!empty($errors)) {
+                $message .= " Ada " . count($errors) . " error saat menghapus.";
+            }
+
+            return back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal menghapus kamus: ' . $e->getMessage()]);
+        }
+    }
+
+    public function bulkApprove(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:kamus,id'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Get kamus records with status 3 (pending)
+            $kamusRecords = Kamus::whereIn('id', $request->ids)
+                ->where('status', 3)
+                ->get();
+
+            if ($kamusRecords->isEmpty()) {
+                return back()->withErrors(['error' => 'Tidak ada kamus dengan status menunggu yang dipilih.']);
+            }
+
+            $approvedCount = 0;
+            foreach ($kamusRecords as $kamus) {
+                $kamus->update([
+                    'status' => 1,
+                    'update_by' => auth()->id(),
+                ]);
+
+                activity()
+                    ->causedBy(auth()->user())
+                    ->performedOn($kamus)
+                    ->withProperties(['bulk_action' => true])
+                    ->log('Bulk approved kamus entry');
+
+                $approvedCount++;
+            }
+
+            DB::commit();
+
+            return back()->with('success', "Berhasil menyetujui {$approvedCount} kamus.");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal menyetujui kamus: ' . $e->getMessage()]);
+        }
+    }
+
+    public function bulkReject(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:kamus,id'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Get kamus records with status 3 (pending)
+            $kamusRecords = Kamus::whereIn('id', $request->ids)
+                ->where('status', 3)
+                ->get();
+
+            if ($kamusRecords->isEmpty()) {
+                return back()->withErrors(['error' => 'Tidak ada kamus dengan status menunggu yang dipilih.']);
+            }
+
+            $rejectedCount = 0;
+            foreach ($kamusRecords as $kamus) {
+                $kamus->update([
+                    'status' => 2,
+                    'update_by' => auth()->id(),
+                ]);
+
+                activity()
+                    ->causedBy(auth()->user())
+                    ->performedOn($kamus)
+                    ->withProperties(['bulk_action' => true])
+                    ->log('Bulk rejected kamus entry');
+
+                $rejectedCount++;
+            }
+
+            DB::commit();
+
+            return back()->with('success', "Berhasil menolak {$rejectedCount} kamus.");
 
         } catch (\Exception $e) {
             DB::rollBack();

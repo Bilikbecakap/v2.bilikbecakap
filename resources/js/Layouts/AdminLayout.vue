@@ -132,7 +132,7 @@ onUnmounted(() => {
                         <span v-if="showingSidebar">Dashboard</span>
                         </Link>
                         <!-- Menu Kamus -->
-                        <Link v-if="can('view kamus')" href="/kamus" @click="isMobile ? toggleSidebar() : null" :class="[
+                        <Link v-if="can('view kamus')" href="/admin/kamus" @click="isMobile ? toggleSidebar() : null" :class="[
                             'group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 border',
                             $page.url.startsWith('/kamus')
                                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
@@ -140,6 +140,16 @@ onUnmounted(() => {
                         ]" :title="!showingSidebar ? 'Kamus' : ''">
                         <font-awesome-icon icon="book" class="w-5 h-5 mr-3 flex-shrink-0" />
                         <span v-if="showingSidebar">Kamus</span>
+                        </Link>
+                        <!-- Menu Translate -->
+                        <Link href="/translate-test" @click="isMobile ? toggleSidebar() : null" :class="[
+                            'group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 border',
+                            $page.url.startsWith('/translate')
+                                ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
+                                : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
+                        ]" :title="!showingSidebar ? 'Translate' : ''">
+                        <font-awesome-icon icon="language" class="w-5 h-5 mr-3 flex-shrink-0" />
+                        <span v-if="showingSidebar">Translate</span>
                         </Link>
                         <Link v-if="can('view data master')" href="/data-master"
                             @click="isMobile ? toggleSidebar() : null" :class="[

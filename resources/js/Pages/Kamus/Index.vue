@@ -2,7 +2,7 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePermissions } from '@/composables/usePermissions';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
     kamus: Object, // Changed from Array to Object for pagination
@@ -19,6 +19,11 @@ const { can } = usePermissions();
 // Local search state
 const searchQuery = ref(props.search || '');
 
+// Bulk action states
+const selectedItems = ref([]);
+const selectAll = ref(false);
+const showBulkActions = ref(false);
+
 // Computed untuk row numbers
 const getRowNumber = (index) => {
     const currentPage = props.kamus.current_page || 1;
@@ -26,21 +31,164 @@ const getRowNumber = (index) => {
     return (currentPage - 1) * perPage + index + 1;
 };
 
+// Computed untuk bulk actions
+const allItemsSelected = computed(() => {
+    return props.kamus.data && props.kamus.data.length > 0 && 
+           selectedItems.value.length === props.kamus.data.length;
+});
+
+const someItemsSelected = computed(() => {
+    return selectedItems.value.length > 0 && selectedItems.value.length < props.kamus.data.length;
+});
+
+const canDeleteSelected = computed(() => {
+    return selectedItems.value.every(id => {
+        const item = props.kamus.data.find(k => k.id === id);
+        return item && item.can_delete;
+    });
+});
+
+const selectedItemsInfo = computed(() => {
+    const items = selectedItems.value.map(id => 
+        props.kamus.data.find(k => k.id === id)
+    ).filter(Boolean);
+    
+    return {
+        total: items.length,
+        canDelete: items.filter(item => item.can_delete).length,
+        cannotDelete: items.filter(item => !item.can_delete).length,
+        activeItems: items.filter(item => item.status === 1).length,
+        pendingItems: items.filter(item => item.status === 3).length,
+        inactiveItems: items.filter(item => item.status === 2).length,
+    };
+});
+
+// Watch for selectAll changes
+watch(selectAll, (newVal) => {
+    if (newVal) {
+        selectedItems.value = props.kamus.data
+            .filter(item => item.can_delete)
+            .map(item => item.id);
+    } else {
+        selectedItems.value = [];
+    }
+});
+
+// Watch for selectedItems changes
+watch(selectedItems, (newVal) => {
+    selectAll.value = newVal.length > 0 && allItemsSelected.value;
+    showBulkActions.value = newVal.length > 0;
+}, { deep: true });
+
+// Bulk action functions
+const toggleSelectAll = () => {
+    selectAll.value = !selectAll.value;
+};
+
+const toggleSelectItem = (itemId) => {
+    const index = selectedItems.value.indexOf(itemId);
+    if (index > -1) {
+        selectedItems.value.splice(index, 1);
+    } else {
+        selectedItems.value.push(itemId);
+    }
+};
+
+const clearSelection = () => {
+    selectedItems.value = [];
+    selectAll.value = false;
+    showBulkActions.value = false;
+};
+
+const bulkDelete = () => {
+    if (selectedItems.value.length === 0) return;
+    
+    const itemsToDelete = selectedItems.value.map(id => 
+        props.kamus.data.find(k => k.id === id)
+    ).filter(Boolean);
+    
+    const itemNames = itemsToDelete
+        .slice(0, 3)
+        .map(item => `"${item.bahasa_melayu}"`)
+        .join(', ');
+    
+    const moreItems = itemsToDelete.length > 3 ? ` dan ${itemsToDelete.length - 3} lainnya` : '';
+    
+    if (confirm(`Apakah Anda yakin ingin menghapus ${selectedItems.value.length} kamus (${itemNames}${moreItems})?`)) {
+        router.post('/admin/kamus/bulk-delete', {
+            ids: selectedItems.value
+        }, {
+            onSuccess: () => {
+                clearSelection();
+            }
+        });
+    }
+};
+
+const bulkApprove = () => {
+    if (selectedItems.value.length === 0) return;
+    
+    const pendingItems = selectedItems.value.filter(id => {
+        const item = props.kamus.data.find(k => k.id === id);
+        return item && item.status === 3;
+    });
+    
+    if (pendingItems.length === 0) {
+        alert('Tidak ada kamus dengan status menunggu yang dipilih.');
+        return;
+    }
+    
+    if (confirm(`Apakah Anda yakin ingin menyetujui ${pendingItems.length} kamus yang dipilih?`)) {
+        router.post('/admin/kamus/bulk-approve', {
+            ids: pendingItems
+        }, {
+            onSuccess: () => {
+                clearSelection();
+            }
+        });
+    }
+};
+
+const bulkReject = () => {
+    if (selectedItems.value.length === 0) return;
+    
+    const pendingItems = selectedItems.value.filter(id => {
+        const item = props.kamus.data.find(k => k.id === id);
+        return item && item.status === 3;
+    });
+    
+    if (pendingItems.length === 0) {
+        alert('Tidak ada kamus dengan status menunggu yang dipilih.');
+        return;
+    }
+    
+    if (confirm(`Apakah Anda yakin ingin menolak ${pendingItems.length} kamus yang dipilih?`)) {
+        router.post('/admin/kamus/bulk-reject', {
+            ids: pendingItems
+        }, {
+            onSuccess: () => {
+                clearSelection();
+            }
+        });
+    }
+};
+
+// Individual action functions
 const deleteKamus = (id, bahasa_melayu) => {
     if (confirm(`Apakah Anda yakin ingin menghapus kamus "${bahasa_melayu}"?`)) {
-        router.delete(`/kamus/${id}`);
+        router.delete(`/admin/kamus/${id}`);
     }
 };
 
 const approveKamus = (id) => {
     if (confirm('Apakah Anda yakin ingin menyetujui kamus ini?')) {
-        router.patch(`/kamus/${id}/approve`);
+        router.patch(`/admin/kamus/${id}/approve`);
     }
 };
 
 const rejectKamus = (id) => {
     if (confirm('Apakah Anda yakin ingin menolak kamus ini?')) {
-        router.patch(`/kamus/${id}/reject`);
+        router.patch(`/admin/kamus/${id}/reject`);
     }
 };
 
@@ -148,6 +296,7 @@ const performSearch = () => {
 
 const clearFilters = () => {
     searchQuery.value = '';
+    clearSelection();
     router.get(route('kamus.index'), {}, {
         preserveState: true,
         preserveScroll: true,
@@ -201,7 +350,7 @@ const statusOptions = [
                 <div class="flex gap-3">
                     <Link 
                         v-if="can('create kamus')"
-                        href="/kamus/create" 
+                        href="/admin/kamus/create" 
                         class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-sm rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-sm hover:shadow-md"
                     >
                         <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -212,6 +361,106 @@ const statusOptions = [
                 </div>
             </div>
         </div>
+
+        <!-- Bulk Actions Bar -->
+        <Transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="transform opacity-0 -translate-y-2"
+            enter-to-class="transform opacity-100 translate-y-0"
+            leave-active-class="transition duration-150 ease-in"
+            leave-from-class="transform opacity-100 translate-y-0"
+            leave-to-class="transform opacity-0 -translate-y-2"
+        >
+            <div v-if="showBulkActions" class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                {{ selectedItemsInfo.total }} item dipilih
+                            </span>
+                        </div>
+                        
+                        <div v-if="selectedItemsInfo.cannotDelete > 0" class="text-xs text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-lg">
+                            {{ selectedItemsInfo.cannotDelete }} item tidak dapat dihapus
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <!-- Bulk Actions Buttons -->
+                        <div class="flex gap-2">
+                            <!-- Bulk Delete -->
+                            <button 
+                                v-if="can('delete kamus') && selectedItemsInfo.canDelete > 0"
+                                @click="bulkDelete"
+                                class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors duration-150"
+                                title="Hapus Terpilih"
+                            >
+                                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Hapus ({{ selectedItemsInfo.canDelete }})
+                            </button>
+
+                            <!-- Bulk Approve -->
+                            <button 
+                                v-if="can('validasi kamus') && selectedItemsInfo.pendingItems > 0"
+                                @click="bulkApprove"
+                                class="inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors duration-150"
+                                title="Setujui Terpilih"
+                            >
+                                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Setujui ({{ selectedItemsInfo.pendingItems }})
+                            </button>
+
+                            <!-- Bulk Reject -->
+                            <button 
+                                v-if="can('validasi kamus') && selectedItemsInfo.pendingItems > 0"
+                                @click="bulkReject"
+                                class="inline-flex items-center px-3 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30 rounded-lg hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors duration-150"
+                                title="Tolak Terpilih"
+                            >
+                                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                Tolak ({{ selectedItemsInfo.pendingItems }})
+                            </button>
+                        </div>
+
+                        <!-- Clear Selection -->
+                        <button 
+                            @click="clearSelection"
+                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-150"
+                            title="Batal Pilih"
+                        >
+                            <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Batal
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Selection Summary -->
+                <div v-if="selectedItemsInfo.total > 0" class="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        <span v-if="selectedItemsInfo.activeItems > 0" class="inline-flex items-center px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded">
+                            {{ selectedItemsInfo.activeItems }} Aktif
+                        </span>
+                        <span v-if="selectedItemsInfo.pendingItems > 0" class="inline-flex items-center px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded">
+                            {{ selectedItemsInfo.pendingItems }} Menunggu
+                        </span>
+                        <span v-if="selectedItemsInfo.inactiveItems > 0" class="inline-flex items-center px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 rounded">
+                            {{ selectedItemsInfo.inactiveItems }} Tidak Aktif
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </Transition>
 
         <!-- Filter Section -->
         <div class="mb-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -328,6 +577,18 @@ const statusOptions = [
                 <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                     <thead class="bg-slate-50 dark:bg-slate-800/50">
                         <tr>
+                            <!-- Bulk Select Header -->
+                            <th class="px-6 py-4 text-left w-12">
+                                <div class="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        :checked="allItemsSelected"
+                                        :indeterminate="someItemsSelected"
+                                        @change="toggleSelectAll"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    >
+                                </div>
+                            </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-16">No</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Bahasa Melayu</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-72">Bahasa Indonesia</th>
@@ -373,6 +634,19 @@ const statusOptions = [
                     </thead>
                     <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
                         <tr v-for="(item, index) in kamus.data" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-150">
+                            <!-- Bulk Select Checkbox -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        :value="item.id"
+                                        :checked="selectedItems.includes(item.id)"
+                                        @change="toggleSelectItem(item.id)"
+                                        :disabled="!item.can_delete"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                </div>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="text-sm font-mono text-slate-500 dark:text-slate-400">{{ getRowNumber(index) }}</span>
                             </td>
@@ -443,7 +717,7 @@ const statusOptions = [
                                     <!-- Edit Button - tampil jika user punya permission edit DAN (punya validasi permission ATAU owner) -->
                                     <Link 
                                         v-if="can('edit kamus') && (item.can_edit)"
-                                        :href="`/kamus/${item.id}/edit`"
+                                        :href="`/admin/kamus/${item.id}/edit`"
                                         class="inline-flex items-center px-2 py-1 text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/30 rounded-lg hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors duration-150"
                                         title="Edit Kamus"
                                     >
@@ -549,7 +823,7 @@ const statusOptions = [
                         </button>
                         <Link 
                             v-if="can('create kamus')"
-                            href="/kamus/create"
+                            href="/admin/kamus/create"
                             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-sm rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200"
                         >
                             <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

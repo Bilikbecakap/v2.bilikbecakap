@@ -10,7 +10,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ActivityLogController;
-use App\Http\Controllers\AdminKamusController;   
+use App\Http\Controllers\AdminKamusController; 
+use App\Http\Controllers\TranslateController;
+use App\Http\Controllers\MasterArtikelController;  
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -65,16 +67,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Data Master Routes
     Route::get('/data-master', function () {return Inertia::render('DataMaster/Index');})->middleware('permission:view data master')->name('data-master.index');
 
+    // Master Artikel Routes  
+    Route::prefix('data-master')->name('data-master.')->group(function () {
+        Route::resource('artikel', MasterArtikelController::class)->except(['show']);
+    });
+
     //Kamus Management
-    Route::get('/kamus', [AdminKamusController::class, 'index'])->name('kamus.index');
-    Route::get('/kamus/create', [AdminKamusController::class, 'create'])->name('kamus.create');
-    Route::post('/kamus', [AdminKamusController::class, 'store'])->name('kamus.store');
-    Route::get('/kamus/{kamus}/edit', [AdminKamusController::class, 'edit'])->name('kamus.edit');
-    Route::put('/kamus/{kamus}', [AdminKamusController::class, 'update'])->name('kamus.update');
-    Route::delete('/kamus/{kamus}', [AdminKamusController::class, 'destroy'])->name('kamus.destroy');
-    Route::get('/kamus-validate', [AdminKamusController::class, 'validate'])->name('kamus.validate');
-    Route::patch('/kamus/{kamus}/approve', [AdminKamusController::class, 'approve'])->name('kamus.approve');
-    Route::patch('/kamus/{kamus}/reject', [AdminKamusController::class, 'reject'])->name('kamus.reject');
+    Route::prefix('admin')->group(function () {
+        Route::get('/kamus', [AdminKamusController::class, 'index'])->name('kamus.index');
+        Route::get('/kamus/create', [AdminKamusController::class, 'create'])->name('kamus.create');
+        Route::post('/kamus', [AdminKamusController::class, 'store'])->name('kamus.store');
+        Route::get('/kamus/{kamus}/edit', [AdminKamusController::class, 'edit'])->name('kamus.edit');
+        Route::put('/kamus/{kamus}', [AdminKamusController::class, 'update'])->name('kamus.update');
+        Route::delete('/kamus/{kamus}', [AdminKamusController::class, 'destroy'])->name('kamus.destroy');
+        Route::get('/kamus-validate', [AdminKamusController::class, 'validate'])->name('kamus.validate');
+        Route::patch('/kamus/{kamus}/approve', [AdminKamusController::class, 'approve'])->name('kamus.approve');
+        Route::patch('/kamus/{kamus}/reject', [AdminKamusController::class, 'reject'])->name('kamus.reject');
+        Route::post('/kamus/bulk-delete', [AdminKamusController::class, 'bulkDelete'])->name('kamus.bulk-delete');
+        Route::post('/kamus/bulk-approve', [AdminKamusController::class, 'bulkApprove'])->name('kamus.bulk-approve');
+        Route::post('/kamus/bulk-reject', [AdminKamusController::class, 'bulkReject'])->name('kamus.bulk-reject');
+    });
+    // Translate Management
+    Route::get('/translate-test', [TranslateController::class, 'index'])->name('translate.index');
+    Route::post('/translate-test/process', [TranslateController::class, 'translate'])->name('translate.process');
+    
+    // Translate Management - Routes tambahan baru
+    Route::get('/translate-test/connection', [TranslateController::class, 'testConnection'])->name('translate.test-connection');
+    Route::get('/translate-test/database-stats', [TranslateController::class, 'getDatabaseStats'])->name('translate.database-stats');
+
 });
 
 /*

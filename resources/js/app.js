@@ -31,7 +31,9 @@ import {
     faDatabase,
     faGlobe,
     faCheck,
-    faBook          // Icon untuk kamus
+    faBook,
+    faLanguage,
+    faExchangeAlt
 } from '@fortawesome/free-solid-svg-icons';
 
 // Add Font Awesome icons to the library
@@ -59,7 +61,9 @@ library.add(
     faDatabase,
     faGlobe,
     faCheck,
-    faBook          // Icon untuk kamus
+    faBook,
+    faLanguage, 
+    faExchangeAlt  
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

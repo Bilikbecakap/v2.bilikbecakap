@@ -41,6 +41,40 @@ class GeminiService
     }
 
     /**
+     * NEW: Post-process untuk memastikan kapitalisasi yang benar pada hasil AI
+     */
+    private function postProcessAIResult($text, $originalText)
+    {
+        // Clean up common AI responses patterns
+        $text = trim($text);
+        $text = preg_replace('/^(Terjemahan:|Translation:)/i', '', $text);
+        $text = trim($text);
+        
+        // Apply proper capitalization based on original text pattern
+        $text = $this->matchOriginalCapitalizationPattern($text, $originalText);
+        
+        return $text;
+    }
+
+    /**
+     * NEW: Match capitalization pattern dari original text
+     */
+    private function matchOriginalCapitalizationPattern($translation, $originalText)
+    {
+        // Capitalize first letter jika original text dimulai dengan huruf kapital
+        if (preg_match('/^\p{Lu}/u', $originalText)) {
+            $translation = ucfirst($translation);
+        }
+        
+        // Capitalize after sentence-ending punctuation followed by space
+        $translation = preg_replace_callback('/([.!?])\s+(\p{Ll})/u', function($matches) {
+            return $matches[1] . ' ' . strtoupper($matches[2]);
+        }, $translation);
+        
+        return $translation;
+    }
+
+    /**
      * Test koneksi ke Gemini API
      */
     public function testConnection()
@@ -68,7 +102,7 @@ class GeminiService
     }
 
     /**
-     * IMPROVED: Translate dengan AI + Database Context yang Lebih Optimal
+     * IMPROVED: Translate dengan AI + Database Context yang Lebih Optimal dengan Proper Capitalization
      */
     public function translateDirectlyWithAI($text, $direction = 'melayu_to_indonesia')
     {
@@ -91,16 +125,20 @@ class GeminiService
                     5. Jangan ubah kata yang sudah ada terjemahannya di kamus
                     6. Hasil harus natural tapi tetap akurat sesuai kamus
                     7. ABAIKAN tanda baca (titik, koma, dsb) saat mencari di kamus
+                    8. PERTAHANKAN format kapitalisasi yang sesuai standar bahasa Indonesia:
+                       - Huruf kapital di awal kalimat
+                       - Huruf kapital setelah tanda titik, tanda seru, tanda tanya
+                       - Nama diri tetap kapital
+                       - Kata dari kamus gunakan lowercase kecuali di awal kalimat
 
                     CONTOH PENGGUNAAN:
-                    - Jika input 'makan nasi.' dan kamus punya 'makan = makan', 'nasi = nasi'
-                    - Maka output: 'makan nasi' (gunakan dari kamus, abaikan titik)
-                    - Jika input 'lagi makan!' dan kamus punya 'makan = makan' tapi tidak ada 'lagi'
-                    - Maka output: 'sedang makan' (kombinasi kamus + pengetahuan umum)
+                    - Input: 'Ibu pergi ke pasar.' → Output: 'Ibu pergi ke pasar.' (kapitalisasi sesuai posisi)
+                    - Input: 'saya makan nasi.' → Output: 'Saya makan nasi.' (kapitalisasi awal kalimat)
+                    - Input: 'lagi makan! dia datang.' → Output: 'Sedang makan! Dia datang.' (kapitalisasi setelah tanda seru)
 
                     Teks untuk diterjemahkan: \"{$text}\"
                     
-                    Terjemahan (HANYA hasil, tanpa penjelasan):";
+                    Terjemahan (HANYA hasil, tanpa penjelasan, dengan kapitalisasi yang benar):";
             } else {
                 $prompt = "
                     ATURAN MUTLAK: GUNAKAN KAMUS DATABASE INI SEBAGAI PRIORITAS UTAMA!
@@ -116,16 +154,20 @@ class GeminiService
                     5. Jangan ubah kata yang sudah ada terjemahannya di kamus
                     6. Hasil harus natural tapi tetap akurat sesuai kamus
                     7. ABAIKAN tanda baca (titik, koma, dsb) saat mencari di kamus
+                    8. PERTAHANKAN format kapitalisasi yang sesuai standar bahasa Melayu:
+                       - Huruf kapital di awal kalimat
+                       - Huruf kapital setelah tanda titik, tanda seru, tanda tanya
+                       - Nama diri tetap kapital
+                       - Kata dari kamus gunakan lowercase kecuali di awal kalimat
 
                     CONTOH PENGGUNAAN:
-                    - Jika input 'makan nasi.' dan kamus punya 'makan = makan', 'nasi = nasi'
-                    - Maka output: 'makan nasi' (gunakan dari kamus, abaikan titik)
-                    - Jika input 'sedang makan!' dan kamus punya 'makan = makan' tapi tidak ada 'sedang'
-                    - Maka output: 'lagi makan' (kombinasi kamus + pengetahuan umum)
+                    - Input: 'Ibu pergi ke pasar.' → Output: 'Uma pergi ke pasar.' (kapitalisasi sesuai posisi)
+                    - Input: 'saya makan nasi.' → Output: 'Aku makan nasi.' (kapitalisasi awal kalimat)
+                    - Input: 'sedang makan! dia datang.' → Output: 'Lagi makan! Dia datang.' (kapitalisasi setelah tanda seru)
 
                     Teks untuk diterjemahkan: \"{$text}\"
                     
-                    Terjemahan (HANYA hasil, tanpa penjelasan):";
+                    Terjemahan (HANYA hasil, tanpa penjelasan, dengan kapitalisasi yang benar):";
             }
 
             $response = Http::timeout(30)->post($this->apiUrl . '?key=' . $this->apiKey, [
@@ -142,10 +184,8 @@ class GeminiService
                 $data = $response->json();
                 $translation = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
                 
-                // Clean up common AI responses
-                $translation = trim($translation);
-                $translation = preg_replace('/^(Terjemahan:|Translation:)/i', '', $translation);
-                $translation = trim($translation);
+                // Apply post-processing untuk proper capitalization
+                $translation = $this->postProcessAIResult($translation, $text);
                 
                 return [
                     'success' => true,
@@ -173,11 +213,11 @@ class GeminiService
     }
 
     /**
-     * IMPROVED: Optimized Context - Fokus pada kata yang relevan
+     * IMPROVED: Optimized Context - Fokus pada kata yang relevan dengan consistent formatting
      */
     private function createOptimizedContext($text, $direction = 'melayu_to_indonesia')
     {
-        $cacheKey = "optimized_context_v4_" . md5($text . $direction);
+        $cacheKey = "optimized_context_v5_" . md5($text . $direction);
         
         return Cache::remember($cacheKey, 3600, function() use ($text, $direction) {
             // 1. Cari kata yang sangat relevan (exact dan partial match)
@@ -203,12 +243,18 @@ class GeminiService
             if ($direction == 'melayu_to_indonesia') {
                 $context = "KAMUS PRIORITAS BAHASA MELAYU BELITUNG KE INDONESIA:\n";
                 foreach ($allWords as $item) {
-                    $context .= "{$item->bahasa_melayu} → {$item->bahasa_indonesia}\n";
+                    // Format: lowercase → lowercase (untuk konsistensi dalam kamus)
+                    $melayu = strtolower(trim($item->bahasa_melayu));
+                    $indonesia = strtolower(trim($item->bahasa_indonesia));
+                    $context .= "{$melayu} → {$indonesia}\n";
                 }
             } else {
                 $context = "KAMUS PRIORITAS BAHASA INDONESIA KE MELAYU BELITUNG:\n";
                 foreach ($allWords as $item) {
-                    $context .= "{$item->bahasa_indonesia} → {$item->bahasa_melayu}\n";
+                    // Format: lowercase → lowercase (untuk konsistensi dalam kamus)
+                    $indonesia = strtolower(trim($item->bahasa_indonesia));
+                    $melayu = strtolower(trim($item->bahasa_melayu));
+                    $context .= "{$indonesia} → {$melayu}\n";
                 }
             }
             
@@ -409,7 +455,7 @@ class GeminiService
 
     public function translateToEnglish($text)
     {
-        $prompt = "Translate this Indonesian text to English. Only return the translation, no explanation: \"{$text}\"";
+        $prompt = "Translate this Indonesian text to English. Only return the translation, no explanation. Maintain proper capitalization: \"{$text}\"";
         
         $response = Http::timeout(30)->post($this->apiUrl . '?key=' . $this->apiKey, [
             'contents' => [
@@ -425,13 +471,15 @@ class GeminiService
             $data = $response->json();
             $translation = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
             
+            // Apply post-processing untuk proper capitalization
+            $translation = $this->postProcessAIResult($translation, $text);
+            
             return [
                 'success' => true,
-                'translation' => trim($translation)
+                'translation' => $translation
             ];
         }
         
         return ['success' => false, 'error' => 'Translation failed'];
     }
-
 }

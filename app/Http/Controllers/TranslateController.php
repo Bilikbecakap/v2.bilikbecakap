@@ -46,7 +46,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * NEW: Parse text dengan preserving punctuation
+     * NEW: Parse text dengan preserving punctuation dan capitalization
      */
     private function parseTextWithPunctuation($text)
     {
@@ -62,11 +62,16 @@ class TranslateController extends Controller implements HasMiddleware
                 if (strlen($cleanWord) >= 2) {
                     // Extract punctuation
                     $punctuation = preg_replace('/[\p{L}\p{N}\s]/u', '', $token);
+                    
+                    // Detect if original word starts with capital
+                    $isCapitalized = preg_match('/^\p{Lu}/u', $token);
+                    
                     $result[] = [
                         'type' => 'word',
                         'original' => $token,
                         'clean' => $cleanWord,
-                        'punctuation' => $punctuation
+                        'punctuation' => $punctuation,
+                        'is_capitalized' => $isCapitalized
                     ];
                 } else {
                     // Kata terlalu pendek atau hanya punctuation
@@ -79,31 +84,104 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * NEW: Reconstruct text dengan translation dan punctuation
+     * NEW: Apply proper capitalization based on context
+     */
+    private function applyProperCapitalization($translation, $originalCapitalized, $isFirstWord = false, $afterPunctuation = false)
+    {
+        // Convert to lowercase first
+        $translation = strtolower($translation);
+        
+        // Capitalize if:
+        // 1. It's the first word of sentence
+        // 2. Original word was capitalized (proper nouns, etc)
+        // 3. After sentence-ending punctuation
+        if ($isFirstWord || $originalCapitalized || $afterPunctuation) {
+            $translation = ucfirst($translation);
+        }
+        
+        return $translation;
+    }
+
+    /**
+     * NEW: Check if punctuation ends a sentence
+     */
+    private function isSentenceEndingPunctuation($punctuation)
+    {
+        return preg_match('/[.!?]/', $punctuation);
+    }
+
+    /**
+     * NEW: Reconstruct text dengan translation, punctuation, dan proper capitalization
      */
     private function reconstructWithPunctuation($tokens, $translations)
     {
         $result = '';
         $translationIndex = 0;
+        $isFirstWord = true;
+        $afterSentenceEnd = false;
         
         foreach ($tokens as $token) {
             if ($token['type'] === 'word') {
                 // Gunakan translation jika ada, otherwise original clean word
                 if (isset($translations[$translationIndex])) {
-                    $result .= $translations[$translationIndex] . $token['punctuation'];
+                    $translatedWord = $translations[$translationIndex];
+                    
+                    // Apply proper capitalization
+                    $finalWord = $this->applyProperCapitalization(
+                        $translatedWord, 
+                        $token['is_capitalized'], 
+                        $isFirstWord, 
+                        $afterSentenceEnd
+                    );
+                    
+                    $result .= $finalWord . $token['punctuation'];
                 } else {
-                    $result .= $token['clean'] . $token['punctuation'];
+                    // Fallback to original word with proper capitalization
+                    $finalWord = $this->applyProperCapitalization(
+                        $token['clean'], 
+                        $token['is_capitalized'], 
+                        $isFirstWord, 
+                        $afterSentenceEnd
+                    );
+                    
+                    $result .= $finalWord . $token['punctuation'];
                 }
+                
+                // Check if this word ends with sentence-ending punctuation
+                $afterSentenceEnd = $this->isSentenceEndingPunctuation($token['punctuation']);
+                $isFirstWord = false;
                 $translationIndex++;
+                
             } elseif ($token['type'] === 'space') {
                 $result .= $token['original'];
             } else {
                 // punctuation only
                 $result .= $token['original'];
+                
+                // Check if it's sentence-ending punctuation
+                if ($this->isSentenceEndingPunctuation($token['original'])) {
+                    $afterSentenceEnd = true;
+                }
             }
         }
         
         return $result;
+    }
+
+    /**
+     * NEW: Post-process untuk memastikan kapitalisasi yang benar pada hasil final
+     */
+    private function postProcessCapitalization($text)
+    {
+        // Capitalize first letter of the entire text
+        $text = ucfirst($text);
+        
+        // Capitalize after sentence-ending punctuation followed by space
+        $text = preg_replace_callback('/([.!?])\s+(\p{Ll})/u', function($matches) {
+            return $matches[1] . ' ' . strtoupper($matches[2]);
+        }, $text);
+        
+        return $text;
     }
 
     /**
@@ -212,7 +290,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * IMPROVED METHOD 1: HYBRID dengan punctuation preservation
+     * IMPROVED METHOD 1: HYBRID dengan punctuation preservation dan proper capitalization
      */
     private function translateHybrid($text, $direction)
     {
@@ -223,10 +301,13 @@ class TranslateController extends Controller implements HasMiddleware
             // 1. Coba direct search dulu (exact match) - dengan clean text
             $directMatch = $this->directSearchWithCleaning($cleanText, $direction);
             if ($directMatch) {
+                // Apply proper capitalization untuk direct match
+                $finalTranslation = $this->postProcessCapitalization($directMatch);
+                
                 return [
                     'success' => true,
                     'input' => $cleanText,
-                    'translation' => $directMatch,
+                    'translation' => $finalTranslation,
                     'direction' => $direction,
                     'method' => 'hybrid_direct',
                     'confidence' => 'high',
@@ -239,10 +320,18 @@ class TranslateController extends Controller implements HasMiddleware
             if ($wordCount == 1) {
                 $fuzzyMatch = $this->fuzzySearchWithCleaning($cleanText, $direction);
                 if ($fuzzyMatch) {
+                    // Apply proper capitalization untuk single word
+                    $originalCapitalized = preg_match('/^\p{Lu}/u', $cleanText);
+                    $finalTranslation = $this->applyProperCapitalization(
+                        $fuzzyMatch['translation'], 
+                        $originalCapitalized, 
+                        true
+                    );
+                    
                     return [
                         'success' => true,
                         'input' => $cleanText,
-                        'translation' => $fuzzyMatch['translation'],
+                        'translation' => $finalTranslation,
                         'direction' => $direction,
                         'method' => 'hybrid_fuzzy',
                         'confidence' => 'medium',
@@ -253,7 +342,7 @@ class TranslateController extends Controller implements HasMiddleware
                 }
             }
 
-            // 3. Multi-word dengan punctuation preservation
+            // 3. Multi-word dengan punctuation preservation dan proper capitalization
             if ($wordCount > 1) {
                 $wordByWordResult = $this->translateWordByWordHybridWithPunctuation($cleanText, $direction);
                 
@@ -278,6 +367,8 @@ class TranslateController extends Controller implements HasMiddleware
             if ($aiResult['success']) {
                 $aiResult['ai_used'] = true;
                 $aiResult['translation_rate'] = null;
+                // Apply post-processing untuk AI result
+                $aiResult['translation'] = $this->postProcessCapitalization($aiResult['translation']);
             }
             return $aiResult;
 
@@ -290,11 +381,11 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * IMPROVED: Word-by-word dengan punctuation preservation
+     * IMPROVED: Word-by-word dengan punctuation preservation dan proper capitalization
      */
     private function translateWordByWordHybridWithPunctuation($text, $direction)
     {
-        // Parse text dengan punctuation
+        // Parse text dengan punctuation dan capitalization info
         $tokens = $this->parseTextWithPunctuation($text);
         
         // Extract hanya words untuk translation
@@ -320,8 +411,9 @@ class TranslateController extends Controller implements HasMiddleware
             // Coba direct match
             $directMatch = $this->directSearch($word, $direction);
             if ($directMatch) {
-                $translations[] = $directMatch;
-                $matchedTerms[] = $word . ' → ' . $directMatch;
+                // Pastikan hasil dari database dalam lowercase untuk konsistensi
+                $translations[] = strtolower($directMatch);
+                $matchedTerms[] = $word . ' → ' . strtolower($directMatch);
                 $translatedCount++;
                 continue;
             }
@@ -329,8 +421,9 @@ class TranslateController extends Controller implements HasMiddleware
             // Coba fuzzy match
             $fuzzyMatch = $this->fuzzySearch($word, $direction, 0.8);
             if ($fuzzyMatch) {
-                $translations[] = $fuzzyMatch['translation'];
-                $matchedTerms[] = $word . ' → ' . $fuzzyMatch['translation'] . ' (fuzzy)';
+                // Pastikan hasil dari database dalam lowercase untuk konsistensi
+                $translations[] = strtolower($fuzzyMatch['translation']);
+                $matchedTerms[] = $word . ' → ' . strtolower($fuzzyMatch['translation']) . ' (fuzzy)';
                 $translatedCount++;
                 continue;
             }
@@ -340,8 +433,11 @@ class TranslateController extends Controller implements HasMiddleware
             $untranslatedWords[] = $word;
         }
 
-        // Reconstruct dengan punctuation
+        // Reconstruct dengan punctuation dan proper capitalization
         $finalTranslation = $this->reconstructWithPunctuation($tokens, $translations);
+        
+        // Apply final post-processing untuk memastikan kapitalisasi yang benar
+        $finalTranslation = $this->postProcessCapitalization($finalTranslation);
 
         $translationRate = $totalWords > 0 ? ($translatedCount / $totalWords) * 100 : 0;
         
@@ -365,7 +461,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * METHOD 2: Rule-based dengan punctuation preservation
+     * METHOD 2: Rule-based dengan punctuation preservation dan proper capitalization
      */
     private function translateRuleBased($text, $direction)
     {
@@ -375,10 +471,13 @@ class TranslateController extends Controller implements HasMiddleware
             // 1. Direct search
             $directMatch = $this->directSearchWithCleaning($cleanText, $direction);
             if ($directMatch) {
+                // Apply proper capitalization untuk direct match
+                $finalTranslation = $this->postProcessCapitalization($directMatch);
+                
                 return [
                     'success' => true,
                     'input' => $cleanText,
-                    'translation' => $directMatch,
+                    'translation' => $finalTranslation,
                     'direction' => $direction,
                     'method' => 'rule_direct',
                     'confidence' => 'high',
@@ -387,7 +486,7 @@ class TranslateController extends Controller implements HasMiddleware
                 ];
             }
 
-            // 2. Word-by-word dengan punctuation
+            // 2. Word-by-word dengan punctuation dan proper capitalization
             $result = $this->translateWordByWordWithPunctuation($cleanText, $direction);
             
             return [
@@ -412,11 +511,11 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * IMPROVED: Word-by-word dengan punctuation preservation untuk rule-based
+     * IMPROVED: Word-by-word dengan punctuation preservation dan proper capitalization untuk rule-based
      */
     private function translateWordByWordWithPunctuation($text, $direction)
     {
-        // Parse text dengan punctuation
+        // Parse text dengan punctuation dan capitalization info
         $tokens = $this->parseTextWithPunctuation($text);
         
         // Extract hanya words untuk translation
@@ -442,8 +541,9 @@ class TranslateController extends Controller implements HasMiddleware
             // Direct match
             $directMatch = $this->directSearch($word, $direction);
             if ($directMatch) {
-                $translations[] = $directMatch;
-                $matchedTerms[] = $word . ' → ' . $directMatch;
+                // Pastikan hasil dari database dalam lowercase untuk konsistensi
+                $translations[] = strtolower($directMatch);
+                $matchedTerms[] = $word . ' → ' . strtolower($directMatch);
                 $translatedCount++;
                 continue;
             }
@@ -451,8 +551,9 @@ class TranslateController extends Controller implements HasMiddleware
             // Fuzzy match
             $fuzzyMatch = $this->fuzzySearch($word, $direction);
             if ($fuzzyMatch) {
-                $translations[] = $fuzzyMatch['translation'];
-                $matchedTerms[] = $word . ' → ' . $fuzzyMatch['translation'] . ' (fuzzy: ' . $fuzzyMatch['matched_term'] . ')';
+                // Pastikan hasil dari database dalam lowercase untuk konsistensi
+                $translations[] = strtolower($fuzzyMatch['translation']);
+                $matchedTerms[] = $word . ' → ' . strtolower($fuzzyMatch['translation']) . ' (fuzzy: ' . $fuzzyMatch['matched_term'] . ')';
                 $translatedCount++;
                 continue;
             }
@@ -462,8 +563,11 @@ class TranslateController extends Controller implements HasMiddleware
             $untranslatedWords[] = $word;
         }
 
-        // Reconstruct dengan punctuation
+        // Reconstruct dengan punctuation dan proper capitalization
         $finalTranslation = $this->reconstructWithPunctuation($tokens, $translations);
+        
+        // Apply final post-processing untuk memastikan kapitalisasi yang benar
+        $finalTranslation = $this->postProcessCapitalization($finalTranslation);
 
         $translationRate = $totalWords > 0 ? ($translatedCount / $totalWords) : 0;
         $confidence = $translationRate >= 0.8 ? 'high' : ($translationRate >= 0.5 ? 'medium' : 'low');
@@ -477,7 +581,7 @@ class TranslateController extends Controller implements HasMiddleware
         ];
     }
 
-    // Helper methods tetap sama
+    // Helper methods tetap sama tapi dengan konsistensi lowercase untuk hasil database
     private function directSearchWithCleaning($text, $direction)
     {
         $cleanText = $this->cleanText($text);
@@ -647,5 +751,4 @@ class TranslateController extends Controller implements HasMiddleware
             ], 500);
         }
     }
-
 }

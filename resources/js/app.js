@@ -36,7 +36,8 @@ import {
     faBook,
     faLanguage,
     faExchangeAlt,
-    faNewspaper
+    faNewspaper,
+    faBookOpen
 } from '@fortawesome/free-solid-svg-icons';
 
 // Add Font Awesome icons to the library
@@ -67,7 +68,8 @@ library.add(
     faBook,
     faLanguage, 
     faExchangeAlt,
-    faNewspaper 
+    faNewspaper,
+    faBookOpen
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

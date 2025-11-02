@@ -12,8 +12,10 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdminKamusController; 
 use App\Http\Controllers\TranslateController;
+use App\Http\Controllers\MasterModulController;
 use App\Http\Controllers\MasterArtikelController;
 use App\Http\Controllers\ArtikelController;  
+use App\Http\Controllers\ModulPembelajaranController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -71,6 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Master Artikel Routes  
     Route::prefix('data-master')->name('data-master.')->group(function () {
         Route::resource('artikel', MasterArtikelController::class)->except(['show']);
+        Route::resource('modul', MasterModulController::class)->except(['show']);
     });
 
     //Kamus Management
@@ -99,6 +102,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/artikel/{artikel}/approve', [ArtikelController::class, 'approve'])->name('artikel.approve');
         Route::patch('/artikel/{artikel}/reject', [ArtikelController::class, 'reject'])->name('artikel.reject');
         Route::post('/artikel/upload-image', [ArtikelController::class, 'uploadImage'])->name('artikel.upload-image');
+
+        // Modul Pembelajaran
+        Route::get('/modul-pembelajaran', [ModulPembelajaranController::class, 'index'])->name('modul-pembelajaran.index');
+        Route::get('/modul-pembelajaran/create', [ModulPembelajaranController::class, 'create'])->name('modul-pembelajaran.create');
+        Route::post('/modul-pembelajaran', [ModulPembelajaranController::class, 'store'])->name('modul-pembelajaran.store');
+        Route::get('/modul-pembelajaran/{modulPembelajaran}', [ModulPembelajaranController::class, 'show'])->name('modul-pembelajaran.show');
+        Route::get('/modul-pembelajaran/{modulPembelajaran}/edit', [ModulPembelajaranController::class, 'edit'])->name('modul-pembelajaran.edit');
+        Route::put('/modul-pembelajaran/{modulPembelajaran}', [ModulPembelajaranController::class, 'update'])->name('modul-pembelajaran.update');
+        Route::delete('/modul-pembelajaran/{modulPembelajaran}', [ModulPembelajaranController::class, 'destroy'])->name('modul-pembelajaran.destroy');
+        Route::post('/modul-pembelajaran/upload-image', [ModulPembelajaranController::class, 'uploadImage'])->name('modul-pembelajaran.upload-image');
 
     });
     // Translate Management

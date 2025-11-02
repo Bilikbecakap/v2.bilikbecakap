@@ -41,8 +41,8 @@ const masterMenus = [
     description: "Mengatur kategori dan sub-sub modul pembelajaran",
     icon: "folder",
     color: "from-orange-500 to-red-500",
-    href: "#",
-    disabled: true,
+    href: "data-master/modul",
+    disabled: false,
   },
   {
     id: 5,

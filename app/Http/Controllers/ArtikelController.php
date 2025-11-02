@@ -223,7 +223,6 @@ class ArtikelController extends Controller implements HasMiddleware
 
     public function update(Request $request, Artikel $artikel)
     {
-        // Cek permission
         $hasApprovalPermission = auth()->user()->can('approve artikel');
         $isOwner = $artikel->created_by == auth()->id();
 
@@ -245,10 +244,12 @@ class ArtikelController extends Controller implements HasMiddleware
             'status' => 'in:draft,pending,published,archived',
             'is_featured' => 'boolean',
             'tanggal_publish' => 'nullable|date',
+            'remove_thumbnail' => 'nullable|string', // ADD: validation untuk flag remove
         ]);
 
         // Validasi minimal 1 judul harus diisi
-        if (!$request->judul_indonesia && !$request->judul_melayu && !$request->judul_english) {
+        if (empty($artikel->judul_indonesia) && empty($artikel->judul_melayu) && empty($artikel->judul_english) && 
+            !$request->judul_indonesia && !$request->judul_melayu && !$request->judul_english) {
             return back()->withInput()->withErrors(['judul_indonesia' => 'Minimal satu judul harus diisi.']);
         }
 
@@ -272,17 +273,22 @@ class ArtikelController extends Controller implements HasMiddleware
                 $status = 'pending';
             }
 
-            $data = $request->except('gambar_thumbnail');
+            $data = $request->except(['gambar_thumbnail', 'remove_thumbnail']); // UBAH: exclude remove_thumbnail juga
             $data['status'] = $status;
             $data['updated_by'] = auth()->id();
 
-            // Handle thumbnail upload/removal
-            if ($request->hasFile('gambar_thumbnail')) {
-                // Remove old thumbnail if exists
+            // UBAH: Handle thumbnail upload/removal dengan logic baru
+            if ($request->has('remove_thumbnail') && $request->remove_thumbnail == '1') {
+                // User wants to remove thumbnail
                 if ($artikel->gambar_thumbnail) {
                     Storage::disk('public')->delete($artikel->gambar_thumbnail);
                 }
-                // Upload new thumbnail
+                $data['gambar_thumbnail'] = null;
+            } elseif ($request->hasFile('gambar_thumbnail')) {
+                // User uploads new thumbnail
+                if ($artikel->gambar_thumbnail) {
+                    Storage::disk('public')->delete($artikel->gambar_thumbnail);
+                }
                 $thumbnailPath = $request->file('gambar_thumbnail')->store('artikel-thumbnails', 'public');
                 $data['gambar_thumbnail'] = $thumbnailPath;
             }

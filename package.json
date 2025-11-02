@@ -30,6 +30,7 @@
         "@tinymce/tinymce-vue": "^6.3.0",
         "@vueup/vue-quill": "^1.2.0",
         "quill": "^2.0.3",
+        "quill-image-resize-module": "^3.0.0",
         "tinymce": "^8.2.0",
         "vue-quill-editor": "^3.0.6",
         "vue-toastification": "^2.0.0-rc.5"

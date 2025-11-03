@@ -16,6 +16,9 @@ use App\Http\Controllers\MasterModulController;
 use App\Http\Controllers\MasterArtikelController;
 use App\Http\Controllers\ArtikelController;  
 use App\Http\Controllers\ModulPembelajaranController;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\QuizQuestionController;
+use App\Http\Controllers\QuizAttemptController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -112,6 +115,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/modul-pembelajaran/{modulPembelajaran}', [ModulPembelajaranController::class, 'update'])->name('modul-pembelajaran.update');
         Route::delete('/modul-pembelajaran/{modulPembelajaran}', [ModulPembelajaranController::class, 'destroy'])->name('modul-pembelajaran.destroy');
         Route::post('/modul-pembelajaran/upload-image', [ModulPembelajaranController::class, 'uploadImage'])->name('modul-pembelajaran.upload-image');
+
+        // Quiz
+        Route::get('/quiz', [QuizController::class, 'index'])->name('quiz.index');
+        Route::get('/quiz/create', [QuizController::class, 'create'])->name('quiz.create');
+        Route::post('/quiz', [QuizController::class, 'store'])->name('quiz.store');
+        Route::get('/quiz/{quiz}', [QuizController::class, 'show'])->name('quiz.show');
+        Route::get('/quiz/{quiz}/edit', [QuizController::class, 'edit'])->name('quiz.edit');
+        Route::put('/quiz/{quiz}', [QuizController::class, 'update'])->name('quiz.update');
+        Route::delete('/quiz/{quiz}', [QuizController::class, 'destroy'])->name('quiz.destroy');
+
+        Route::get('/quiz/{quiz}/questions', [QuizQuestionController::class, 'index'])->name('quiz.questions.index');
+        Route::get('/quiz/{quiz}/questions/create', [QuizQuestionController::class, 'create'])->name('quiz.questions.create');
+        Route::post('/quiz/{quiz}/questions', [QuizQuestionController::class, 'store'])->name('quiz.questions.store');
+        Route::get('/quiz/{quiz}/questions/{question}', [QuizQuestionController::class, 'show'])->name('quiz.questions.show');
+        Route::get('/quiz/{quiz}/questions/{question}/edit', [QuizQuestionController::class, 'edit'])->name('quiz.questions.edit');
+        Route::put('/quiz/{quiz}/questions/{question}', [QuizQuestionController::class, 'update'])->name('quiz.questions.update');
+        Route::delete('/quiz/{quiz}/questions/{question}', [QuizQuestionController::class, 'destroy'])->name('quiz.questions.destroy');
+
+        // Quiz Testing Routes
+        Route::get('/quiz-test', [QuizAttemptController::class, 'index'])->name('quiz.attempt.index');
+        Route::get('/quiz-test/{quiz}/start', [QuizAttemptController::class, 'start'])->name('quiz.attempt.start');
+        Route::post('/quiz-test/{quiz}/begin', [QuizAttemptController::class, 'begin'])->name('quiz.attempt.begin');
+        Route::get('/quiz-test/{quiz}/{attempt}/quiz', [QuizAttemptController::class, 'quiz'])->name('quiz.attempt.quiz');
+        Route::post('/quiz-test/{quiz}/{attempt}/submit', [QuizAttemptController::class, 'submit'])->name('quiz.attempt.submit');
+        Route::get('/quiz-test/{quiz}/{attempt}/result', [QuizAttemptController::class, 'result'])->name('quiz.attempt.result');
+        
+        // Quiz History & Detail (untuk admin review)
+        Route::get('/quiz/{quiz}/attempts', [QuizAttemptController::class, 'history'])->name('quiz.attempts.history');
+        Route::get('/quiz/{quiz}/attempts/{attempt}', [QuizAttemptController::class, 'show'])->name('quiz.attempts.show');
 
     });
     // Translate Management

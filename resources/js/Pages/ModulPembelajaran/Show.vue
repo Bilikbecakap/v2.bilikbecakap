@@ -80,10 +80,13 @@ const readingTime = computed(() => {
   if (!props.modul.content) return 0;
   
   const wordCount = props.modul.content.replace(/<[^>]*>/g, '').split(/\s+/).length;
-  const readingSpeed = 200; // words per minute
+  const readingSpeed = 10; // words per minute
   
   return Math.max(1, Math.ceil(wordCount / readingSpeed));
 });
+
+const pdfLoadError = ref(false);
+
 </script>
 
 <template>
@@ -304,24 +307,24 @@ const readingTime = computed(() => {
             <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Materi PDF</h3>
           </div>
           <div class="p-6 space-y-4">
-            <!-- PDF Embed Viewer -->
-            <div class="border border-slate-200 dark:border-slate-600 rounded-lg overflow-hidden">
-              <iframe
-                :src="`${getPdfUrl(modul.pdf_file)}#toolbar=1&navpanes=1&scrollbar=1`"
-                class="w-full h-96"
+            <!-- PDF Viewer: Lebih kompatibel dan efisien -->
+            <div class="border border-slate-200 dark:border-slate-600 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900">
+              <embed
+                :src="`${getPdfUrl(modul.pdf_file)}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`"
                 type="application/pdf"
-                title="PDF Materi Pembelajaran"
-              >
-                <p class="p-4 text-center text-slate-500 dark:text-slate-400">
-                  Browser Anda tidak mendukung tampilan PDF. 
-                  <a :href="getPdfUrl(modul.pdf_file)" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline">
-                    Klik di sini untuk download
-                  </a>
-                </p>
-              </iframe>
+                class="w-full h-96"
+                :alt="`PDF: ${modul.title}`"
+                @error="pdfLoadError = true"
+              />
+              <div v-if="pdfLoadError" class="p-4 text-center text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20">
+                Gagal memuat PDF. 
+                <a :href="getPdfUrl(modul.pdf_file)" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                  Klik di sini untuk membuka di tab baru
+                </a>
+              </div>
             </div>
-            
-            <!-- Download Link -->
+
+            <!-- Download Button -->
             <a
               :href="getPdfUrl(modul.pdf_file)"
               target="_blank"

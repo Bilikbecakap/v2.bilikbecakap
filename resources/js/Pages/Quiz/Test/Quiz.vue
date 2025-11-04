@@ -14,6 +14,11 @@ const timerInterval = ref(null);
 const showSubmitModal = ref(false);
 const isSubmitting = ref(false);
 
+// 👇 TAMBAH: Audio player refs
+const audioPlayer = ref(null);
+const isMusicPlaying = ref(false);
+const isMusicMuted = ref(false);
+
 // Storage keys
 const answersKey = `quiz_answers_${props.attempt.id}`;
 const timerKey = `quiz_timer_${props.attempt.id}`;
@@ -65,6 +70,63 @@ watch(timeRemaining, (newTime) => {
   }
 });
 
+// 👇 TAMBAH: Music controls
+const toggleMusic = () => {
+  if (!audioPlayer.value) return;
+  
+  if (isMusicPlaying.value) {
+    audioPlayer.value.pause();
+    isMusicPlaying.value = false;
+  } else {
+    audioPlayer.value.play().catch(e => {
+      console.error('Error playing audio:', e);
+    });
+    isMusicPlaying.value = true;
+  }
+};
+
+const toggleMute = () => {
+  if (!audioPlayer.value) return;
+  
+  audioPlayer.value.muted = !audioPlayer.value.muted;
+  isMusicMuted.value = audioPlayer.value.muted;
+};
+
+const initAudio = () => {
+  if (props.quiz.music && audioPlayer.value) {
+    // Set volume default
+    audioPlayer.value.volume = 0.3;
+    
+    // Loop audio
+    audioPlayer.value.loop = true;
+    
+    // Auto play dengan handling error
+    audioPlayer.value.play().then(() => {
+      isMusicPlaying.value = true;
+    }).catch(e => {
+      console.log('Autoplay prevented. User needs to interact first.', e);
+      isMusicPlaying.value = false;
+    });
+    
+    // Event listeners
+    audioPlayer.value.addEventListener('play', () => {
+      isMusicPlaying.value = true;
+    });
+    
+    audioPlayer.value.addEventListener('pause', () => {
+      isMusicPlaying.value = false;
+    });
+  }
+};
+
+const stopAudio = () => {
+  if (audioPlayer.value) {
+    audioPlayer.value.pause();
+    audioPlayer.value.currentTime = 0;
+    isMusicPlaying.value = false;
+  }
+};
+
 // Prevent page refresh/close
 const handleBeforeUnload = (e) => {
   if (!isSubmitting.value) {
@@ -76,6 +138,7 @@ const handleBeforeUnload = (e) => {
 
 onMounted(() => {
   startTimer();
+  initAudio(); // 👈 Initialize audio
   window.addEventListener('beforeunload', handleBeforeUnload);
 });
 
@@ -83,6 +146,7 @@ onBeforeUnmount(() => {
   if (timerInterval.value) {
     clearInterval(timerInterval.value);
   }
+  stopAudio(); // 👈 Stop audio
   window.removeEventListener('beforeunload', handleBeforeUnload);
 });
 
@@ -90,6 +154,7 @@ onUnmounted(() => {
   if (timerInterval.value) {
     clearInterval(timerInterval.value);
   }
+  stopAudio(); // 👈 Stop audio
   window.removeEventListener('beforeunload', handleBeforeUnload);
 });
 
@@ -188,10 +253,10 @@ const submitQuiz = () => {
     clearInterval(timerInterval.value);
   }
 
+  stopAudio(); // 👈 Stop audio saat submit
+
   isSubmitting.value = true;
 
-  // Kirim semua jawaban (termasuk yang null)
-  // Backend yang akan handle filtering
   const payload = {
     answers: form.answers
   };
@@ -205,7 +270,6 @@ const submitQuiz = () => {
     onError: (errors) => {
       console.error('Submit error:', errors);
       isSubmitting.value = false;
-      // Restart timer jika error
       startTimer();
     },
     onFinish: () => {
@@ -218,6 +282,8 @@ const autoSubmit = () => {
   if (timerInterval.value) {
     clearInterval(timerInterval.value);
   }
+
+  stopAudio(); // 👈 Stop audio saat auto submit
 
   isSubmitting.value = true;
 
@@ -256,18 +322,92 @@ const isQuestionAnswered = (index) => {
   <AdminLayout>
     <template #title>Mengerjakan Quiz</template>
 
+    <!-- 👇 TAMBAH: Hidden Audio Player -->
+    <audio
+      v-if="quiz.music"
+      ref="audioPlayer"
+      :src="`/storage/${quiz.music}`"
+      preload="auto"
+      class="hidden"
+    ></audio>
+
     <div class="space-y-6">
       <!-- Timer Card -->
       <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="px-4 sm:px-6 py-4">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h3 class="text-sm font-semibold text-slate-800 dark:text-white">
-                {{ quiz.title }}
-              </h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400">
-                {{ attempt.participant_name }}
-              </p>
+            <div class="flex items-center gap-3">
+              <div>
+                <h3 class="text-sm font-semibold text-slate-800 dark:text-white">
+                  {{ quiz.title }}
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  {{ attempt.participant_name }}
+                </p>
+              </div>
+
+              <!-- 👇 TAMBAH: Music Controls -->
+              <div v-if="quiz.music" class="flex items-center gap-2 ml-4">
+                <button
+                  @click="toggleMusic"
+                  class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                  :title="isMusicPlaying ? 'Pause Music' : 'Play Music'"
+                >
+                  <svg
+                    v-if="!isMusicPlaying"
+                    class="w-5 h-5 text-blue-600 dark:text-blue-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                  </svg>
+                  <svg
+                    v-else
+                    class="w-5 h-5 text-blue-600 dark:text-blue-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zM12.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z"/>
+                  </svg>
+                </button>
+
+                <button
+                  @click="toggleMute"
+                  class="p-2 rounded-lg bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                  :title="isMusicMuted ? 'Unmute' : 'Mute'"
+                >
+                  <svg
+                    v-if="!isMusicMuted"
+                    class="w-5 h-5 text-slate-600 dark:text-slate-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                  </svg>
+                  <svg
+                    v-else
+                    class="w-5 h-5 text-slate-600 dark:text-slate-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                  </svg>
+                </button>
+
+                <div class="flex items-center gap-1 px-2">
+                  <svg
+                    class="w-4 h-4 text-blue-500 animate-pulse"
+                    :class="{ 'opacity-50': !isMusicPlaying }"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                  </svg>
+                  <span class="text-xs font-medium text-slate-600 dark:text-slate-400">
+                    {{ isMusicPlaying ? 'Playing' : 'Paused' }}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div class="flex items-center gap-3">
@@ -304,6 +444,7 @@ const isQuestionAnswered = (index) => {
         </div>
       </div>
 
+      <!-- ... Sisa kode tetap sama ... -->
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Question -->
         <div class="lg:col-span-3">
@@ -473,7 +614,7 @@ const isQuestionAnswered = (index) => {
           </div>
         </div>
 
-        <!-- Navigator -->
+        <!-- Navigator - tetap sama -->
         <div class="lg:col-span-1">
           <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 lg:sticky lg:top-6">
             <div class="px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700">
@@ -531,7 +672,7 @@ const isQuestionAnswered = (index) => {
       </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal - tetap sama -->
     <div v-if="showSubmitModal" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity" @click="cancelSubmit"></div>

@@ -9,6 +9,8 @@ const props = defineProps({
 });
 
 const selectedType = ref(props.type || "");
+const showEmptyQuizModal = ref(false);
+const selectedQuizTitle = ref("");
 
 // Watch for type changes
 watch(selectedType, (newType) => {
@@ -24,6 +26,18 @@ watch(selectedType, (newType) => {
 
 const clearFilter = () => {
   selectedType.value = "";
+};
+
+// 👇 TAMBAH: Check if quiz has questions
+const checkQuizQuestions = (quiz) => {
+  if (!quiz.total_questions || quiz.total_questions === 0) {
+    selectedQuizTitle.value = quiz.title;
+    showEmptyQuizModal.value = true;
+    return false;
+  }
+  // Jika ada soal, redirect ke start page
+  router.visit(route('quiz.attempt.start', quiz.id));
+  return true;
 };
 
 const getTypeBadge = (type) => {
@@ -149,9 +163,7 @@ const getTypeText = (type) => {
             class="group bg-slate-50 dark:bg-slate-900/50 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-200 overflow-hidden"
           >
             <!-- Card Header with Gradient -->
-            <div
-              class="bg-gradient-to-r from-blue-500 to-cyan-500 p-6 text-white"
-            >
+            <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-6 text-white">
               <div class="flex items-start justify-between mb-3">
                 <span
                   :class="[
@@ -189,9 +201,9 @@ const getTypeText = (type) => {
                 {{ quiz.description }}
               </p>
 
-              <!-- Modul Info -->
+              <!-- Modul Info atau Quiz Umum -->
               <div
-                v-if="quiz.modul_pembelajaran"
+                v-if="quiz.type === 'modul' && quiz.modul_pembelajaran"
                 class="flex items-center text-xs text-slate-500 dark:text-slate-400 mb-4 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
               >
                 <svg
@@ -207,7 +219,26 @@ const getTypeText = (type) => {
                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
                   />
                 </svg>
-                <span class="font-medium">{{ quiz.modul_pembelajaran.title }}</span>
+                <span class="font-medium">📚 {{ quiz.modul_pembelajaran.title }}</span>
+              </div>
+              <div
+                v-else-if="quiz.type === 'umum'"
+                class="flex items-center text-xs text-slate-500 dark:text-slate-400 mb-4 p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg"
+              >
+                <svg
+                  class="w-4 h-4 mr-2 text-purple-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span class="font-medium">🌐 Quiz Umum</span>
               </div>
 
               <!-- Quiz Info -->
@@ -228,9 +259,10 @@ const getTypeText = (type) => {
                   </svg>
                   <span>Durasi: {{ quiz.duration }} menit</span>
                 </div>
-                <div class="flex items-center text-sm text-slate-600 dark:text-slate-400">
+                <div class="flex items-center text-sm">
                   <svg
-                    class="w-4 h-4 mr-2 text-slate-400"
+                    class="w-4 h-4 mr-2"
+                    :class="quiz.total_questions > 0 ? 'text-green-500' : 'text-red-500'"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -242,14 +274,22 @@ const getTypeText = (type) => {
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
-                  <span>{{ quiz.total_questions || 0 }} soal</span>
+                  <span :class="quiz.total_questions > 0 ? 'text-slate-600 dark:text-slate-400' : 'text-red-600 dark:text-red-400'">
+                    {{ quiz.total_questions || 0 }} soal
+                  </span>
                 </div>
               </div>
 
-              <!-- Action Button -->
-              <Link
-                :href="route('quiz.attempt.start', quiz.id)"
-                class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:shadow-lg transition-all duration-200 group-hover:from-blue-600 group-hover:to-cyan-600"
+              <!-- 👇 UBAH: Action Button dengan validasi -->
+              <button
+                @click="checkQuizQuestions(quiz)"
+                :disabled="!quiz.total_questions || quiz.total_questions === 0"
+                :class="[
+                  'w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200',
+                  quiz.total_questions > 0
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:shadow-lg group-hover:from-blue-600 group-hover:to-cyan-600'
+                    : 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-500 cursor-not-allowed'
+                ]"
               >
                 <svg
                   class="w-4 h-4 mr-2"
@@ -258,6 +298,7 @@ const getTypeText = (type) => {
                   stroke="currentColor"
                 >
                   <path
+                    v-if="quiz.total_questions > 0"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
@@ -270,8 +311,8 @@ const getTypeText = (type) => {
                     d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                Mulai Quiz
-              </Link>
+                {{ quiz.total_questions > 0 ? 'Mulai Quiz' : 'Soal Kosong' }}
+              </button>
             </div>
           </div>
         </div>
@@ -323,6 +364,69 @@ const getTypeText = (type) => {
             >
               Next
             </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 👇 TAMBAH: Empty Quiz Modal -->
+    <div
+      v-if="showEmptyQuizModal"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      aria-labelledby="modal-title"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div
+          class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity"
+          aria-hidden="true"
+          @click="showEmptyQuizModal = false"
+        ></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div
+          class="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
+        >
+          <div class="sm:flex sm:items-start">
+            <div
+              class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/20 sm:mx-0 sm:h-10 sm:w-10"
+            >
+              <svg
+                class="h-6 w-6 text-yellow-600 dark:text-yellow-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3
+                class="text-lg leading-6 font-medium text-slate-900 dark:text-slate-100"
+                id="modal-title"
+              >
+                Quiz Belum Tersedia
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                  Quiz <strong class="text-slate-700 dark:text-slate-300">{{ selectedQuizTitle }}</strong> belum memiliki soal. Silakan hubungi admin untuk menambahkan soal terlebih dahulu.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+            <button
+              @click="showEmptyQuizModal = false"
+              type="button"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-150"
+            >
+              Mengerti
+            </button>
           </div>
         </div>
       </div>

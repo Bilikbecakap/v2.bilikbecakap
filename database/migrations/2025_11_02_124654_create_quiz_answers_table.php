@@ -20,6 +20,7 @@ return new class extends Migration
                   ->constrained('quiz_questions')
                   ->onDelete('cascade');
             $table->foreignId('quiz_option_id')
+                  ->nullable()
                   ->constrained('quiz_options')
                   ->onDelete('cascade');
             $table->boolean('is_correct');

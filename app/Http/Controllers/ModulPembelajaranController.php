@@ -96,7 +96,7 @@ class ModulPembelajaranController extends Controller implements HasMiddleware
             'deskripsi' => 'nullable|string',
             'content' => 'nullable|string',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'pdf_file' => 'nullable|mimes:pdf|max:10240', // 10MB max
+            'pdf_file' => 'nullable|mimes:pdf|max:102400', // 100MB max
             'video_embed' => 'nullable|url',
             'status' => 'required|in:draft,published,archived',
             'tanggal_publish' => 'nullable|date',
@@ -108,7 +108,7 @@ class ModulPembelajaranController extends Controller implements HasMiddleware
             'thumbnail.mimes' => 'Format gambar harus JPEG, PNG, JPG, GIF, atau WEBP.',
             'thumbnail.max' => 'Ukuran gambar maksimal 2MB.',
             'pdf_file.mimes' => 'File harus berformat PDF.',
-            'pdf_file.max' => 'Ukuran file PDF maksimal 10MB.',
+            'pdf_file.max' => 'Ukuran file PDF maksimal 100MB.',
             'video_embed.url' => 'URL video harus valid.',
         ]);
 
@@ -178,7 +178,7 @@ class ModulPembelajaranController extends Controller implements HasMiddleware
             'deskripsi' => 'nullable|string',
             'content' => 'nullable|string',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'pdf_file' => 'nullable|mimes:pdf|max:10240',
+            'pdf_file' => 'nullable|mimes:pdf|max:102400',
             'video_embed' => 'nullable|url',
             'status' => 'required|in:draft,published,archived',
             'tanggal_publish' => 'nullable|date',

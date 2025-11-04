@@ -19,6 +19,8 @@ return new class extends Migration
                   ->onDelete('cascade');
             $table->string('title');
             $table->text('description')->nullable();
+            $table->string('thumbnail')->nullable();
+            $table->string('music')->nullable();
             $table->integer('duration')->default(30); // durasi dalam menit
             $table->enum('type', ['modul', 'umum'])->default('umum');
             $table->enum('status', ['active', 'inactive'])->default('active');

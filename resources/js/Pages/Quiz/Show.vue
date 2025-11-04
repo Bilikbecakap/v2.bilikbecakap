@@ -64,6 +64,12 @@ const getTypeText = (type) => {
   };
   return texts[type] || type;
 };
+
+// 👇 TAMBAH: Helper untuk nama file music
+const getMusicFileName = (musicPath) => {
+  if (!musicPath) return null;
+  return musicPath.split('/').pop();
+};
 </script>
 
 <template>
@@ -112,6 +118,79 @@ const getTypeText = (type) => {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Left Column - Quiz Details -->
       <div class="lg:col-span-2 space-y-6">
+        <!-- 👇 TAMBAH: Thumbnail & Media Section -->
+        <div
+          v-if="quiz.thumbnail || quiz.music"
+          class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
+        >
+          <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white">
+              Media Quiz
+            </h3>
+          </div>
+
+          <div class="p-6 space-y-4">
+            <!-- Thumbnail -->
+            <div v-if="quiz.thumbnail">
+              <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+                Thumbnail
+              </label>
+              <div class="relative w-full h-64 rounded-lg overflow-hidden border-2 border-slate-200 dark:border-slate-700">
+                <img
+                  :src="`/storage/${quiz.thumbnail}`"
+                  :alt="quiz.title"
+                  class="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
+            <!-- Background Music -->
+            <div v-if="quiz.music">
+              <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+                Background Music
+              </label>
+              <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="p-3 bg-blue-500 rounded-full">
+                      <svg
+                        class="w-6 h-6 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-slate-800 dark:text-white">
+                        {{ getMusicFileName(quiz.music) }}
+                      </p>
+                      <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Audio akan diputar saat quiz dikerjakan
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Audio Player -->
+                <audio
+                  controls
+                  class="w-full h-10"
+                  :src="`/storage/${quiz.music}`"
+                >
+                  Browser Anda tidak mendukung audio player.
+                </audio>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Quiz Information -->
         <div
           class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
@@ -281,7 +360,6 @@ const getTypeText = (type) => {
                     {{ index + 1 }}
                   </span>
                   <div class="flex-1">
-                    <!-- Gunakan v-html untuk render HTML dari Quill Editor -->
                     <div 
                       class="text-sm font-medium text-slate-800 dark:text-white prose prose-sm dark:prose-invert max-w-none"
                       v-html="question.question"
@@ -530,7 +608,7 @@ const getTypeText = (type) => {
       </div>
     </div>
 
-    <!-- Delete Modal -->
+    <!-- Delete Modal (tetap sama) -->
     <div
       v-if="showDeleteModal"
       class="fixed inset-0 z-50 overflow-y-auto"
@@ -639,5 +717,22 @@ const getTypeText = (type) => {
   height: auto;
   border-radius: 0.5rem;
   margin: 0.5em 0;
+}
+
+/* Custom audio player styling */
+audio {
+  filter: sepia(20%) saturate(70%) grayscale(1) contrast(99%) invert(12%);
+}
+
+audio::-webkit-media-controls-panel {
+  background-color: #f8fafc;
+}
+
+.dark audio {
+  filter: sepia(20%) saturate(70%) grayscale(1) contrast(99%) invert(88%);
+}
+
+.dark audio::-webkit-media-controls-panel {
+  background-color: #1e293b;
 }
 </style>

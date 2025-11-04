@@ -265,7 +265,7 @@ const isPublishable = computed(() => {
                   :class="{ 'border-red-300 dark:border-red-600': form.errors?.pdf_file }"
                 />
                 <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Format: PDF. Maksimal 10MB
+                  Format: PDF. Maksimal 100MB
                 </p>
                 <p v-if="form.errors?.pdf_file" class="mt-1 text-sm text-red-600 dark:text-red-400">
                   {{ form.errors.pdf_file }}

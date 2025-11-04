@@ -39,4 +39,9 @@ class QuizAnswer extends Model
     {
         return $this->belongsTo(QuizOption::class, 'quiz_option_id');
     }
+
+    public function isAnswered()
+    {
+        return !is_null($this->quiz_option_id);
+    }
 }

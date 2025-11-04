@@ -119,11 +119,10 @@ class QuizAttemptController extends Controller implements HasMiddleware
      */
     public function submit(Request $request, Quizzes $quiz, QuizAttempt $attempt)
     {
-        // PERBAIKAN: Validation yang lebih fleksibel
         $request->validate([
             'answers' => 'required|array',
             'answers.*.question_id' => 'required|exists:quiz_questions,id',
-            'answers.*.option_id' => 'nullable|exists:quiz_options,id', // NULLABLE!
+            'answers.*.option_id' => 'nullable|exists:quiz_options,id', // NULLABLE
         ], [
             'answers.required' => 'Jawaban wajib diisi.',
         ]);
@@ -133,35 +132,36 @@ class QuizAttemptController extends Controller implements HasMiddleware
             $correctCount = 0;
             $totalQuestions = $quiz->questions()->count();
 
-            // PERBAIKAN: Filter hanya jawaban yang terisi
-            $filledAnswers = collect($request->answers)->filter(function($answer) {
-                return !is_null($answer['option_id']);
-            });
+            $allQuestions = $quiz->questions()->get();
+            
+            $submittedAnswers = collect($request->answers)->keyBy('question_id');
 
-            // Process each filled answer
-            foreach ($filledAnswers as $answerData) {
-                $question = $quiz->questions()->find($answerData['question_id']);
+            foreach ($allQuestions as $question) {
+                $submittedAnswer = $submittedAnswers->get($question->id);
                 
-                if (!$question) {
-                    continue;
+                // Default values untuk soal tidak dijawab
+                $selectedOptionId = null;
+                $isCorrect = false;
+
+                // Jika soal dijawab
+                if ($submittedAnswer && !is_null($submittedAnswer['option_id'])) {
+                    $selectedOptionId = $submittedAnswer['option_id'];
+                    
+                    // Validasi option milik question ini
+                    $selectedOption = $question->options()->find($selectedOptionId);
+                    
+                    if ($selectedOption) {
+                        $isCorrect = $selectedOption->is_correct;
+                        if ($isCorrect) {
+                            $correctCount++;
+                        }
+                    }
                 }
 
-                $selectedOption = $question->options()->find($answerData['option_id']);
-                
-                if (!$selectedOption) {
-                    continue;
-                }
-
-                $isCorrect = $selectedOption->is_correct;
-                if ($isCorrect) {
-                    $correctCount++;
-                }
-
-                // Save answer
                 QuizAnswer::create([
                     'quiz_attempt_id' => $attempt->id,
                     'quiz_question_id' => $question->id,
-                    'quiz_option_id' => $selectedOption->id,
+                    'quiz_option_id' => $selectedOptionId, 
                     'is_correct' => $isCorrect,
                 ]);
             }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -23,6 +24,8 @@ class MasterMediaMusicQuiz extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = ['audio_url'];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -35,6 +38,15 @@ class MasterMediaMusicQuiz extends Model
     // Accessor untuk mendapatkan URL audio
     public function getAudioUrlAttribute()
     {
-        return asset('storage/' . $this->audio);
+        if (!$this->audio) {
+            return null;
+        }
+
+        // Pastikan file exists
+        if (Storage::disk('public')->exists($this->audio)) {
+            return asset('storage/' . $this->audio);
+        }
+
+        return null;
     }
 }

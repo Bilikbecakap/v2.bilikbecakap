@@ -20,7 +20,10 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('thumbnail')->nullable();
-            $table->string('music')->nullable();
+            $table->foreignId('master_media_music_quiz_id')
+                  ->nullable()
+                  ->constrained('master_media_music_quiz')
+                  ->onDelete('set null');
             $table->integer('duration')->default(30); // durasi dalam menit
             $table->enum('type', ['modul', 'umum'])->default('umum');
             $table->enum('status', ['active', 'inactive'])->default('active');

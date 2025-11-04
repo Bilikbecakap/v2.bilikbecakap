@@ -295,7 +295,7 @@ const submit = () => {
             class="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
             <span v-if="form.processing">Menyimpan...</span>
-            <span v-else">Update</span>
+            <span v-else>Update</span>
           </button>
         </div>
       </form>

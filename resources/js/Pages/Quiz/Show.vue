@@ -9,6 +9,9 @@ const props = defineProps({
   averageScore: Number,
 });
 
+// DEBUG
+console.log('Quiz data:', props.quiz);
+
 const showDeleteModal = ref(false);
 
 const formatDate = (date) => {
@@ -64,12 +67,6 @@ const getTypeText = (type) => {
   };
   return texts[type] || type;
 };
-
-// 👇 TAMBAH: Helper untuk nama file music
-const getMusicFileName = (musicPath) => {
-  if (!musicPath) return null;
-  return musicPath.split('/').pop();
-};
 </script>
 
 <template>
@@ -118,9 +115,9 @@ const getMusicFileName = (musicPath) => {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Left Column - Quiz Details -->
       <div class="lg:col-span-2 space-y-6">
-        <!-- 👇 TAMBAH: Thumbnail & Media Section -->
+        <!-- UBAH: Thumbnail & Media Section -->
         <div
-          v-if="quiz.thumbnail || quiz.music"
+          v-if="quiz.thumbnail_url || quiz.master_media_music_quiz"
           class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
         >
           <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
@@ -131,21 +128,21 @@ const getMusicFileName = (musicPath) => {
 
           <div class="p-6 space-y-4">
             <!-- Thumbnail -->
-            <div v-if="quiz.thumbnail">
+            <div v-if="quiz.thumbnail_url">
               <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
                 Thumbnail
               </label>
               <div class="relative w-full h-64 rounded-lg overflow-hidden border-2 border-slate-200 dark:border-slate-700">
                 <img
-                  :src="`/storage/${quiz.thumbnail}`"
+                  :src="quiz.thumbnail_url"
                   :alt="quiz.title"
                   class="w-full h-full object-cover"
                 />
               </div>
             </div>
 
-            <!-- Background Music -->
-            <div v-if="quiz.music">
+            <!-- UBAH: Background Music dari Master Media Music Quiz -->
+            <div v-if="quiz.master_media_music_quiz">
               <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
                 Background Music
               </label>
@@ -169,23 +166,48 @@ const getMusicFileName = (musicPath) => {
                     </div>
                     <div>
                       <p class="text-sm font-semibold text-slate-800 dark:text-white">
-                        {{ getMusicFileName(quiz.music) }}
+                        {{ quiz.master_media_music_quiz.audio.split('/').pop() }}
                       </p>
-                      <p class="text-xs text-slate-500 dark:text-slate-400">
+                      <p v-if="quiz.master_media_music_quiz.keterangan" class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                        {{ quiz.master_media_music_quiz.keterangan }}
+                      </p>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                         Audio akan diputar saat quiz dikerjakan
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <!-- Audio Player -->
+                <!-- Audio Player dengan URL yang benar -->
                 <audio
+                  v-if="quiz.master_media_music_quiz.audio_url"
                   controls
+                  preload="metadata"
                   class="w-full h-10"
-                  :src="`/storage/${quiz.music}`"
+                  :src="quiz.master_media_music_quiz.audio_url"
+                  @error="(e) => console.error('Audio error:', e)"
                 >
                   Browser Anda tidak mendukung audio player.
                 </audio>
+
+                <!-- Warning jika audio_url tidak ada -->
+                <div v-else class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-200 dark:border-yellow-700">
+                  <p class="text-xs text-yellow-800 dark:text-yellow-200">
+                    ⚠️ File audio tidak ditemukan
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Info jika tidak ada music -->
+            <div v-else class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+              <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                <p class="text-sm text-slate-600 dark:text-slate-400">
+                  Quiz ini tidak memiliki background music
+                </p>
               </div>
             </div>
           </div>
@@ -413,7 +435,7 @@ const getMusicFileName = (musicPath) => {
         </div>
       </div>
 
-      <!-- Right Column - Statistics & Actions -->
+      <!-- Right Column - Statistics & Actions (tetap sama) -->
       <div class="space-y-6">
         <!-- Statistics -->
         <div

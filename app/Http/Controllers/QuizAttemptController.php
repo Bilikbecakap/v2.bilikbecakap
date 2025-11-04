@@ -102,6 +102,8 @@ class QuizAttemptController extends Controller implements HasMiddleware
      */
     public function quiz(Quizzes $quiz, QuizAttempt $attempt)
     {
+        $quiz->load('masterMediaMusicQuiz');
+        
         $questions = $quiz->questions()
             ->with('options')
             ->orderBy('order')

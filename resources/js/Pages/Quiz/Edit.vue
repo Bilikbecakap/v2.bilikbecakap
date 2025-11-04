@@ -6,16 +6,20 @@ import { ref, watch, computed } from "vue";
 const props = defineProps({
   quiz: Object,
   moduls: Array,
+  musicQuizzes: Array, // TAMBAH
 });
+
+// DEBUG
+console.log('Quiz data:', props.quiz);
+console.log('Music Quizzes:', props.musicQuizzes);
 
 const form = useForm({
   _method: 'PUT',
   title: props.quiz.title,
   description: props.quiz.description,
   thumbnail: null,
-  music: null,
+  master_media_music_quiz_id: props.quiz.master_media_music_quiz_id, // UBAH
   remove_thumbnail: false,
-  remove_music: false,
   duration: props.quiz.duration,
   type: props.quiz.type,
   modul_pembelajaran_id: props.quiz.modul_pembelajaran_id,
@@ -24,7 +28,12 @@ const form = useForm({
 
 // Preview states
 const thumbnailPreview = ref(props.quiz.thumbnail_url);
-const musicFileName = ref(props.quiz.music ? props.quiz.music.split('/').pop() : null);
+const selectedMusic = ref(null); // UBAH: untuk preview audio yang dipilih
+
+// Initialize selected music jika ada
+if (props.quiz.master_media_music_quiz_id) {
+  selectedMusic.value = props.musicQuizzes?.find(m => m.id === props.quiz.master_media_music_quiz_id);
+}
 
 // Watch type changes to reset modul_pembelajaran_id
 watch(
@@ -32,6 +41,19 @@ watch(
   (newType) => {
     if (newType === "umum") {
       form.modul_pembelajaran_id = null;
+    }
+  }
+);
+
+// TAMBAH: Watch music selection changes
+watch(
+  () => form.master_media_music_quiz_id,
+  (newMusicId) => {
+    if (newMusicId) {
+      selectedMusic.value = props.musicQuizzes.find(m => m.id === newMusicId);
+      console.log('Selected Music:', selectedMusic.value);
+    } else {
+      selectedMusic.value = null;
     }
   }
 );
@@ -60,33 +82,14 @@ const removeThumbnail = () => {
   document.getElementById('thumbnail').value = '';
 };
 
-// Handle music upload
-const handleMusicChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    form.music = file;
-    form.remove_music = false;
-    musicFileName.value = file.name;
-  }
-};
-
-// Remove music
-const removeMusic = () => {
-  form.music = null;
-  form.remove_music = true;
-  musicFileName.value = null;
-  document.getElementById('music').value = '';
-};
-
 const submit = () => {
   router.post(route("quiz.update", props.quiz.id), {
     _method: 'PUT',
     title: form.title,
     description: form.description,
     thumbnail: form.thumbnail,
-    music: form.music,
+    master_media_music_quiz_id: form.master_media_music_quiz_id, // UBAH
     remove_thumbnail: form.remove_thumbnail ? '1' : '0',
-    remove_music: form.remove_music ? '1' : '0',
     duration: form.duration,
     type: form.type,
     modul_pembelajaran_id: form.modul_pembelajaran_id,
@@ -200,7 +203,7 @@ const submit = () => {
             </p>
           </div>
 
-          <!-- 👇 TAMBAH: Thumbnail Upload -->
+          <!-- Thumbnail Upload -->
           <div>
             <label
               for="thumbnail"
@@ -280,61 +283,22 @@ const submit = () => {
             </p>
           </div>
 
-          <!-- 👇 TAMBAH: Music Upload -->
+          <!-- UBAH: Music Selector (bukan upload) -->
           <div>
             <label
-              for="music"
+              for="master_media_music_quiz_id"
               class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
             >
               Background Music
             </label>
-            
-            <!-- Upload Button / File Info -->
-            <div v-if="!musicFileName" class="flex items-center justify-center w-full">
-              <label
-                for="music"
-                class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 dark:border-slate-600 border-dashed rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                :class="{
-                  'border-red-500 dark:border-red-500': form.errors.music,
-                }"
-              >
-                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg
-                    class="w-10 h-10 mb-3 text-slate-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-                    />
-                  </svg>
-                  <p class="mb-2 text-sm text-slate-500 dark:text-slate-400">
-                    <span class="font-semibold">Klik untuk upload</span> atau drag & drop
-                  </p>
-                  <p class="text-xs text-slate-500 dark:text-slate-400">
-                    MP3, WAV, OGG (MAX. 100MB)
-                  </p>
-                </div>
-                <input
-                  id="music"
-                  type="file"
-                  accept="audio/mpeg,audio/wav,audio/ogg"
-                  class="hidden"
-                  @change="handleMusicChange"
-                />
-              </label>
-            </div>
 
-            <!-- File Info -->
-            <div v-else class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+            <!-- Current Music (jika ada) -->
+            <div v-if="quiz.master_media_music_quiz && !form.master_media_music_quiz_id" class="mb-3 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Music Saat Ini:</p>
               <div class="flex items-center gap-3">
-                <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <div class="p-2 bg-slate-200 dark:bg-slate-600 rounded-lg">
                   <svg
-                    class="w-6 h-6 text-blue-600 dark:text-blue-400"
+                    class="w-5 h-5 text-slate-600 dark:text-slate-300"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -347,36 +311,94 @@ const submit = () => {
                     />
                   </svg>
                 </div>
-                <div>
+                <div class="flex-1">
                   <p class="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    {{ musicFileName }}
+                    {{ quiz.master_media_music_quiz.audio.split('/').pop() }}
                   </p>
-                  <p class="text-xs text-slate-500 dark:text-slate-400">
-                    Audio file ready
+                  <p v-if="quiz.master_media_music_quiz.keterangan" class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ quiz.master_media_music_quiz.keterangan }}
                   </p>
                 </div>
               </div>
-              <button
-                type="button"
-                @click="removeMusic"
-                class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              <audio
+                v-if="quiz.master_media_music_quiz.audio_url"
+                :src="quiz.master_media_music_quiz.audio_url"
+                controls
+                preload="metadata"
+                class="w-full mt-2"
+              ></audio>
+            </div>
+
+            <select
+              id="master_media_music_quiz_id"
+              v-model="form.master_media_music_quiz_id"
+              class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white"
+              :class="{
+                'border-red-500 dark:border-red-500': form.errors.master_media_music_quiz_id,
+              }"
+            >
+              <option :value="null">-- Tidak Ada Music / Hapus Music --</option>
+              <option 
+                v-for="music in musicQuizzes" 
+                :key="music.id" 
+                :value="music.id"
               >
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              </button>
+                {{ music.audio ? music.audio.split('/').pop() : 'Unnamed Audio' }}
+                <template v-if="music.keterangan"> - {{ music.keterangan }}</template>
+              </option>
+            </select>
+
+            <!-- Preview Audio yang dipilih (jika berbeda dengan yang lama) -->
+            <div v-if="selectedMusic && selectedMusic.audio_url && selectedMusic.id !== quiz.master_media_music_quiz_id" class="mt-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p class="text-xs text-blue-700 dark:text-blue-300 mb-2 font-medium">Preview Music Baru:</p>
+              <div class="flex items-center gap-3 mb-2">
+                <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                  <svg
+                    class="w-5 h-5 text-blue-600 dark:text-blue-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                    />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    {{ selectedMusic.audio.split('/').pop() }}
+                  </p>
+                  <p v-if="selectedMusic.keterangan" class="text-xs text-blue-700 dark:text-blue-300">
+                    {{ selectedMusic.keterangan }}
+                  </p>
+                </div>
+              </div>
+              <audio
+                :key="selectedMusic.audio_url"
+                :src="selectedMusic.audio_url"
+                controls
+                preload="metadata"
+                class="w-full"
+                @error="(e) => console.error('Audio error:', e)"
+              >
+                Your browser does not support the audio element.
+              </audio>
             </div>
 
             <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Kosongkan jika tidak ingin mengubah background music
+              Pilih music baru untuk mengganti, atau pilih "Tidak Ada Music" untuk menghapus. Kelola music di 
+              <Link 
+                :href="route('data-master.quiz-music.index')" 
+                class="text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Master Data Music Quiz
+              </Link>
             </p>
-            <p v-if="form.errors.music" class="mt-1 text-sm text-red-600 dark:text-red-400">
-              {{ form.errors.music }}
+            <p v-if="form.errors.master_media_music_quiz_id" class="mt-1 text-sm text-red-600 dark:text-red-400">
+              {{ form.errors.master_media_music_quiz_id }}
             </p>
           </div>
 

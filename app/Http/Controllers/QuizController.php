@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Quizzes;
 use App\Models\ModulPembelajaran;
+use App\Models\MasterMediaMusicQuiz;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -23,12 +24,9 @@ class QuizController extends Controller implements HasMiddleware
         ];
     }
 
-    /**
-     * Display a listing of the quizzes.
-     */
     public function index(Request $request)
     {
-        $query = Quizzes::with(['modulPembelajaran']);
+        $query = Quizzes::with(['modulPembelajaran', 'masterMediaMusicQuiz']); // TAMBAH relasi
 
         // Filter berdasarkan search
         if ($request->filled('search')) {
@@ -70,30 +68,38 @@ class QuizController extends Controller implements HasMiddleware
         ]);
     }
 
-    /**
-     * Show the form for creating a new quiz.
-     */
     public function create()
     {
         $moduls = ModulPembelajaran::where('status', 'published')
             ->orderBy('title')
             ->get(['id', 'title']);
 
+        $musicQuizzes = MasterMediaMusicQuiz::where('is_active', true)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($music) {
+                return [
+                    'id' => $music->id,
+                    'audio' => $music->audio,
+                    'audio_url' => $music->audio_url, 
+                    'keterangan' => $music->keterangan,
+                    'is_active' => $music->is_active,
+                ];
+            });
+
         return Inertia::render('Quiz/Create', [
-            'moduls' => $moduls
+            'moduls' => $moduls,
+            'musicQuizzes' => $musicQuizzes
         ]);
     }
 
-    /**
-     * Store a newly created quiz in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048', 
-            'music' => 'nullable|mimes:mp3,wav,ogg|max:10240',
+            'master_media_music_quiz_id' => 'nullable|exists:master_media_music_quiz,id', // UBAH
             'duration' => 'required|integer|min:1',
             'type' => 'required|in:umum,modul',
             'modul_pembelajaran_id' => 'required_if:type,modul|nullable|exists:modul_pembelajaran,id',
@@ -103,8 +109,7 @@ class QuizController extends Controller implements HasMiddleware
             'thumbnail.image' => 'Thumbnail harus berupa gambar.',
             'thumbnail.mimes' => 'Thumbnail harus berformat jpeg, jpg, png, atau webp.',
             'thumbnail.max' => 'Ukuran thumbnail maksimal 2MB.',
-            'music.mimes' => 'Music harus berformat mp3, wav, atau ogg.',
-            'music.max' => 'Ukuran music maksimal 10MB.',
+            'master_media_music_quiz_id.exists' => 'Music quiz yang dipilih tidak valid.', // UBAH
             'duration.required' => 'Durasi quiz wajib diisi.',
             'duration.min' => 'Durasi minimal 1 menit.',
             'type.required' => 'Tipe quiz wajib dipilih.',
@@ -114,7 +119,7 @@ class QuizController extends Controller implements HasMiddleware
 
         DB::beginTransaction();
         try {
-            $data = $request->except(['thumbnail', 'music']);
+            $data = $request->except(['thumbnail']); 
 
             // Jika type umum, set modul_pembelajaran_id ke null
             if ($data['type'] === 'umum') {
@@ -126,10 +131,6 @@ class QuizController extends Controller implements HasMiddleware
                 $data['thumbnail'] = $thumbnailPath;
             }
 
-            if ($request->hasFile('music')) {
-                $musicPath = $request->file('music')->store('quizzes/music', 'public');
-                $data['music'] = $musicPath;
-            }
 
             $quiz = Quizzes::create($data);
 
@@ -140,7 +141,7 @@ class QuizController extends Controller implements HasMiddleware
                     'type' => $data['type'],
                     'status' => $data['status'],
                     'has_thumbnail' => isset($data['thumbnail']),
-                    'has_music' => isset($data['music']),
+                    'has_music' => isset($data['master_media_music_quiz_id']), // UBAH
                 ])
                 ->log('Created new quiz');
 
@@ -156,20 +157,14 @@ class QuizController extends Controller implements HasMiddleware
             if (isset($thumbnailPath)) {
                 Storage::disk('public')->delete($thumbnailPath);
             }
-            if (isset($musicPath)) {
-                Storage::disk('public')->delete($musicPath);
-            }
             
             return back()->withInput()->withErrors(['error' => 'Gagal membuat quiz: ' . $e->getMessage()]);
         }
     }
 
-    /**
-     * Display the specified quiz.
-     */
     public function show(Quizzes $quiz)
     {
-        $quiz->load(['modulPembelajaran', 'questions.options']);
+        $quiz->load(['modulPembelajaran', 'masterMediaMusicQuiz', 'questions.options']); 
 
         // Hitung total attempts dan statistics
         $totalAttempts = $quiz->attempts()->count();
@@ -182,33 +177,33 @@ class QuizController extends Controller implements HasMiddleware
         ]);
     }
 
-    /**
-     * Show the form for editing the specified quiz.
-     */
     public function edit(Quizzes $quiz)
     {
+        $quiz->load('masterMediaMusicQuiz'); 
+
         $moduls = ModulPembelajaran::where('status', 'published')
             ->orderBy('title')
             ->get(['id', 'title']);
 
+        $musicQuizzes = MasterMediaMusicQuiz::where('is_active', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return Inertia::render('Quiz/Edit', [
             'quiz' => $quiz,
-            'moduls' => $moduls
+            'moduls' => $moduls,
+            'musicQuizzes' => $musicQuizzes 
         ]);
     }
 
-    /**
-     * Update the specified quiz in storage.
-     */
     public function update(Request $request, Quizzes $quiz)
     {
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
-            'music' => 'nullable|mimes:mp3,wav,ogg|max:10240', 
+            'master_media_music_quiz_id' => 'nullable|exists:master_media_music_quiz,id',
             'remove_thumbnail' => 'nullable|boolean', 
-            'remove_music' => 'nullable|boolean', 
             'duration' => 'required|integer|min:1',
             'type' => 'required|in:umum,modul',
             'modul_pembelajaran_id' => 'required_if:type,modul|nullable|exists:modul_pembelajaran,id',
@@ -218,8 +213,7 @@ class QuizController extends Controller implements HasMiddleware
             'thumbnail.image' => 'Thumbnail harus berupa gambar.',
             'thumbnail.mimes' => 'Thumbnail harus berformat jpeg, jpg, png, atau webp.',
             'thumbnail.max' => 'Ukuran thumbnail maksimal 2MB.',
-            'music.mimes' => 'Music harus berformat mp3, wav, atau ogg.',
-            'music.max' => 'Ukuran music maksimal 10MB.',
+            'master_media_music_quiz_id.exists' => 'Music quiz yang dipilih tidak valid.', 
             'duration.required' => 'Durasi quiz wajib diisi.',
             'duration.min' => 'Durasi minimal 1 menit.',
             'type.required' => 'Tipe quiz wajib dipilih.',
@@ -229,7 +223,7 @@ class QuizController extends Controller implements HasMiddleware
 
         DB::beginTransaction();
         try {
-            $data = $request->except(['thumbnail', 'music', 'remove_thumbnail', 'remove_music']);
+            $data = $request->except(['thumbnail', 'remove_thumbnail']); 
 
             // Jika type umum, set modul_pembelajaran_id ke null
             if ($data['type'] === 'umum') {
@@ -250,20 +244,6 @@ class QuizController extends Controller implements HasMiddleware
                 $data['thumbnail'] = $thumbnailPath;
             }
 
-            if ($request->remove_music) {
-                $quiz->deleteMusic();
-                $data['music'] = null;
-            }
-
-            // 👇 TAMBAH: Handle upload music baru
-            if ($request->hasFile('music')) {
-                // Hapus music lama
-                $quiz->deleteMusic();
-                
-                // Upload music baru
-                $musicPath = $request->file('music')->store('quizzes/music', 'public');
-                $data['music'] = $musicPath;
-            }
 
             $quiz->update($data);
 
@@ -276,7 +256,7 @@ class QuizController extends Controller implements HasMiddleware
                     'old_status' => $quiz->getOriginal('status'),
                     'new_status' => $data['status'],
                     'thumbnail_updated' => $request->hasFile('thumbnail'),
-                    'music_updated' => $request->hasFile('music'),
+                    'music_updated' => isset($data['master_media_music_quiz_id']), // UBAH
                 ])
                 ->log('Updated quiz');
 
@@ -292,17 +272,11 @@ class QuizController extends Controller implements HasMiddleware
             if (isset($thumbnailPath)) {
                 Storage::disk('public')->delete($thumbnailPath);
             }
-            if (isset($musicPath)) {
-                Storage::disk('public')->delete($musicPath);
-            }
             
             return back()->withInput()->withErrors(['error' => 'Gagal mengupdate quiz: ' . $e->getMessage()]);
         }
     }
 
-    /**
-     * Remove the specified quiz from storage.
-     */
     public function destroy(Quizzes $quiz)
     {
         DB::beginTransaction();
@@ -315,9 +289,7 @@ class QuizController extends Controller implements HasMiddleware
                 ])
                 ->log('Deleted quiz');
 
-            // 👇 TAMBAH: Hapus file thumbnail dan music
             $quiz->deleteThumbnail();
-            $quiz->deleteMusic();
 
             $quiz->delete();
 

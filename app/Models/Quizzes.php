@@ -17,7 +17,7 @@ class Quizzes extends Model
         'title',
         'description',
         'thumbnail',
-        'music',  
+        'master_media_music_quiz_id',
         'duration',
         'type',
         'status',
@@ -33,6 +33,12 @@ class Quizzes extends Model
     public function modulPembelajaran()
     {
         return $this->belongsTo(ModulPembelajaran::class, 'modul_pembelajaran_id');
+    }
+
+    // TAMBAH: Relasi ke Master Media Music Quiz
+    public function masterMediaMusicQuiz()
+    {
+        return $this->belongsTo(MasterMediaMusicQuiz::class, 'master_media_music_quiz_id');
     }
 
     // Relasi ke Questions
@@ -72,14 +78,11 @@ class Quizzes extends Model
         return null;
     }
 
+    // UBAH: Ambil music dari relasi
     public function getMusicUrlAttribute()
     {
-        if (!$this->music) {
-            return null;
-        }
-
-        if (Storage::disk('public')->exists($this->music)) {
-            return asset('storage/' . $this->music);
+        if ($this->masterMediaMusicQuiz && $this->masterMediaMusicQuiz->audio) {
+            return $this->masterMediaMusicQuiz->audio_url;
         }
 
         return null;
@@ -91,12 +94,4 @@ class Quizzes extends Model
             Storage::disk('public')->delete($this->thumbnail);
         }
     }
-
-    public function deleteMusic()
-    {
-        if ($this->music && Storage::disk('public')->exists($this->music)) {
-            Storage::disk('public')->delete($this->music);
-        }
-    }
-
 }

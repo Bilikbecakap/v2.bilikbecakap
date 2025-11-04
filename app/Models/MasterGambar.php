@@ -32,4 +32,9 @@ class MasterGambar extends Model
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(fn(string $eventName) => "Master Gambar has been {$eventName}");
     }
+
+    public function galeriImages()
+    {
+        return $this->hasMany(GambarGaleri::class, 'master_gambar_id');
+    }
 }

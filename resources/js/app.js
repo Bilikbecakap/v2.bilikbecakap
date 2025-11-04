@@ -38,7 +38,10 @@ import {
     faExchangeAlt,
     faNewspaper,
     faBookOpen,
-    faQuestionCircle
+    faQuestionCircle,
+    faImages,    
+    faAddressBook, 
+    faComments     
 } from '@fortawesome/free-solid-svg-icons';
 
 // Add Font Awesome icons to the library
@@ -71,7 +74,10 @@ library.add(
     faExchangeAlt,
     faNewspaper,
     faBookOpen,
-    faQuestionCircle
+    faQuestionCircle,
+    faImages,        // Icon untuk 
+    faAddressBook,   // Icon untuk 
+    faComments      
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -89,19 +95,19 @@ createInertiaApp({
             import.meta.glob('./Pages/**/*.vue'),
         ),
     setup({ el, App, props, plugin }) {
-        return createApp({ render: () => h(App, props) })
+        const app = createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
-            .component('font-awesome-icon', FontAwesomeIcon)
-            .mount(el);
+            .use(Toast, {
+                transition: "Vue-Toastification__bounce",
+                maxToasts: 3,
+                newestOnTop: true
+            })
+            .component('font-awesome-icon', FontAwesomeIcon);
+        
+        return app.mount(el);
     },
     progress: {
         color: '#4B5563',
     },
-});
-
-app.use(Toast, {
-  transition: "Vue-Toastification__bounce",
-  maxToasts: 3,
-  newestOnTop: true
 });

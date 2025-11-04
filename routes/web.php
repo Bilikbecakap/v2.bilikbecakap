@@ -21,6 +21,7 @@ use App\Http\Controllers\ModulPembelajaranController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\QuizQuestionController;
 use App\Http\Controllers\QuizAttemptController;
+use App\Http\Controllers\GambarGaleriController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -149,6 +150,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Quiz History & Detail (untuk admin review)
         Route::get('/quiz/{quiz}/attempts', [QuizAttemptController::class, 'history'])->name('quiz.attempts.history');
         Route::get('/quiz/{quiz}/attempts/{attempt}', [QuizAttemptController::class, 'show'])->name('quiz.attempts.show');
+
+        // Gambar Galeri
+        Route::get('/galeri', [GambarGaleriController::class, 'index'])->name('galeri.index');
+        Route::get('/galeri/create', [GambarGaleriController::class, 'create'])->name('galeri.create');
+        Route::post('/galeri', [GambarGaleriController::class, 'store'])->name('galeri.store');
+        Route::get('/galeri/{galeri}', [GambarGaleriController::class, 'show'])->name('galeri.show');
+        Route::get('/galeri/{galeri}/edit', [GambarGaleriController::class, 'edit'])->name('galeri.edit');
+        Route::put('/galeri/{galeri}', [GambarGaleriController::class, 'update'])->name('galeri.update');
+        Route::delete('/galeri/{galeri}', [GambarGaleriController::class, 'destroy'])->name('galeri.destroy');
 
     });
     // Translate Management

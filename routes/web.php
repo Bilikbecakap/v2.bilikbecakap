@@ -14,6 +14,8 @@ use App\Http\Controllers\AdminKamusController;
 use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\MasterModulController;
 use App\Http\Controllers\MasterArtikelController;
+use App\Http\Controllers\MasterGambarController;
+use App\Http\Controllers\MasterMediaMusicQuizController;
 use App\Http\Controllers\ArtikelController;  
 use App\Http\Controllers\ModulPembelajaranController;
 use App\Http\Controllers\QuizController;
@@ -77,10 +79,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('data-master')->name('data-master.')->group(function () {
         Route::resource('artikel', MasterArtikelController::class)->except(['show']);
         Route::resource('modul', MasterModulController::class)->except(['show']);
+        Route::resource('gambar', MasterGambarController::class)->except(['show']);
+        Route::resource('quiz-music', MasterMediaMusicQuizController::class)->except(['show']);
     });
 
-    //Kamus Management
     Route::prefix('admin')->group(function () {
+
+        //Kamus Management
         Route::get('/kamus', [AdminKamusController::class, 'index'])->name('kamus.index');
         Route::get('/kamus/create', [AdminKamusController::class, 'create'])->name('kamus.create');
         Route::post('/kamus', [AdminKamusController::class, 'store'])->name('kamus.store');

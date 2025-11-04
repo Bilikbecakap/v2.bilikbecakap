@@ -58,6 +58,25 @@ const getStatusBadge = (isActive) => {
 
         <div v-if="can('create data master')" class="flex gap-3">
           <Link
+            :href="route('data-master.index')"
+            class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors duration-150"
+          >
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Kembali
+          </Link>
+          <Link
             :href="route('data-master.artikel.create')"
             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:shadow-md transition-all duration-200"
           >

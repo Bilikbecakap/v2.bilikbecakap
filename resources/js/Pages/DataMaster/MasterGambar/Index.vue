@@ -9,23 +9,23 @@ const { can } = usePermissions();
 const { t } = useTranslations();
 
 const props = defineProps({
-  modul: Array,
+  gambar: Array,
 });
 
 const showDeleteModal = ref(false);
-const selectedModul = ref(null);
+const selectedGambar = ref(null);
 
-const deleteModul = (modul) => {
-  selectedModul.value = modul;
+const deleteGambar = (gambar) => {
+  selectedGambar.value = gambar;
   showDeleteModal.value = true;
 };
 
 const confirmDelete = () => {
-  if (selectedModul.value) {
-    router.delete(route("data-master.modul.destroy", selectedModul.value.id), {
+  if (selectedGambar.value) {
+    router.delete(route("data-master.gambar.destroy", selectedGambar.value.id), {
       onSuccess: () => {
         showDeleteModal.value = false;
-        selectedModul.value = null;
+        selectedGambar.value = null;
       },
     });
   }
@@ -39,24 +39,24 @@ const getStatusBadge = (isActive) => {
 </script>
 
 <template>
-  <Head title="Master Modul" />
+  <Head title="Master Gambar" />
 
   <AdminLayout>
-    <template #title>Master Modul</template>
+    <template #title>Master Gambar</template>
 
     <!-- Header Section -->
     <div class="mb-6 md:mb-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 class="text-xl md:text-2xl font-bold text-slate-800 dark:text-white">
-            Master Modul
+            Master Gambar
           </h2>
           <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Kelola kategori modul pembelajaran untuk sistem
+            Kelola kategori gambar untuk sistem
           </p>
         </div>
 
-        <div v-if="can('create data master')" class="flex gap-3">
+        <div class="flex gap-3">
           <Link
             :href="route('data-master.index')"
             class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors duration-150"
@@ -76,8 +76,10 @@ const getStatusBadge = (isActive) => {
             </svg>
             Kembali
           </Link>
+
           <Link
-            :href="route('data-master.modul.create')"
+            v-if="can('create data master')"
+            :href="route('data-master.gambar.create')"
             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:shadow-md transition-all duration-200"
           >
             <svg
@@ -106,7 +108,7 @@ const getStatusBadge = (isActive) => {
       <!-- Table Header -->
       <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
         <h3 class="text-lg font-semibold text-slate-800 dark:text-white">
-          Daftar Kategori Modul
+          Daftar Kategori Gambar
         </h3>
       </div>
 
@@ -150,7 +152,7 @@ const getStatusBadge = (isActive) => {
           <tbody
             class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700"
           >
-            <tr v-if="modul.length === 0">
+            <tr v-if="gambar.length === 0">
               <td colspan="6" class="px-6 py-12 text-center">
                 <div class="flex flex-col items-center">
                   <svg
@@ -163,17 +165,17 @@ const getStatusBadge = (isActive) => {
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="1"
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
                   <p class="text-slate-500 dark:text-slate-400 text-sm">
-                    Belum ada kategori modul
+                    Belum ada kategori gambar
                   </p>
                 </div>
               </td>
             </tr>
             <tr
-              v-for="(item, index) in modul"
+              v-for="(item, index) in gambar"
               :key="item.id"
               class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-150"
             >
@@ -213,7 +215,7 @@ const getStatusBadge = (isActive) => {
                 <div class="flex items-center justify-end gap-2">
                   <Link
                     v-if="can('edit data master')"
-                    :href="route('data-master.modul.edit', item.id)"
+                    :href="route('data-master.gambar.edit', item.id)"
                     class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 border border-blue-200 dark:border-blue-700 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-150"
                   >
                     <svg
@@ -234,7 +236,7 @@ const getStatusBadge = (isActive) => {
 
                   <button
                     v-if="can('delete data master')"
-                    @click="deleteModul(item)"
+                    @click="deleteGambar(item)"
                     class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-200 dark:border-red-700 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-150"
                   >
                     <svg
@@ -307,12 +309,12 @@ const getStatusBadge = (isActive) => {
                 class="text-lg leading-6 font-medium text-slate-900 dark:text-slate-100"
                 id="modal-title"
               >
-                Hapus Kategori Modul
+                Hapus Kategori Gambar
               </h3>
               <div class="mt-2">
                 <p class="text-sm text-slate-500 dark:text-slate-400">
                   Apakah Anda yakin ingin menghapus kategori
-                  <strong>{{ selectedModul?.nama_kategori }}</strong
+                  <strong>{{ selectedGambar?.nama_kategori }}</strong
                   >? Tindakan ini tidak dapat dibatalkan.
                 </p>
               </div>

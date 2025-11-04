@@ -9,23 +9,24 @@ const { can } = usePermissions();
 const { t } = useTranslations();
 
 const props = defineProps({
-  modul: Array,
+  musicQuiz: Array,
 });
 
 const showDeleteModal = ref(false);
-const selectedModul = ref(null);
+const selectedMusicQuiz = ref(null);
+const playingAudio = ref(null);
 
-const deleteModul = (modul) => {
-  selectedModul.value = modul;
+const deleteMusicQuiz = (item) => {
+  selectedMusicQuiz.value = item;
   showDeleteModal.value = true;
 };
 
 const confirmDelete = () => {
-  if (selectedModul.value) {
-    router.delete(route("data-master.modul.destroy", selectedModul.value.id), {
+  if (selectedMusicQuiz.value) {
+    router.delete(route("data-master.quiz-music.destroy", selectedMusicQuiz.value.id), {
       onSuccess: () => {
         showDeleteModal.value = false;
-        selectedModul.value = null;
+        selectedMusicQuiz.value = null;
       },
     });
   }
@@ -36,27 +37,35 @@ const getStatusBadge = (isActive) => {
     ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
     : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200";
 };
+
+const playAudio = (audioId) => {
+  if (playingAudio.value === audioId) {
+    playingAudio.value = null;
+  } else {
+    playingAudio.value = audioId;
+  }
+};
 </script>
 
 <template>
-  <Head title="Master Modul" />
+  <Head title="Master Media Music Quiz" />
 
   <AdminLayout>
-    <template #title>Master Modul</template>
+    <template #title>Master Media Music Quiz</template>
 
     <!-- Header Section -->
     <div class="mb-6 md:mb-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 class="text-xl md:text-2xl font-bold text-slate-800 dark:text-white">
-            Master Modul
+            Master Media Music Quiz
           </h2>
           <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Kelola kategori modul pembelajaran untuk sistem
+            Kelola media audio untuk quiz musik
           </p>
         </div>
 
-        <div v-if="can('create data master')" class="flex gap-3">
+        <div class="flex gap-3">
           <Link
             :href="route('data-master.index')"
             class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors duration-150"
@@ -76,8 +85,10 @@ const getStatusBadge = (isActive) => {
             </svg>
             Kembali
           </Link>
+
           <Link
-            :href="route('data-master.modul.create')"
+            v-if="can('create data master')"
+            :href="route('data-master.quiz-music.create')"
             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:shadow-md transition-all duration-200"
           >
             <svg
@@ -93,7 +104,7 @@ const getStatusBadge = (isActive) => {
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            Tambah Kategori
+            Tambah Media Audio
           </Link>
         </div>
       </div>
@@ -106,7 +117,7 @@ const getStatusBadge = (isActive) => {
       <!-- Table Header -->
       <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
         <h3 class="text-lg font-semibold text-slate-800 dark:text-white">
-          Daftar Kategori Modul
+          Daftar Media Audio Quiz
         </h3>
       </div>
 
@@ -123,17 +134,12 @@ const getStatusBadge = (isActive) => {
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
               >
-                Nama Kategori
+                Audio
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
               >
-                Deskripsi
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
-              >
-                Urutan
+                Keterangan
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
@@ -150,8 +156,8 @@ const getStatusBadge = (isActive) => {
           <tbody
             class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700"
           >
-            <tr v-if="modul.length === 0">
-              <td colspan="6" class="px-6 py-12 text-center">
+            <tr v-if="musicQuiz.length === 0">
+              <td colspan="5" class="px-6 py-12 text-center">
                 <div class="flex flex-col items-center">
                   <svg
                     class="w-12 h-12 text-slate-400 dark:text-slate-500 mb-4"
@@ -163,17 +169,17 @@ const getStatusBadge = (isActive) => {
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="1"
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                      d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
                     />
                   </svg>
                   <p class="text-slate-500 dark:text-slate-400 text-sm">
-                    Belum ada kategori modul
+                    Belum ada media audio quiz
                   </p>
                 </div>
               </td>
             </tr>
             <tr
-              v-for="(item, index) in modul"
+              v-for="(item, index) in musicQuiz"
               :key="item.id"
               class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-150"
             >
@@ -182,22 +188,53 @@ const getStatusBadge = (isActive) => {
               >
                 {{ index + 1 }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-slate-900 dark:text-slate-100">
-                  {{ item.nama_kategori }}
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <button
+                    @click="playAudio(item.id)"
+                    class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
+                  >
+                    <svg
+                      v-if="playingAudio !== item.id"
+                      class="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"
+                      />
+                    </svg>
+                    <svg
+                      v-else
+                      class="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                  <div>
+                    <div class="text-sm font-medium text-slate-900 dark:text-slate-100">
+                      {{ item.audio.split('/').pop() }}
+                    </div>
+                    <audio
+                      v-if="playingAudio === item.id"
+                      :src="item.audio_url"
+                      controls
+                      autoplay
+                      class="mt-2 w-64"
+                    ></audio>
+                  </div>
                 </div>
               </td>
               <td class="px-6 py-4">
                 <div class="text-sm text-slate-600 dark:text-slate-400 max-w-xs">
-                  {{ item.deskripsi || "-" }}
+                  {{ item.keterangan || "-" }}
                 </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200"
-                >
-                  {{ item.urutan }}
-                </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
@@ -213,7 +250,7 @@ const getStatusBadge = (isActive) => {
                 <div class="flex items-center justify-end gap-2">
                   <Link
                     v-if="can('edit data master')"
-                    :href="route('data-master.modul.edit', item.id)"
+                    :href="route('data-master.quiz-music.edit', item.id)"
                     class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 border border-blue-200 dark:border-blue-700 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-150"
                   >
                     <svg
@@ -234,7 +271,7 @@ const getStatusBadge = (isActive) => {
 
                   <button
                     v-if="can('delete data master')"
-                    @click="deleteModul(item)"
+                    @click="deleteMusicQuiz(item)"
                     class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-200 dark:border-red-700 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-150"
                   >
                     <svg
@@ -307,13 +344,12 @@ const getStatusBadge = (isActive) => {
                 class="text-lg leading-6 font-medium text-slate-900 dark:text-slate-100"
                 id="modal-title"
               >
-                Hapus Kategori Modul
+                Hapus Media Audio Quiz
               </h3>
               <div class="mt-2">
                 <p class="text-sm text-slate-500 dark:text-slate-400">
-                  Apakah Anda yakin ingin menghapus kategori
-                  <strong>{{ selectedModul?.nama_kategori }}</strong
-                  >? Tindakan ini tidak dapat dibatalkan.
+                  Apakah Anda yakin ingin menghapus media audio ini? File audio akan dihapus
+                  secara permanen dan tindakan ini tidak dapat dibatalkan.
                 </p>
               </div>
             </div>

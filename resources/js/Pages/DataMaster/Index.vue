@@ -14,8 +14,8 @@ const masterMenus = [
     description: "Mengatur sub kategori gambar untuk view di halaman utama",
     icon: "image",
     color: "from-purple-500 to-pink-500",
-    href: "#",
-    disabled: true,
+    href: "/data-master/gambar",
+    disabled: false,
   },
   {
     id: 2,
@@ -41,7 +41,7 @@ const masterMenus = [
     description: "Mengatur kategori dan sub-sub modul pembelajaran",
     icon: "folder",
     color: "from-orange-500 to-red-500",
-    href: "data-master/modul",
+    href: "/data-master/modul",
     disabled: false,
   },
   {
@@ -55,12 +55,12 @@ const masterMenus = [
   },
   {
     id: 6,
-    title: "Master Media",
+    title: "Master Musik Quiz",
     description: "Mengelola media dan file multimedia",
     icon: "play",
     color: "from-pink-500 to-rose-500",
-    href: "#",
-    disabled: true,
+    href: "/data-master/quiz-music",
+    disabled: false,
   },
 ];
 

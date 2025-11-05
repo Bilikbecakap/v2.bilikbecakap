@@ -5,7 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
-use App\Models\Kamus;
+use App\Models\DatasetTranslate;
 
 class GeminiService
 {
@@ -104,23 +104,22 @@ class GeminiService
     /**
      * IMPROVED: Translate dengan AI + Database Context yang Lebih Optimal dengan Proper Capitalization
      */
-    public function translateDirectlyWithAI($text, $direction = 'melayu_to_indonesia')
+    public function translateDirectlyWithAI($text, $direction = 'belitung_to_indonesia')  
     {
         try {
-            // Gunakan context yang lebih relevan dan fokus
             $context = $this->createOptimizedContext($text, $direction);
             
-            if ($direction == 'melayu_to_indonesia') {
+            if ($direction == 'belitung_to_indonesia') { 
                 $prompt = "
                     ATURAN MUTLAK: GUNAKAN KAMUS DATABASE INI SEBAGAI PRIORITAS UTAMA!
 
-                    KAMUS BAHASA MELAYU BELITUNG KE INDONESIA (WAJIB DIPAKAI):
+                    KAMUS BAHASA MELAYU BELITUNG KE INDONESIA (WAJIB DIPAKAI): 
                     {$context}
 
                     INSTRUKSI KETAT:
                     1. CEK SETIAP KATA dalam kamus di atas TERLEBIH DAHULU
                     2. JIKA kata ADA dalam kamus, WAJIB gunakan terjemahan persis dari kamus
-                    3. JIKA kata TIDAK ADA dalam kamus, gunakan pengetahuan umum bahasa Melayu 
+                    3. JIKA kata TIDAK ADA dalam kamus, gunakan pengetahuan umum bahasa Melayu Belitung 
                     4. Untuk kalimat utuh, prioritaskan makna dari kamus tapi sesuaikan konteks
                     5. Jangan ubah kata yang sudah ada terjemahannya di kamus
                     6. Hasil harus natural tapi tetap akurat sesuai kamus
@@ -143,18 +142,18 @@ class GeminiService
                 $prompt = "
                     ATURAN MUTLAK: GUNAKAN KAMUS DATABASE INI SEBAGAI PRIORITAS UTAMA!
 
-                    KAMUS BAHASA INDONESIA KE MELAYU BELITUNG (WAJIB DIPAKAI):
+                    KAMUS BAHASA INDONESIA KE MELAYU BELITUNG (WAJIB DIPAKAI): 
                     {$context}
 
                     INSTRUKSI KETAT:
                     1. CEK SETIAP KATA dalam kamus di atas TERLEBIH DAHULU
                     2. JIKA kata ADA dalam kamus, WAJIB gunakan terjemahan persis dari kamus
-                    3. JIKA kata TIDAK ADA dalam kamus, gunakan pengetahuan umum bahasa Melayu
+                    3. JIKA kata TIDAK ADA dalam kamus, gunakan pengetahuan umum bahasa Melayu Belitung  
                     4. Untuk kalimat utuh, prioritaskan makna dari kamus tapi sesuaikan konteks
                     5. Jangan ubah kata yang sudah ada terjemahannya di kamus
                     6. Hasil harus natural tapi tetap akurat sesuai kamus
                     7. ABAIKAN tanda baca (titik, koma, dsb) saat mencari di kamus
-                    8. PERTAHANKAN format kapitalisasi yang sesuai standar bahasa Melayu:
+                    8. PERTAHANKAN format kapitalisasi yang sesuai standar bahasa Belitung:  
                        - Huruf kapital di awal kalimat
                        - Huruf kapital setelah tanda titik, tanda seru, tanda tanya
                        - Nama diri tetap kapital
@@ -184,7 +183,6 @@ class GeminiService
                 $data = $response->json();
                 $translation = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
                 
-                // Apply post-processing untuk proper capitalization
                 $translation = $this->postProcessAIResult($translation, $text);
                 
                 return [
@@ -215,46 +213,38 @@ class GeminiService
     /**
      * IMPROVED: Optimized Context - Fokus pada kata yang relevan dengan consistent formatting
      */
-    private function createOptimizedContext($text, $direction = 'melayu_to_indonesia')
+    private function createOptimizedContext($text, $direction = 'belitung_to_indonesia')  
     {
         $cacheKey = "optimized_context_v5_" . md5($text . $direction);
         
         return Cache::remember($cacheKey, 3600, function() use ($text, $direction) {
-            // 1. Cari kata yang sangat relevan (exact dan partial match)
             $highRelevantWords = $this->findHighRelevantWords($text, $direction);
-            
-            // 2. Cari kata yang serupa secara semantik
             $similarWords = $this->findSimilarWords($text, $direction);
+            $commonWords = $this->getCommonWords(50);
             
-            // 3. Tambahkan beberapa kata umum untuk konteks (tapi sedikit)
-            $commonWords = $this->getCommonWords(50); // Kurangi dari 200 ke 50
-            
-            // 4. Prioritaskan relevance tinggi, lalu similar, baru common
             $allWords = $highRelevantWords
                 ->merge($similarWords)
                 ->merge($commonWords)
-                ->unique('bahasa_melayu')
-                ->take(150); // Kurangi total dari 300 ke 150
+                ->unique('bahasa_belitung')
+                ->take(150);
             
             if ($allWords->isEmpty()) {
                 return "Tidak ada data kamus tersedia.";
             }
 
-            if ($direction == 'melayu_to_indonesia') {
+            if ($direction == 'belitung_to_indonesia') {  
                 $context = "KAMUS PRIORITAS BAHASA MELAYU BELITUNG KE INDONESIA:\n";
                 foreach ($allWords as $item) {
-                    // Format: lowercase → lowercase (untuk konsistensi dalam kamus)
-                    $melayu = strtolower(trim($item->bahasa_melayu));
+                    $belitung = strtolower(trim($item->bahasa_belitung)); 
                     $indonesia = strtolower(trim($item->bahasa_indonesia));
-                    $context .= "{$melayu} → {$indonesia}\n";
+                    $context .= "{$belitung} → {$indonesia}\n";
                 }
             } else {
-                $context = "KAMUS PRIORITAS BAHASA INDONESIA KE MELAYU BELITUNG:\n";
+                $context = "KAMUS PRIORITAS BAHASA INDONESIA KE MELAYU BELITUNG:\n"; 
                 foreach ($allWords as $item) {
-                    // Format: lowercase → lowercase (untuk konsistensi dalam kamus)
                     $indonesia = strtolower(trim($item->bahasa_indonesia));
-                    $melayu = strtolower(trim($item->bahasa_melayu));
-                    $context .= "{$indonesia} → {$melayu}\n";
+                    $belitung = strtolower(trim($item->bahasa_belitung));  
+                    $context .= "{$indonesia} → {$belitung}\n";
                 }
             }
             
@@ -265,9 +255,8 @@ class GeminiService
     /**
      * IMPROVED: Cari kata dengan relevansi tinggi - dengan text cleaning
      */
-    private function findHighRelevantWords($text, $direction = 'melayu_to_indonesia', $limit = 50)
+    private function findHighRelevantWords($text, $direction = 'belitung_to_indonesia', $limit = 50) 
     {
-        // Clean text dulu sebelum split
         $cleanedText = $this->cleanText($text);
         $words = explode(' ', $cleanedText);
         $relevantData = collect();
@@ -276,46 +265,39 @@ class GeminiService
             $cleanWord = $this->cleanWord($word);
             if (strlen($cleanWord) < 2) continue;
             
-            if ($direction == 'melayu_to_indonesia') {
+            if ($direction == 'belitung_to_indonesia') {  
                 // Prioritas 1: Exact match
-                $exactMatches = Kamus::where('status', 1)
-                    ->whereRaw('LOWER(bahasa_melayu) = ?', [$cleanWord])
+                $exactMatches = DatasetTranslate::whereRaw('LOWER(bahasa_belitung) = ?', [$cleanWord])  
                     ->limit(5)
-                    ->get(['bahasa_melayu', 'bahasa_indonesia']);
+                    ->get(['bahasa_belitung', 'bahasa_indonesia']);  
                 
                 // Prioritas 2: Starts with
-                $startsWithMatches = Kamus::where('status', 1)
-                    ->whereRaw('LOWER(bahasa_melayu) LIKE ?', [$cleanWord . '%'])
+                $startsWithMatches = DatasetTranslate::whereRaw('LOWER(bahasa_belitung) LIKE ?', [$cleanWord . '%'])  
                     ->limit(10)
-                    ->get(['bahasa_melayu', 'bahasa_indonesia']);
+                    ->get(['bahasa_belitung', 'bahasa_indonesia']);  
                 
                 // Prioritas 3: Contains
-                $containsMatches = Kamus::where('status', 1)
-                    ->whereRaw('LOWER(bahasa_melayu) LIKE ?', ['%' . $cleanWord . '%'])
-                    ->where('bahasa_melayu', '!=', $cleanWord) // Exclude exact matches
+                $containsMatches = DatasetTranslate::whereRaw('LOWER(bahasa_belitung) LIKE ?', ['%' . $cleanWord . '%'])  
+                    ->where('bahasa_belitung', '!=', $cleanWord)  
                     ->limit(10)
-                    ->get(['bahasa_melayu', 'bahasa_indonesia']);
+                    ->get(['bahasa_belitung', 'bahasa_indonesia']);  
                 
                 $relevantData = $relevantData->merge($exactMatches)
                     ->merge($startsWithMatches)
                     ->merge($containsMatches);
             } else {
-                // Same logic for indonesia to melayu
-                $exactMatches = Kamus::where('status', 1)
-                    ->whereRaw('LOWER(bahasa_indonesia) = ?', [$cleanWord])
+                $exactMatches = DatasetTranslate::whereRaw('LOWER(bahasa_indonesia) = ?', [$cleanWord])
                     ->limit(5)
-                    ->get(['bahasa_melayu', 'bahasa_indonesia']);
+                    ->get(['bahasa_belitung', 'bahasa_indonesia']); 
                 
-                $startsWithMatches = Kamus::where('status', 1)
-                    ->whereRaw('LOWER(bahasa_indonesia) LIKE ?', [$cleanWord . '%'])
+                $startsWithMatches = DatasetTranslate::whereRaw('LOWER(bahasa_indonesia) LIKE ?', [$cleanWord . '%'])
                     ->limit(10)
-                    ->get(['bahasa_melayu', 'bahasa_indonesia']);
+                    ->get(['bahasa_belitung', 'bahasa_indonesia']); 
                 
-                $containsMatches = Kamus::where('status', 1)
-                    ->whereRaw('LOWER(bahasa_indonesia) LIKE ?', ['%' . $cleanWord . '%'])
+                $containsMatches = DatasetTranslate::whereRaw('LOWER(bahasa_indonesia) LIKE ?', ['%' . $cleanWord . '%'])
                     ->where('bahasa_indonesia', '!=', $cleanWord)
                     ->limit(10)
-                    ->get(['bahasa_melayu', 'bahasa_indonesia']);
+                    ->get(['bahasa_belitung', 'bahasa_indonesia']);  
                 
                 $relevantData = $relevantData->merge($exactMatches)
                     ->merge($startsWithMatches)
@@ -323,53 +305,47 @@ class GeminiService
             }
         }
         
-        return $relevantData->unique('bahasa_melayu')->take($limit);
+        return $relevantData->unique('bahasa_belitung')->take($limit); 
     }
 
     /**
      * NEW: Cari kata yang mirip secara semantik
      */
-    private function findSimilarWords($text, $direction = 'melayu_to_indonesia', $limit = 30)
+    private function findSimilarWords($text, $direction = 'belitung_to_indonesia', $limit = 30)  
     {
-        // Kata-kata yang sering muncul bersamaan atau memiliki root yang sama
         $cleanedText = $this->cleanText($text);
         $textLength = strlen($cleanedText);
         
         if ($textLength < 5) {
-            return collect(); // Skip untuk teks sangat pendek
+            return collect();
         }
         
-        // Ambil kata berdasarkan panjang yang serupa
-        $similarLengthWords = Kamus::where('status', 1)
-            ->whereBetween(
-                \DB::raw('CHAR_LENGTH(' . ($direction == 'melayu_to_indonesia' ? 'bahasa_melayu' : 'bahasa_indonesia') . ')'),
+        $similarLengthWords = DatasetTranslate::whereBetween(
+                \DB::raw('CHAR_LENGTH(' . ($direction == 'belitung_to_indonesia' ? 'bahasa_belitung' : 'bahasa_indonesia') . ')'),  
                 [strlen($cleanedText) - 2, strlen($cleanedText) + 2]
             )
             ->inRandomOrder()
             ->limit($limit)
-            ->get(['bahasa_melayu', 'bahasa_indonesia']);
+            ->get(['bahasa_belitung', 'bahasa_indonesia']);  
         
         return $similarLengthWords;
     }
 
     /**
-     * IMPROVED: Ambil kata umum yang sering digunakan (kurangi noise)
+     * IMPROVED: Ambil kata umum yang sering digunakan
      */
     private function getCommonWords($count = 50)
     {
-        return Kamus::where('status', 1)
-            ->whereIn('bahasa_melayu', [
-                // Kata-kata dasar yang sering digunakan
+        return DatasetTranslate::whereIn('bahasa_belitung', [ 
                 'aku', 'kamu', 'dia', 'kita', 'mereka',
                 'ini', 'itu', 'di', 'ke', 'dari',
                 'dan', 'atau', 'tapi', 'kalau', 'karena',
                 'sudah', 'belum', 'akan', 'sedang', 'telah',
                 'bisa', 'tidak', 'ya', 'baik', 'bagus'
             ])
-            ->get(['bahasa_melayu', 'bahasa_indonesia'])
+            ->get(['bahasa_belitung', 'bahasa_indonesia'])  
             ->merge(
-                Kamus::where('status', 1)
-                    ->whereNotIn('bahasa_melayu', [
+                DatasetTranslate::whereNotIn('bahasa_belitung', [  
                         'aku', 'kamu', 'dia', 'kita', 'mereka',
                         'ini', 'itu', 'di', 'ke', 'dari',
                         'dan', 'atau', 'tapi', 'kalau', 'karena',
@@ -377,8 +353,8 @@ class GeminiService
                         'bisa', 'tidak', 'ya', 'baik', 'bagus'
                     ])
                     ->inRandomOrder()
-                    ->limit($count - 25) // Sisanya random
-                    ->get(['bahasa_melayu', 'bahasa_indonesia'])
+                    ->limit($count - 25)
+                    ->get(['bahasa_belitung', 'bahasa_indonesia']) 
             );
     }
 
@@ -388,57 +364,51 @@ class GeminiService
     public function getDatabaseStats()
     {
         return [
-            'total_words' => Kamus::where('status', 1)->count(),
-            'melayu_sample' => Kamus::where('status', 1)->limit(5)->pluck('bahasa_melayu')->toArray(),
-            'indonesia_sample' => Kamus::where('status', 1)->limit(5)->pluck('bahasa_indonesia')->toArray(),
+            'total_words' => DatasetTranslate::count(),
+            'belitung_sample' => DatasetTranslate::limit(5)->pluck('bahasa_belitung')->toArray(),  
+            'indonesia_sample' => DatasetTranslate::limit(5)->pluck('bahasa_indonesia')->toArray(),
         ];
     }
 
     /**
      * IMPROVED: Test method dengan detail yang lebih baik
      */
-    public function testTranslateDetails($text, $direction = 'melayu_to_indonesia')
+    public function testTranslateDetails($text, $direction = 'belitung_to_indonesia')  
     {
         $result = [];
         
-        // Test text cleaning
         $result['original_text'] = $text;
         $result['cleaned_text'] = $this->cleanText($text);
         $result['cleaned_words'] = explode(' ', $this->cleanText($text));
         
-        // Test context creation
         $context = $this->createOptimizedContext($text, $direction);
         $result['context_words'] = substr_count($context, "\n") - 1;
         $result['context_preview'] = substr($context, 0, 500) . '...';
         $result['context_full'] = strlen($context) > 1000 ? 'Too long to display' : $context;
         
-        // Test high relevant words
         $highRelevant = $this->findHighRelevantWords($text, $direction);
         $result['high_relevant_count'] = $highRelevant->count();
         $result['high_relevant_sample'] = $highRelevant->take(5)->map(function($item) {
-            return $item->bahasa_melayu . ' → ' . $item->bahasa_indonesia;
+            return $item->bahasa_belitung . ' → ' . $item->bahasa_indonesia;  
         })->toArray();
         
-        // Final translation
         $translation = $this->translateDirectlyWithAI($text, $direction);
         $result['final_result'] = $translation;
         
         return $result;
     }
 
-    // Backward compatibility methods
     public function loadKamusData($limit = 100)
     {
         try {
-            $kamusData = Kamus::where('status', 1)
-                ->limit($limit)
-                ->get(['bahasa_melayu', 'bahasa_indonesia'])
+            $kamusData = DatasetTranslate::limit($limit)
+                ->get(['bahasa_belitung', 'bahasa_indonesia'])  
                 ->toArray();
 
             return $kamusData;
 
         } catch (\Exception $e) {
-            Log::error('Error loading kamus data: ' . $e->getMessage());
+            Log::error('Error loading dataset data: ' . $e->getMessage());
             return [];
         }
     }

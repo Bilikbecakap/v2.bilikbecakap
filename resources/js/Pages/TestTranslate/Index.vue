@@ -1,8 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
-import { usePermissions } from '@/composables/usePermissions';
-import { usePage } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { ref, reactive } from 'vue';
 
 const props = defineProps({
@@ -11,14 +9,11 @@ const props = defineProps({
     user: Object,
 });
 
-const { can } = usePermissions();
-const page = usePage();
-
 // Form state
 const form = reactive({
     text: '',
-    direction: 'melayu_to_indonesia',
-    method: 'hybrid', // hybrid, rule_based
+    direction: 'belitung_to_indonesia',
+    method: 'hybrid',
 });
 
 // Component state
@@ -60,6 +55,8 @@ const getMethodDescription = (method) => {
             return 'V2 - Direct Match';
         case 'hybrid_fuzzy':
             return 'V2 - Fuzzy Match';
+        case 'hybrid_word_by_word':
+            return 'V2 - Word by Word';
         case 'hybrid_ai':
             return 'V2 - AI Translation';
         case 'rule_direct':
@@ -78,7 +75,7 @@ const getModelVersion = (method) => {
 
 // Toggle direction
 const toggleDirection = () => {
-    form.direction = form.direction === 'melayu_to_indonesia' ? 'indonesia_to_melayu' : 'melayu_to_indonesia';
+    form.direction = form.direction === 'belitung_to_indonesia' ? 'indonesia_to_belitung' : 'belitung_to_indonesia';
 };
 
 // Handle translate
@@ -218,38 +215,28 @@ const clearForm = () => {
                 <!-- Direction Switch -->
                 <div class="flex items-center">
                     <div class="flex items-center bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
-                        <!-- Melayu to Indonesia Label -->
                         <span class="px-3 py-2 text-sm font-medium transition-colors duration-200"
-                              :class="form.direction === 'melayu_to_indonesia' 
+                              :class="form.direction === 'belitung_to_indonesia' 
                                 ? 'text-blue-600 dark:text-blue-400' 
                                 : 'text-slate-600 dark:text-slate-400'">
                             Melayu Belitung
                         </span>
 
-                        <!-- Switch Button -->
                         <button type="button" 
                                 @click="toggleDirection"
-                                class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mx-3"
-                                :class="form.direction === 'melayu_to_indonesia' 
-                                    ? 'bg-blue-600' 
-                                    : 'bg-blue-600'">
+                                class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mx-3 bg-blue-600">
                             <span class="sr-only">Toggle direction</span>
                             <span class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-200"
-                                  :class="form.direction === 'melayu_to_indonesia' 
-                                    ? 'translate-x-1' 
-                                    : 'translate-x-7'">
+                                  :class="form.direction === 'belitung_to_indonesia' ? 'translate-x-1' : 'translate-x-7'">
                                 <svg class="h-6 w-6 p-1 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                          :d="form.direction === 'melayu_to_indonesia' 
-                                            ? 'M13 7l5 5m0 0l-5 5m5-5H6' 
-                                            : 'M11 17l-5-5m0 0l5-5m-5 5h12'" />
+                                          :d="form.direction === 'belitung_to_indonesia' ? 'M13 7l5 5m0 0l-5 5m5-5H6' : 'M11 17l-5-5m0 0l5-5m-5 5h12'" />
                                 </svg>
                             </span>
                         </button>
 
-                        <!-- Indonesia to Melayu Label -->
                         <span class="px-3 py-2 text-sm font-medium transition-colors duration-200"
-                              :class="form.direction === 'indonesia_to_melayu' 
+                              :class="form.direction === 'indonesia_to_belitung' 
                                 ? 'text-blue-600 dark:text-blue-400' 
                                 : 'text-slate-600 dark:text-slate-400'">
                             Indonesia
@@ -280,22 +267,20 @@ const clearForm = () => {
                     <div class="p-6 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-700 flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                {{ form.direction === 'melayu_to_indonesia' ? 'Bahasa Melayu Belitung' : 'Bahasa Indonesia' }}
+                                {{ form.direction === 'belitung_to_indonesia' ? 'Bahasa Melayu Belitung' : 'Bahasa Indonesia' }}
                             </h3>
                             <span class="text-xs text-slate-500 dark:text-slate-400">
                                 {{ form.text.length }}/1000
                             </span>
                         </div>
                         
-                        <!-- Textarea Container -->
                         <div class="flex-1 min-h-[300px] mb-4">
                             <textarea v-model="form.text"
                                       maxlength="1000"
-                                      :placeholder="form.direction === 'melayu_to_indonesia' ? 'Masukkan teks dalam Bahasa Melayu Belitung...' : 'Masukkan teks dalam Bahasa Indonesia...'"
+                                      :placeholder="form.direction === 'belitung_to_indonesia' ? 'Masukkan teks dalam Bahasa Melayu Belitung...' : 'Masukkan teks dalam Bahasa Indonesia...'"
                                       class="w-full h-full resize-none border-0 focus:ring-0 focus:outline-none bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-base leading-relaxed p-0"></textarea>
                         </div>
                         
-                        <!-- Input Actions -->
                         <div class="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
                             <button type="button" 
                                     @click="clearForm"
@@ -321,14 +306,13 @@ const clearForm = () => {
                     <div class="p-6 bg-slate-50 dark:bg-slate-800/50 flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                {{ form.direction === 'melayu_to_indonesia' ? 'Bahasa Indonesia' : 'Bahasa Melayu Belitung' }}
+                                {{ form.direction === 'belitung_to_indonesia' ? 'Bahasa Indonesia' : 'Bahasa Melayu Belitung' }}
                             </h3>
                             <span v-if="result" class="text-xs text-slate-500 dark:text-slate-400">
                                 {{ result.processing_time_ms }}ms
                             </span>
                         </div>
                         
-                        <!-- Output Content -->
                         <div class="flex-1 min-h-[300px] mb-4">
                             <div v-if="result" class="text-slate-900 dark:text-white text-base leading-relaxed">
                                 {{ result.translation }}
@@ -341,7 +325,6 @@ const clearForm = () => {
                             </div>
                         </div>
 
-                        <!-- Output Actions -->
                         <div class="pt-4 border-t border-slate-200 dark:border-slate-600">
                             <div v-if="result" class="flex items-center justify-between">
                                 <button type="button" 
@@ -362,7 +345,7 @@ const clearForm = () => {
                                     </span>
                                 </div>
                             </div>
-                            <div v-else class="h-10"></div> <!-- Spacer to maintain consistent height -->
+                            <div v-else class="h-10"></div>
                         </div>
                     </div>
                 </div>
@@ -371,16 +354,12 @@ const clearForm = () => {
 
         <!-- Translation Details -->
         <div v-if="result" class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <!-- Details Header -->
             <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
                 <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Detail Terjemahan</h3>
             </div>
 
-            <!-- Details Content -->
             <div class="p-6">
-                <!-- Translation Method & Stats -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <!-- Method -->
                     <div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4">
                         <div class="flex items-center mb-2">
                             <span class="text-lg mr-2">{{ getMethodIcon(result.method) }}</span>
@@ -391,7 +370,6 @@ const clearForm = () => {
                         </p>
                     </div>
 
-                    <!-- Confidence -->
                     <div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4">
                         <div class="flex items-center mb-2">
                             <svg class="w-4 h-4 text-slate-600 dark:text-slate-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -405,7 +383,6 @@ const clearForm = () => {
                         </span>
                     </div>
 
-                    <!-- Processing Time -->
                     <div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4">
                         <div class="flex items-center mb-2">
                             <svg class="w-4 h-4 text-slate-600 dark:text-slate-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -419,11 +396,27 @@ const clearForm = () => {
                     </div>
                 </div>
 
-                <!-- Rule-Based Additional Info -->
+                <div v-if="result.translation_rate !== null && result.translation_rate !== undefined" class="mb-4">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+                            Translation Rate:
+                        </h4>
+                        <div class="flex items-center">
+                            <div class="flex-1 bg-blue-200 dark:bg-blue-800 rounded-full h-2 mr-3">
+                                <div class="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-300"
+                                     :style="`width: ${result.translation_rate}%`"></div>
+                            </div>
+                            <span class="text-sm font-bold text-blue-800 dark:text-blue-200">
+                                {{ result.translation_rate.toFixed(1) }}%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
                 <div v-if="result.matched_terms && result.matched_terms.length > 0" class="mb-4">
                     <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                         <h4 class="text-sm font-medium text-green-800 dark:text-green-200 mb-2">
-                            Kata yang Berhasil Diterjemahkan:
+                            Kata yang Berhasil Diterjemahkan ({{ result.matched_terms.length }}):
                         </h4>
                         <div class="flex flex-wrap gap-1">
                             <span v-for="term in result.matched_terms" :key="term"
@@ -437,7 +430,7 @@ const clearForm = () => {
                 <div v-if="result.untranslated_words && result.untranslated_words.length > 0" class="mb-4">
                     <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
                         <h4 class="text-sm font-medium text-orange-800 dark:text-orange-200 mb-2">
-                            Kata yang Tidak Ditemukan:
+                            Kata yang Tidak Ditemukan ({{ result.untranslated_words.length }}):
                         </h4>
                         <div class="flex flex-wrap gap-1">
                             <span v-for="word in result.untranslated_words" :key="word"
@@ -448,7 +441,19 @@ const clearForm = () => {
                     </div>
                 </div>
 
-                <!-- Input Text Display -->
+                <div v-if="result.ai_used" class="mb-4">
+                    <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-purple-600 dark:text-purple-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            <span class="text-sm font-medium text-purple-800 dark:text-purple-200">
+                                AI Translation digunakan untuk hasil terjemahan ini
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4">
                     <h4 class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Input Text:</h4>
                     <p class="text-sm text-slate-700 dark:text-slate-300">{{ result.input }}</p>

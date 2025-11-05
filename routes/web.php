@@ -11,6 +11,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdminKamusController; 
+use App\Http\Controllers\DatasetTranslateController;
 use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\MasterModulController;
 use App\Http\Controllers\MasterArtikelController;
@@ -85,6 +86,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('admin')->group(function () {
+
+        // Dataset Translate
+        Route::get('/dataset-translate', [DatasetTranslateController::class, 'index'])->name('dataset-translate.index');
+        Route::get('/dataset-translate/create', [DatasetTranslateController::class, 'create'])->name('dataset-translate.create');
+        Route::post('/dataset-translate', [DatasetTranslateController::class, 'store'])->name('dataset-translate.store');
+        Route::get('/dataset-translate/{datasetTranslate}/edit', [DatasetTranslateController::class, 'edit'])->name('dataset-translate.edit');
+        Route::put('/dataset-translate/{datasetTranslate}', [DatasetTranslateController::class, 'update'])->name('dataset-translate.update');
+        Route::delete('/dataset-translate/{datasetTranslate}', [DatasetTranslateController::class, 'destroy'])->name('dataset-translate.destroy');
+        Route::post('/dataset-translate/bulk-delete', [DatasetTranslateController::class, 'bulkDelete'])->name('dataset-translate.bulk-delete');
+        Route::post('/dataset-translate/import', [DatasetTranslateController::class, 'import'])->name('dataset-translate.import');
+        Route::get('/dataset-translate/export', [DatasetTranslateController::class, 'export'])->name('dataset-translate.export');
+        Route::get('/dataset-translate/statistics', [DatasetTranslateController::class, 'statistics'])->name('dataset-translate.statistics');
 
         //Kamus Management
         Route::get('/kamus', [AdminKamusController::class, 'index'])->name('kamus.index');

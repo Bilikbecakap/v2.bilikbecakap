@@ -124,7 +124,7 @@ const autoTranslateToMelayu = async () => {
       },
       body: JSON.stringify({
         text: plainText,
-        direction: "indonesia_to_melayu",
+        direction: "indonesia_to_belitung",
         method: "hybrid", // Ubah ke hybrid
       }),
     });
@@ -145,7 +145,7 @@ const autoTranslateToMelayu = async () => {
           },
           body: JSON.stringify({
             text: form.judul_indonesia,
-            direction: "indonesia_to_melayu",
+            direction: "indonesia_to_belitung",
             method: "hybrid",
           }),
         });

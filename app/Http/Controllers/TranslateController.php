@@ -27,7 +27,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * NEW: Clean text from punctuation and special characters (untuk pencarian)
+     * Clean text from punctuation and special characters (untuk pencarian)
      */
     private function cleanText($text)
     {
@@ -37,7 +37,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * NEW: Clean individual word from punctuation (untuk pencarian)
+     * Clean individual word from punctuation (untuk pencarian)
      */
     private function cleanWord($word)
     {
@@ -46,7 +46,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * NEW: Parse text dengan preserving punctuation dan capitalization
+     * Parse text dengan preserving punctuation dan capitalization
      */
     private function parseTextWithPunctuation($text)
     {
@@ -84,7 +84,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * NEW: Apply proper capitalization based on context
+     * Apply proper capitalization based on context
      */
     private function applyProperCapitalization($translation, $originalCapitalized, $isFirstWord = false, $afterPunctuation = false)
     {
@@ -103,7 +103,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * NEW: Check if punctuation ends a sentence
+     * Check if punctuation ends a sentence
      */
     private function isSentenceEndingPunctuation($punctuation)
     {
@@ -111,7 +111,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * NEW: Reconstruct text dengan translation, punctuation, dan proper capitalization
+     * Reconstruct text dengan translation, punctuation, dan proper capitalization
      */
     private function reconstructWithPunctuation($tokens, $translations)
     {
@@ -169,7 +169,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * NEW: Post-process untuk memastikan kapitalisasi yang benar pada hasil final
+     * Post-process untuk memastikan kapitalisasi yang benar pada hasil final
      */
     private function postProcessCapitalization($text)
     {
@@ -205,8 +205,8 @@ class TranslateController extends Controller implements HasMiddleware
     public function translate(Request $request)
     {
         $request->validate([
-            'text' => 'required|string',
-            'direction' => 'required|in:melayu_to_indonesia,indonesia_to_melayu',
+            'text' => 'required|string|max:1000',
+            'direction' => 'required|in:belitung_to_indonesia,indonesia_to_belitung',
             'method' => 'required|in:hybrid,rule_based',
         ], [
             'text.required' => 'Teks yang akan diterjemahkan wajib diisi.',
@@ -290,7 +290,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * IMPROVED METHOD 1: HYBRID dengan punctuation preservation dan proper capitalization
+     * METHOD 1: HYBRID dengan punctuation preservation dan proper capitalization
      */
     private function translateHybrid($text, $direction)
     {
@@ -381,7 +381,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * IMPROVED: Word-by-word dengan punctuation preservation dan proper capitalization
+     * Word-by-word dengan punctuation preservation dan proper capitalization
      */
     private function translateWordByWordHybridWithPunctuation($text, $direction)
     {
@@ -511,7 +511,7 @@ class TranslateController extends Controller implements HasMiddleware
     }
 
     /**
-     * IMPROVED: Word-by-word dengan punctuation preservation dan proper capitalization untuk rule-based
+     * Word-by-word dengan punctuation preservation dan proper capitalization untuk rule-based
      */
     private function translateWordByWordWithPunctuation($text, $direction)
     {
@@ -581,7 +581,7 @@ class TranslateController extends Controller implements HasMiddleware
         ];
     }
 
-    // Helper methods tetap sama tapi dengan konsistensi lowercase untuk hasil database
+    // Helper methods dengan model DatasetTranslate
     private function directSearchWithCleaning($text, $direction)
     {
         $cleanText = $this->cleanText($text);
@@ -598,16 +598,14 @@ class TranslateController extends Controller implements HasMiddleware
     {
         $cleanText = trim(strtolower($text));
         
-        if ($direction == 'melayu_to_indonesia') {
-            $result = \App\Models\Kamus::where('status', 1)
-                ->whereRaw('LOWER(bahasa_melayu) = ?', [$cleanText])
+        if ($direction == 'belitung_to_indonesia') {
+            $result = \App\Models\DatasetTranslate::whereRaw('LOWER(bahasa_belitung) = ?', [$cleanText])
                 ->first();
             return $result ? $result->bahasa_indonesia : null;
         } else {
-            $result = \App\Models\Kamus::where('status', 1)
-                ->whereRaw('LOWER(bahasa_indonesia) = ?', [$cleanText])
+            $result = \App\Models\DatasetTranslate::whereRaw('LOWER(bahasa_indonesia) = ?', [$cleanText])
                 ->first();
-            return $result ? $result->bahasa_melayu : null;
+            return $result ? $result->bahasa_belitung : null;
         }
     }
 
@@ -617,25 +615,23 @@ class TranslateController extends Controller implements HasMiddleware
         
         if (strlen($cleanText) < 3) return null;
         
-        if ($direction == 'melayu_to_indonesia') {
-            $result = \App\Models\Kamus::where('status', 1)
-                ->where('bahasa_melayu', 'LIKE', "%{$cleanText}%")
-                ->orderByRaw('LENGTH(bahasa_melayu) ASC')
+        if ($direction == 'belitung_to_indonesia') {
+            $result = \App\Models\DatasetTranslate::where('bahasa_belitung', 'LIKE', "%{$cleanText}%")
+                ->orderByRaw('LENGTH(bahasa_belitung) ASC')
                 ->first();
             
             if ($result) {
-                $similarity = $this->calculateSimilarity($cleanText, strtolower($result->bahasa_melayu));
+                $similarity = $this->calculateSimilarity($cleanText, strtolower($result->bahasa_belitung));
                 if ($similarity >= $threshold) {
                     return [
                         'translation' => $result->bahasa_indonesia,
-                        'matched_term' => $result->bahasa_melayu,
+                        'matched_term' => $result->bahasa_belitung,
                         'similarity' => $similarity
                     ];
                 }
             }
         } else {
-            $result = \App\Models\Kamus::where('status', 1)
-                ->where('bahasa_indonesia', 'LIKE', "%{$cleanText}%")
+            $result = \App\Models\DatasetTranslate::where('bahasa_indonesia', 'LIKE', "%{$cleanText}%")
                 ->orderByRaw('LENGTH(bahasa_indonesia) ASC')
                 ->first();
             
@@ -643,7 +639,7 @@ class TranslateController extends Controller implements HasMiddleware
                 $similarity = $this->calculateSimilarity($cleanText, strtolower($result->bahasa_indonesia));
                 if ($similarity >= $threshold) {
                     return [
-                        'translation' => $result->bahasa_melayu,
+                        'translation' => $result->bahasa_belitung,
                         'matched_term' => $result->bahasa_indonesia,
                         'similarity' => $similarity
                     ];
@@ -687,7 +683,6 @@ class TranslateController extends Controller implements HasMiddleware
         }
     }
 
-    // Rest methods sama seperti sebelumnya...
     public function testConnection()
     {
         try {

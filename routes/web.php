@@ -37,9 +37,7 @@ use Inertia\Inertia;
 */
 
 // Route::get('/', [LandingPageController::class, 'index'])->name('landing');
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 
 /*
 |--------------------------------------------------------------------------

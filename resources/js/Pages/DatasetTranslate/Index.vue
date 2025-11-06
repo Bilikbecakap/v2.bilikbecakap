@@ -220,41 +220,6 @@ const sortBy = (field) => {
             </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-6">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center mr-4">
-                        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Total Dataset</p>
-                        <p class="text-2xl font-bold text-slate-900 dark:text-white">
-                            {{ datasets?.total?.toLocaleString() || 0 }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-6">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center mr-4">
-                        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Dipilih</p>
-                        <p class="text-2xl font-bold text-slate-900 dark:text-white">
-                            {{ selectedItems.length }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Bulk Actions Bar -->
         <Transition
             enter-active-class="transition duration-200 ease-out"
@@ -476,40 +441,6 @@ const sortBy = (field) => {
                                     </div>
                                 </button>
                             </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-40">
-                                <button 
-                                    @click="sortBy('created_at')"
-                                    class="flex items-center space-x-1 hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-150 group"
-                                >
-                                    <span>Tanggal Dibuat</span>
-                                    <div class="flex flex-col">
-                                        <svg 
-                                            :class="[
-                                                'w-3 h-3 transition-colors duration-150',
-                                                sort === 'created_at' && direction === 'asc' 
-                                                    ? 'text-blue-600 dark:text-blue-400' 
-                                                    : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'
-                                            ]" 
-                                            fill="currentColor" 
-                                            viewBox="0 0 20 20"
-                                        >
-                                            <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                        <svg 
-                                            :class="[
-                                                'w-3 h-3 -mt-1 transition-colors duration-150',
-                                                sort === 'created_at' && direction === 'desc' 
-                                                    ? 'text-blue-600 dark:text-blue-400' 
-                                                    : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'
-                                            ]" 
-                                            fill="currentColor" 
-                                            viewBox="0 0 20 20"
-                                        >
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </button>
-                            </th>
                             <th class="px-6 py-4 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-32">Actions</th>
                         </tr>
                     </thead>
@@ -532,11 +463,6 @@ const sortBy = (field) => {
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-teal-500 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
-                                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                                        </svg>
-                                    </div>
                                     <div class="min-w-0">
                                         <span class="text-sm font-medium text-slate-900 dark:text-white">{{ item.bahasa_belitung }}</span>
                                     </div>
@@ -546,9 +472,6 @@ const sortBy = (field) => {
                                 <span class="text-sm text-slate-900 dark:text-white block" :title="item.bahasa_indonesia">
                                     {{ truncateText(item.bahasa_indonesia, 80) }}
                                 </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
-                                {{ formatDate(item.created_at) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex items-center justify-center space-x-2">

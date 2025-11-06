@@ -26,7 +26,7 @@ class QuizController extends Controller implements HasMiddleware
 
     public function index(Request $request)
     {
-        $query = Quizzes::with(['modulPembelajaran', 'masterMediaMusicQuiz']); // TAMBAH relasi
+        $query = Quizzes::with(['modulPembelajaran', 'masterMediaMusicQuiz'])->withCount('questions');
 
         // Filter berdasarkan search
         if ($request->filled('search')) {
@@ -57,6 +57,11 @@ class QuizController extends Controller implements HasMiddleware
         }
 
         $quizzes = $query->paginate(15)->appends($request->query());
+
+        $quizzes->getCollection()->transform(function ($quiz) {
+            $quiz->total_questions = $quiz->questions_count;
+            return $quiz;
+        });
 
         return Inertia::render('Quiz/Index', [
             'quizzes' => $quizzes,
@@ -165,6 +170,7 @@ class QuizController extends Controller implements HasMiddleware
     public function show(Quizzes $quiz)
     {
         $quiz->load(['modulPembelajaran', 'masterMediaMusicQuiz', 'questions.options']); 
+        $quiz->total_questions = $quiz->questions->count();
 
         // Hitung total attempts dan statistics
         $totalAttempts = $quiz->attempts()->count();

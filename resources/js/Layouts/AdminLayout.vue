@@ -124,9 +124,9 @@ onUnmounted(() => {
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
           <!-- Main Navigation -->
           <div class="space-y-1">
-            <Link href="/dashboard" @click="isMobile ? toggleSidebar() : null" :class="[
+            <Link href="/admin/dashboard" @click="isMobile ? toggleSidebar() : null" :class="[
               'group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 border',
-              $page.url === '/dashboard'
+              $page.url === '/admin/dashboard'
                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
             ]" :title="!showingSidebar ? 'Dashboard' : ''">

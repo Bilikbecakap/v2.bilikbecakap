@@ -205,12 +205,12 @@ class TranslateController extends Controller implements HasMiddleware
     public function translate(Request $request)
     {
         $request->validate([
-            'text' => 'required|string|max:1000',
+            'text' => 'required|string|max:10000',
             'direction' => 'required|in:belitung_to_indonesia,indonesia_to_belitung',
             'method' => 'required|in:hybrid,rule_based',
         ], [
             'text.required' => 'Teks yang akan diterjemahkan wajib diisi.',
-            'text.max' => 'Teks maksimal 1000 karakter.',
+            'text.max' => 'Teks maksimal 10000 karakter.',
             'direction.required' => 'Arah terjemahan wajib dipilih.',
             'direction.in' => 'Arah terjemahan tidak valid.',
             'method.required' => 'Metode translate wajib dipilih.',
@@ -227,7 +227,7 @@ class TranslateController extends Controller implements HasMiddleware
             }
             
             $endTime = microtime(true);
-            $processingTime = round(($endTime - $startTime) * 1000, 2);
+            $processingTime = round(($endTime - $startTime) * 10000, 2);
 
             // Log activity
             activity()

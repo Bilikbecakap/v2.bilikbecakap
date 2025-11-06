@@ -270,13 +270,13 @@ const clearForm = () => {
                                 {{ form.direction === 'belitung_to_indonesia' ? 'Bahasa Melayu Belitung' : 'Bahasa Indonesia' }}
                             </h3>
                             <span class="text-xs text-slate-500 dark:text-slate-400">
-                                {{ form.text.length }}/1000
+                                {{ form.text.length }}/10000
                             </span>
                         </div>
                         
                         <div class="flex-1 min-h-[300px] mb-4">
                             <textarea v-model="form.text"
-                                      maxlength="1000"
+                                      maxlength="10000"
                                       :placeholder="form.direction === 'belitung_to_indonesia' ? 'Masukkan teks dalam Bahasa Melayu Belitung...' : 'Masukkan teks dalam Bahasa Indonesia...'"
                                       class="w-full h-full resize-none border-0 focus:ring-0 focus:outline-none bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-base leading-relaxed p-0"></textarea>
                         </div>

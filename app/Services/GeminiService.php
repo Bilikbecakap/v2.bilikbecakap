@@ -384,7 +384,7 @@ class GeminiService
         $context = $this->createOptimizedContext($text, $direction);
         $result['context_words'] = substr_count($context, "\n") - 1;
         $result['context_preview'] = substr($context, 0, 500) . '...';
-        $result['context_full'] = strlen($context) > 1000 ? 'Too long to display' : $context;
+        $result['context_full'] = strlen($context) > 10000 ? 'Too long to display' : $context;
         
         $highRelevant = $this->findHighRelevantWords($text, $direction);
         $result['high_relevant_count'] = $highRelevant->count();

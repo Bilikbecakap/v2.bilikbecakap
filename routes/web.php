@@ -53,7 +53,6 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dashboard Admin
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/language/{locale}', [LanguageController::class, 'switch'])->name('language.switch');
 
     // Profile Management
@@ -86,6 +85,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('admin')->group(function () {
+
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Dataset Translate
         Route::get('/dataset-translate', [DatasetTranslateController::class, 'index'])->name('dataset-translate.index');

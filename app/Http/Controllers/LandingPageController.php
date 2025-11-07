@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class LandingPageController extends Controller
 {
@@ -12,6 +13,9 @@ class LandingPageController extends Controller
     {
         return Inertia::render('Frontend/LandingPage', [
             'locale' => app()->getLocale(),
+            'auth' => [
+                'user' => Auth::user(),
+            ],
         ]);
     }
 }

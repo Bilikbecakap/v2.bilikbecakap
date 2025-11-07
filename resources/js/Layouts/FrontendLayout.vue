@@ -58,7 +58,7 @@ onUnmounted(() => {
                     <!-- Logo -->
                     <div class="flex items-center">
                         <Link href="/" class="flex items-center gap-3">
-                        <img src="/logo-bb.png" alt="Bilik Bercakap" class="h-12 w-auto object-contain">
+                        <img src="/logo/bilikbecakap.png" alt="Bilik Bercakap" class="h-12 w-auto object-contain">
                         </Link>
                     </div>
 
@@ -66,7 +66,7 @@ onUnmounted(() => {
                     <div class="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
                         <Link href="/"
                             class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                        Home
+                        {{ t("messages.home") }}
                         </Link>
                         <Link href="#"
                             class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
@@ -128,11 +128,27 @@ onUnmounted(() => {
                         </div>
                     </div>
 
-                    <!-- Language Switcher - Right Side (Desktop) -->
-                    <div class="hidden md:flex items-center">
+                    <!-- Language Switcher & Auth Button - Right Side (Desktop) -->
+                    <div class="hidden md:flex items-center gap-3">
+                        <!-- Auth Button -->
+                        <Link v-if="!$page.props.auth?.user" 
+                              :href="route('login')"
+                              class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-[#54b0af] border-2 border-[#54b0af] hover:bg-[#54b0af] hover:text-white">
+                            Masuk
+                        </Link>
+                        <Link v-else 
+                              :href="route('dashboard')"
+                              class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99] flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                            </svg>
+                            Dashboard
+                        </Link>
+                        
+                        <!-- Language Selector -->
                         <div class="relative">
                             <button @click="toggleLanguageDropdown"
-                                class="px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99]">
+                                class="px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99] border-2 border-[#54b0af]">
                                 {{ languages[currentLocale].short }}
                             </button>
 
@@ -161,8 +177,22 @@ onUnmounted(() => {
                         </div>
                     </div>
 
-                    <!-- Mobile: Language Selector & Menu Button -->
+                    <!-- Mobile: Auth Button, Language Selector & Menu Button -->
                     <div class="flex md:hidden items-center gap-3">
+                        <!-- Auth Button (Mobile) -->
+                        <Link v-if="!$page.props.auth?.user" 
+                              :href="route('login')"
+                              class="px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-[#54b0af] border-2 border-[#54b0af] hover:bg-[#54b0af] hover:text-white">
+                            Masuk
+                        </Link>
+                        <Link v-else 
+                              :href="route('dashboard')"
+                              class="px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99] flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                            </svg>
+                        </Link>
+                        
                         <!-- Language Selector (Mobile) -->
                         <div class="relative">
                             <button @click="toggleLanguageDropdown"

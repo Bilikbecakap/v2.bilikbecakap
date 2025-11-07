@@ -20,6 +20,7 @@ const form = reactive({
 const isLoading = ref(false);
 const result = ref(null);
 const error = ref('');
+const copySuccess = ref(false);
 
 // Method icons mapping
 const getMethodIcon = (method) => {
@@ -76,6 +77,36 @@ const getModelVersion = (method) => {
 // Toggle direction
 const toggleDirection = () => {
     form.direction = form.direction === 'belitung_to_indonesia' ? 'indonesia_to_belitung' : 'belitung_to_indonesia';
+};
+
+// Copy to clipboard function
+const copyToClipboard = async (text) => {
+    try {
+        await window.navigator.clipboard.writeText(text);
+        copySuccess.value = true;
+        setTimeout(() => {
+            copySuccess.value = false;
+        }, 2000);
+    } catch (err) {
+        console.error('Failed to copy:', err);
+        // Fallback method for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            copySuccess.value = true;
+            setTimeout(() => {
+                copySuccess.value = false;
+            }, 2000);
+        } catch (e) {
+            console.error('Fallback copy failed:', e);
+        }
+        document.body.removeChild(textarea);
+    }
 };
 
 // Handle translate
@@ -328,12 +359,15 @@ const clearForm = () => {
                         <div class="pt-4 border-t border-slate-200 dark:border-slate-600">
                             <div v-if="result" class="flex items-center justify-between">
                                 <button type="button" 
-                                        @click="navigator.clipboard.writeText(result.translation)"
+                                        @click="copyToClipboard(result.translation)"
                                         class="inline-flex items-center px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-150">
-                                    <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg v-if="!copySuccess" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                     </svg>
-                                    Copy
+                                    <svg v-else class="w-4 h-4 mr-1 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    {{ copySuccess ? 'Copied!' : 'Copy' }}
                                 </button>
                                 <div class="flex items-center gap-2">
                                     <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"

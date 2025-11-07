@@ -63,12 +63,12 @@ import { Head } from '@inertiajs/vue3';
                                 <div class="text-sm text-gray-600 mt-1">Kata dalam Kamus</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-3xl font-bold text-[#54b0af]">50+</div>
+                                <div class="text-3xl font-bold text-[#54b0af]">10+</div>
                                 <div class="text-sm text-gray-600 mt-1">Modul Pembelajaran</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-3xl font-bold text-[#54b0af]">500+</div>
-                                <div class="text-sm text-gray-600 mt-1">Pengguna Aktif</div>
+                                <div class="text-3xl font-bold text-[#54b0af]">80%</div>
+                                <div class="text-sm text-gray-600 mt-1">Akurasi Penerjemah</div>
                             </div>
                         </div>
                     </div>
@@ -76,12 +76,12 @@ import { Head } from '@inertiajs/vue3';
                     <!-- Right Column: Hero Image with Animated Elements -->
                     <div class="relative animate-fade-in">
                         <!-- Main Hero Image -->
-                        <div class="relative z-10">
-                            <img src="/hero-image.png" alt="Bilik Bercakap Hero" class="w-full h-auto">
+                        <div class="relative z-99">
+                            <img src="/hero-bb.png" alt="Bilik Bercakap Hero" class="w-full h-auto">
                         </div>
 
                         <!-- Floating Animated Elements -->
-                        <div class="absolute top-24 left-20 animate-float-slow">
+                        <div class="absolute top-24 left-40 animate-float-slow">
                             <div class="bg-white p-4 rounded-xl shadow-xl border-2 border-[#54b0af]">
                                 <svg class="w-12 h-12 text-[#54b0af]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -97,7 +97,7 @@ import { Head } from '@inertiajs/vue3';
                             </div>
                         </div>
 
-                        <div class="absolute bottom-12 -left-6 animate-float-fast">
+                        <div class="absolute bottom-20 -left-6 animate-float-fast">
                             <div class="bg-[#002b44] p-4 rounded-xl shadow-xl">
                                 <svg class="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -131,7 +131,6 @@ import { Head } from '@inertiajs/vue3';
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @keyframes fade-in-up {
     from {

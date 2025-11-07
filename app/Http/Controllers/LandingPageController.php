@@ -10,6 +10,8 @@ class LandingPageController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Frontend/LandingPage');
+        return Inertia::render('Frontend/LandingPage', [
+            'locale' => app()->getLocale(),
+        ]);
     }
 }

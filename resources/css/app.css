@@ -1,6 +1,7 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 /* Custom animations */
 @keyframes spin-slow {
@@ -47,24 +48,6 @@
     background-clip: text;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-    width: 3px;
-}
-
-::-webkit-scrollbar-track {
-    background: #1e293b;
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #7c3aed, #0891b2);
-}
-
 /* Smooth scroll behavior */
 html {
     scroll-behavior: smooth;
@@ -78,6 +61,6 @@ html {
 
 /* Base styles */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Poppins', sans-serif;
     line-height: 1.6;
 }

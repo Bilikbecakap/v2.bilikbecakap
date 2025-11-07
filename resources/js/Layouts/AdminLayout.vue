@@ -420,3 +420,23 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style>
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #8b5cf6, #0891b2);
+}
+</style>

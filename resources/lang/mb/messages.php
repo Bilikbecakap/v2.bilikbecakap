@@ -51,5 +51,7 @@ return [
     'fill_details' => 'Isi detail untuk pengguna baru',
     'blank_confirm' => 'Leave blank to keep current password',
 
-
+    'home' => 'Beranda',
+    'about' => 'Tentang',
+    'contact' => 'Kontak',
 ];

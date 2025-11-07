@@ -50,4 +50,9 @@ return [
     'fill_role' => 'Create a new role with specific permissions',
     'blank_confirm' => 'Leave blank to keep current password',
 
+
+    'home' => 'Home',
+    'about' => 'About',
+    'contact' => 'Contact',
+
 ];

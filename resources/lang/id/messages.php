@@ -51,5 +51,7 @@ return [
     'fill_role' => 'Buat peran baru dengan izin khusus',
     'blank_confirm' => 'Leave blank to keep current password',
 
-
+    'home' => 'Beranda',
+    'about' => 'Tentang',
+    'contact' => 'Kontak',
 ];

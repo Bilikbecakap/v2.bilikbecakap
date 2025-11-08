@@ -3,6 +3,9 @@
 use App\Http\Controllers\AdminProjectsController;
 use App\Http\Controllers\Frontend\LandingPageController;
 use App\Http\Controllers\Frontend\KamusController;
+use App\Http\Controllers\Frontend\PenerjemahController;
+use App\Http\Controllers\Frontend\BlogController;
+use App\Http\Controllers\Frontend\PembelajaranController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PageProjectController;
 use App\Http\Controllers\ProfileController;
@@ -40,6 +43,11 @@ use Inertia\Inertia;
 // Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 Route::get('/kamus', [KamusController::class, 'index'])->name('kamus.public');
+Route::get('/penerjemah', [PenerjemahController::class, 'index'])->name('penerjemah');
+Route::post('/penerjemah/process', [PenerjemahController::class, 'translate'])->name('penerjemah.process');
+Route::get('/pembelajaran', [PembelajaranController::class, 'index'])->name('pembelajaran');
+Route::get('/pembelajaran/{slug}', [PembelajaranController::class, 'show'])->name('pembelajaran.show');
+Route::get('/tentang', function () {return Inertia::render('Frontend/Tentang');})->name('tentang');
 
 /*
 |--------------------------------------------------------------------------

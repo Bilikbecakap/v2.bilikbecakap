@@ -6,8 +6,17 @@ import { useTranslations } from '@/composables/useTranslations';
 const { t } = useTranslations();
 const page = usePage();
 
-// Ambil locale dari props, bukan dari composable
+// Ambil locale dari props
 const currentLocale = computed(() => page.props.locale || 'id');
+
+// Deteksi halaman aktif
+const currentPath = computed(() => page.url);
+
+// Daftar route yang ingin diberi active state
+const isActive = (path) => {
+    if (path === '/') return currentPath.value === '/';
+    return currentPath.value.startsWith(path);
+};
 
 const showLainnyaDropdown = ref(false);
 const showMobileMenu = ref(false);
@@ -64,25 +73,36 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Desktop Menu: Hanya tampil di lg (≥1024px) -->
+                    <!-- Desktop Menu: Hanya tampil di lg (≥1024px) -->
                     <div class="hidden lg:flex items-center space-x-6 absolute left-1/2 transform -translate-x-1/2">
-                        <Link href="/"
-                            class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                        <Link href="/" :class="[
+                            'font-medium transition-colors duration-200',
+                            isActive('/') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
+                        ]">
                         {{ t("messages.home") }}
                         </Link>
-                        <Link href="/kamus"
-                            class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                        <Link href="/kamus" :class="[
+                            'font-medium transition-colors duration-200',
+                            isActive('/kamus') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
+                        ]">
                         Kamus
                         </Link>
-                        <Link href="#"
-                            class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                        <Link href="/penerjemah" :class="[
+                            'font-medium transition-colors duration-200',
+                            isActive('/penerjemah') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
+                        ]">
                         Penerjemah
                         </Link>
-                        <Link href="#"
-                            class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                        <Link href="/pembelajaran" :class="[
+                            'font-medium transition-colors duration-200',
+                            isActive('/pembelajaran') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
+                        ]">
                         Pembelajaran
                         </Link>
-                        <Link href="#"
-                            class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                        <Link href="#" :class="[
+                            'font-medium transition-colors duration-200',
+                            isActive('/blog') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
+                        ]">
                         Blog
                         </Link>
 
@@ -104,20 +124,28 @@ onUnmounted(() => {
                                 leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
                                 <div v-show="showLainnyaDropdown"
                                     class="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2">
-                                    <Link href="#"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#54b0af] hover:text-white transition-colors duration-200">
+                                    <Link href="#" :class="[
+                                        'block px-4 py-2 text-sm transition-colors duration-200',
+                                        isActive('/quiz') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
+                                    ]">
                                     Quiz
                                     </Link>
-                                    <Link href="#"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#54b0af] hover:text-white transition-colors duration-200">
+                                    <Link href="#" :class="[
+                                        'block px-4 py-2 text-sm transition-colors duration-200',
+                                        isActive('/tentang') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
+                                    ]">
                                     Tentang
                                     </Link>
-                                    <Link href="#"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#54b0af] hover:text-white transition-colors duration-200">
+                                    <Link href="#" :class="[
+                                        'block px-4 py-2 text-sm transition-colors duration-200',
+                                        isActive('/kontak') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
+                                    ]">
                                     Kontak
                                     </Link>
-                                    <Link href="#"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#54b0af] hover:text-white transition-colors duration-200">
+                                    <Link href="#" :class="[
+                                        'block px-4 py-2 text-sm transition-colors duration-200',
+                                        isActive('/galeri') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
+                                    ]">
                                     Galeri
                                     </Link>
                                 </div>
@@ -263,11 +291,11 @@ onUnmounted(() => {
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Kamus
                     </Link>
-                    <Link href="#" @click="showMobileMenu = false"
+                    <Link href="/penerjemah" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Penerjemah
                     </Link>
-                    <Link href="#" @click="showMobileMenu = false"
+                    <Link href="/pembelajaran" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Pembelajaran
                     </Link>
@@ -371,7 +399,7 @@ onUnmounted(() => {
                                 </a>
                             </li>
                             <li>
-                                <a href="#"
+                                <a href="/pembelajaran"
                                     class="text-gray-300 hover:text-[#54b0af] transition-colors duration-200 flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -381,7 +409,7 @@ onUnmounted(() => {
                                 </a>
                             </li>
                             <li>
-                                <a href="#"
+                                <a href="/penerjemah"
                                     class="text-gray-300 hover:text-[#54b0af] transition-colors duration-200 flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

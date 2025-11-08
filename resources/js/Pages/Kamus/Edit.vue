@@ -66,16 +66,17 @@ const startRecording = async () => {
         };
         
         mediaRecorder.value.onstop = () => {
-            // Use MP3 format if supported, fallback to WAV
             const mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : 'audio/wav';
             const extension = mimeType === 'audio/mp4' ? '.m4a' : '.wav';
             
             audioBlob.value = new Blob(audioChunks.value, { type: mimeType });
             audioUrl.value = URL.createObjectURL(audioBlob.value);
             
-            // Create File object for form submission with proper MIME type
             const fileName = `recording_${Date.now()}${extension}`;
-            const file = new File([audioBlob.value], fileName, { type: mimeType });
+            
+            // Gunakan window.File untuk menghindari "File is not defined"
+            const file = new window.File([audioBlob.value], fileName, { type: mimeType });
+            
             form.audio = file;
             audioFileName.value = file.name;
             
@@ -266,22 +267,22 @@ const switchUploadMethod = (method) => {
 };
 
 // Submit form
+// Submit form
 const submit = () => {
     // Prepare form data
     const submitData = {
         bahasa_melayu: form.bahasa_melayu,
         bahasa_indonesia: form.bahasa_indonesia,
         keterangan: form.keterangan || '',
-        audio: form.audio
+        audio: form.audio,
+        remove_audio: removeExistingAudioFlag.value ? '1' : '0',
+        _method: 'PUT' // Method spoofing untuk Laravel
     };
     
-    // If we're removing existing audio and no new audio provided
-    if (removeExistingAudioFlag.value && (!form.audio || form.audio === '')) {
-        submitData.audio = null;
-    }
-    
+    // Gunakan POST dengan file upload
     form.transform((data) => submitData)
-        .put(route('kamus.update', props.kamus.id), {
+        .post(route('kamus.update', props.kamus.id), {
+            forceFormData: true, // Force multipart/form-data
             onSuccess: () => {
                 // Cleanup
                 if (audioUrl.value) {
@@ -612,7 +613,7 @@ onUnmounted(() => {
                     </div>
 
                     <!-- New Audio Preview -->
-                    <div v-if="form.audio && form.audio !== '' && form.audio instanceof File" class="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <div v-if="form.audio && form.audio !== '' && form.audio?.constructor?.name === 'File'">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-3">

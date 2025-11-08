@@ -158,7 +158,7 @@ class AdminKamusController extends Controller implements HasMiddleware
 
     public function update(Request $request, Kamus $kamus)
     {
-        // Cek apakah user bisa mengedit data ini
+        // Cek permission
         $hasValidationPermission = auth()->user()->can('validasi kamus');
         $isOwner = $kamus->create_by == auth()->id();
 
@@ -166,21 +166,25 @@ class AdminKamusController extends Controller implements HasMiddleware
             return back()->withErrors(['error' => 'Anda tidak memiliki izin untuk mengedit kamus ini.']);
         }
 
-        $request->validate([
+        // Merge data lama dengan data baru
+        $dataToValidate = array_merge([
+            'bahasa_melayu' => $kamus->bahasa_melayu,
+            'bahasa_indonesia' => $kamus->bahasa_indonesia,
+            'keterangan' => $kamus->keterangan,
+        ], $request->only(['bahasa_melayu', 'bahasa_indonesia', 'keterangan']));
+
+        $validated = validator($dataToValidate, [
             'bahasa_melayu' => 'required|string|max:255',
             'bahasa_indonesia' => 'required|string|max:255',
-            'audio' => 'nullable|file|mimes:mp3,wav,ogg,m4a,webm,mp4,mpeg,x-wav,wave|max:10240',
             'keterangan' => 'nullable|string|max:1000',
-        ], [
-            'bahasa_melayu.required' => 'Bahasa Melayu wajib diisi.',
-            'bahasa_melayu.max' => 'Bahasa Melayu maksimal 255 karakter.',
-            'bahasa_indonesia.required' => 'Bahasa Indonesia wajib diisi.',
-            'bahasa_indonesia.max' => 'Bahasa Indonesia maksimal 255 karakter.',
-            'audio.file' => 'File audio tidak valid.',
-            'audio.mimes' => 'Format audio harus MP3, WAV, OGG, M4A, atau WEBM.',
-            'audio.max' => 'Ukuran file audio maksimal 10MB.',
-            'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
-        ]);
+        ])->validate();
+
+        // Validasi audio
+        if ($request->hasFile('audio')) {
+            $request->validate([
+                'audio' => 'file|mimes:mp3,wav,ogg,m4a,webm,mp4,mpeg,x-wav,wave|max:10240',
+            ]);
+        }
 
         DB::beginTransaction();
         try {
@@ -192,9 +196,13 @@ class AdminKamusController extends Controller implements HasMiddleware
                 $status = $kamus->status;
             }
 
-            $data = $request->except('audio');
-            $data['status'] = $status;
-            $data['update_by'] = auth()->id();
+            $data = [
+                'bahasa_melayu' => $request->bahasa_melayu ?? $kamus->bahasa_melayu,
+                'bahasa_indonesia' => $request->bahasa_indonesia ?? $kamus->bahasa_indonesia,
+                'keterangan' => $request->keterangan ?? $kamus->keterangan,
+                'status' => $status,
+                'update_by' => auth()->id(),
+            ];
 
             // Handle audio upload/removal
             if ($request->hasFile('audio')) {
@@ -205,8 +213,8 @@ class AdminKamusController extends Controller implements HasMiddleware
                 // Upload new audio
                 $audioPath = $request->file('audio')->store('kamus-audio', 'public');
                 $data['audio'] = $audioPath;
-            } elseif ($request->has('audio') && $request->audio === null) {
-                // Remove existing audio if explicitly set to null
+            } elseif ($request->input('remove_audio') == '1') {
+                // Remove existing audio if flag is set
                 if ($kamus->audio) {
                     Storage::disk('public')->delete($kamus->audio);
                 }
@@ -236,6 +244,7 @@ class AdminKamusController extends Controller implements HasMiddleware
 
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Update kamus error: ' . $e->getMessage());
             return back()->withInput()->withErrors(['error' => 'Gagal mengupdate kamus: ' . $e->getMessage()]);
         }
     }

@@ -1,26 +1,33 @@
 <script setup>
+import { ref } from 'vue';
 import Checkbox from '@/Components/Checkbox.vue';
-import AppLayout from '@/Layouts/AppLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
-defineProps({
+const props = defineProps({
     canResetPassword: {
         type: Boolean,
     },
     status: {
         type: String,
     },
+    rememberedEmail: {  
+        type: String,
+        default: ''
+    }
 });
 
 const form = useForm({
-    email: '',
+    email: props.rememberedEmail || '',  
     password: '',
-    remember: false,
+    remember: !!props.rememberedEmail,  
 });
+
+const showPassword = ref(false); 
 
 const submit = () => {
     form.post(route('login'), {
@@ -30,82 +37,162 @@ const submit = () => {
 </script>
 
 <template>
-    <AppLayout>
-        <Head title="Log in - Tatakode" />
 
-        <section class="pt-32 pb-16 px-4 min-h-screen flex items-center justify-center">
-            <div class="max-w-md w-full">
-                <div class="bg-white/5 border border-white/10 backdrop-blur-sm rounded-lg p-8">
+    <Head title="Masuk - Bilikbecakap" />
+
+    <FrontendLayout>
+        <section class="py-20 pt-32 min-h-screen flex items-center justify-center relative overflow-hidden">
+            <!-- Background Image with Overlay -->
+            <div class="absolute inset-0 z-0">
+                <img src="/background/laut-pantai.png" alt="Background" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-[rgba(252,228,179,0.2)]"></div>
+            </div>
+
+            <!-- Decorative Elements -->
+            <div class="absolute top-0 right-0 w-96 h-96 bg-[#54b0af]/20 rounded-full blur-3xl z-10"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl z-10"></div>
+
+            <div class="container mx-auto px-6 relative z-20">
+                <div class="max-w-md mx-auto">
+                    <!-- Header -->
                     <div class="text-center mb-8">
-                        <h1 class="text-3xl font-bold text-white mb-2">
-                            Sign In
+                        <h1 class="text-4xl font-bold text-[#002b44] mb-2 drop-shadow-lg">
+                            Masuk ke Akun Anda
                         </h1>
-                        <p class="text-white/70">Welcome back to Tatakode</p>
                     </div>
 
-                    <div v-if="status" class="mb-4 text-sm font-medium text-green-400">
-                        {{ status }}
-                    </div>
-
-                    <form @submit.prevent="submit">
-                        <div>
-                            <InputLabel for="email" value="Email" class="text-white/90" />
-
-                            <TextInput
-                                id="email"
-                                type="email"
-                                class="mt-1 block w-full bg-white/10 border border-white/20 text-white placeholder:text-white/50 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                                v-model="form.email"
-                                required
-                                autofocus
-                                autocomplete="username"
-                            />
-
-                            <InputError class="mt-2 text-red-400" :message="form.errors.email" />
+                    <!-- Login Card -->
+                    <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8">
+                        <!-- Status Message -->
+                        <div v-if="status"
+                            class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+                            {{ status }}
                         </div>
 
-                        <div class="mt-4">
-                            <InputLabel for="password" value="Password" class="text-white/90" />
+                        <form @submit.prevent="submit" class="space-y-6">
+                            <!-- Email Field -->
+                            <div>
+                                <InputLabel for="email" value="Email" class="text-[#002b44] font-semibold mb-2" />
+                                <TextInput id="email" type="email"
+                                    class="mt-1 block w-full bg-white border-2 border-gray-200 text-[#002b44] placeholder:text-gray-400 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#54b0af] focus:border-transparent transition-all duration-200"
+                                    v-model="form.email" required autofocus autocomplete="username"
+                                    placeholder="nama@email.com" />
+                                <InputError class="mt-2 text-red-500" :message="form.errors.email" />
+                            </div>
 
-                            <TextInput
-                                id="password"
-                                type="password"
-                                class="mt-1 block w-full bg-white/10 border border-white/20 text-white placeholder:text-white/50 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                                v-model="form.password"
-                                required
-                                autocomplete="current-password"
-                            />
+                            <!-- Password Field -->
+                            <div>
+                                <InputLabel for="password" value="Password" class="text-[#002b44] font-semibold mb-2" />
+                                <div class="relative">
+                                    <TextInput id="password" :type="showPassword ? 'text' : 'password'"
+                                        class="mt-1 block w-full bg-white border-2 border-gray-200 text-[#002b44] placeholder:text-gray-400 px-4 py-3 pr-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#54b0af] focus:border-transparent transition-all duration-200"
+                                        v-model="form.password" required autocomplete="current-password"
+                                        placeholder="••••••••" />
+                                    <button type="button" @click="showPassword = !showPassword"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#54b0af] transition-colors">
+                                        <!-- Icon Mata Terbuka (Show) -->
+                                        <svg v-if="!showPassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        <!-- Icon Mata Tertutup (Hide) -->
+                                        <svg v-else class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <InputError class="mt-2 text-red-500" :message="form.errors.password" />
+                            </div>
 
-                            <InputError class="mt-2 text-red-400" :message="form.errors.password" />
+                            <!-- Remember Me & Forgot Password -->
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center">
+                                    <Checkbox name="remember" v-model:checked="form.remember"
+                                        class="rounded border-gray-300 text-[#54b0af] shadow-sm focus:ring-[#54b0af]" />
+                                    <span class="ms-2 text-sm text-gray-600">Ingat saya</span>
+                                </label>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="space-y-4">
+                                <button type="submit"
+                                    class="w-full bg-[#54b0af] hover:bg-[#459a99] text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+                                    :disabled="form.processing">
+                                    <svg v-if="form.processing" class="animate-spin h-5 w-5 text-white"
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                    <span>{{ form.processing ? 'Memproses...' : 'Masuk' }}</span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Divider -->
+                        <div class="relative my-6">
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-gray-200"></div>
+                            </div>
+                            <div class="relative flex justify-center text-sm">
+                                <span class="px-4 bg-white text-gray-500">atau</span>
+                            </div>
                         </div>
 
-                        <div class="mt-4 block">
-                            <label class="flex items-center">
-                                <Checkbox name="remember" v-model:checked="form.remember" />
-                                <span class="ms-2 text-sm text-white/70">Remember me</span>
-                            </label>
-                        </div>
-
-                        <div class="mt-4 flex items-center justify-end">
-                            <Link
-                                v-if="canResetPassword"
-                                :href="route('password.request')"
-                                class="rounded-md text-sm text-cyan-400 hover:text-cyan-300 underline focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
-                            >
-                                Forgot your password?
+                        <!-- Back to Home -->
+                        <div class="text-center">
+                            <Link href="/"
+                                class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Kembali ke Beranda
                             </Link>
-
-                            <PrimaryButton
-                                class="ms-4 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600"
-                                :class="{ 'opacity-25': form.processing }"
-                                :disabled="form.processing"
-                            >
-                                Log in
-                            </PrimaryButton>
                         </div>
-                    </form>
+                    </div>
+
+                    <!-- Additional Info -->
+                    <div class="mt-8 text-center">
+                        <p class="text-sm text-[#002b44] drop-shadow">
+                            Dengan masuk, Anda menyetujui
+                            <a href="#"
+                                class="text-[#002b44] font-semibold hover:text-[#54b0af] transition-colors">Syarat &
+                                Ketentuan</a>
+                            dan
+                            <a href="#"
+                                class="text-[#002b44] font-semibold hover:text-[#54b0af] transition-colors">Kebijakan
+                                Privasi</a>
+                            kami
+                        </p>
+                    </div>
                 </div>
             </div>
         </section>
-    </AppLayout>
+    </FrontendLayout>
 </template>
+
+<style scoped>
+/* Custom input focus effect */
+input:focus {
+    box-shadow: 0 0 0 3px rgba(84, 176, 175, 0.1);
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+</style>

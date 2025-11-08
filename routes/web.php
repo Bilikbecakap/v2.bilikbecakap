@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\AdminProjectsController;
+use App\Http\Controllers\Frontend\LandingPageController;
+use App\Http\Controllers\Frontend\KamusController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\PageProjectController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -38,6 +39,7 @@ use Inertia\Inertia;
 
 // Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
+Route::get('/kamus', [KamusController::class, 'index'])->name('kamus.public');
 
 /*
 |--------------------------------------------------------------------------

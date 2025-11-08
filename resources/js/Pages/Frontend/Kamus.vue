@@ -1,0 +1,245 @@
+<script setup>
+import { ref } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import FrontendLayout from '@/Layouts/FrontendLayout.vue';
+
+const props = defineProps({
+    kamus: Object,
+    search: String,
+});
+
+const searchQuery = ref(props.search || '');
+const isPlaying = ref(null);
+const audioPlayer = ref(null);
+
+const handleSearch = () => {
+    router.get('/kamus', { search: searchQuery.value }, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+const playAudio = (kamusId, audioUrl) => {
+    if (isPlaying.value === kamusId) {
+        audioPlayer.value?.pause();
+        isPlaying.value = null;
+    } else {
+        audioPlayer.value?.pause();
+        audioPlayer.value = new Audio(audioUrl);
+        audioPlayer.value.play();
+        isPlaying.value = kamusId;
+
+        audioPlayer.value.onended = () => {
+            isPlaying.value = null;
+        };
+    }
+};
+</script>
+
+<template>
+
+    <Head title="Kamus Digital - Bilik Bercakap" />
+
+    <FrontendLayout>
+        <section class="py-12 pt-24 min-h-screen relative overflow-hidden">
+            <!-- Background -->
+            <div class="absolute inset-0 z-0">
+                <img src="/background/laut-pantai.png" alt="Background" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-[rgba(252,228,179,0.2)]"></div>
+            </div>
+
+            <!-- Decorative -->
+            <div class="absolute top-0 right-0 w-96 h-96 bg-[#54b0af]/20 rounded-full blur-3xl z-10"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl z-10"></div>
+
+            <div class="container mx-auto px-6 relative z-20">
+                <!-- Header -->
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl md:text-5xl font-bold text-[#54b0af] mb-4 drop-shadow-sm">
+                        Kamus Digital Bahasa Belitung
+                    </h1>
+                    <p class="text-lg text-[#002b44]/80 max-w-2xl mx-auto drop-shadow-sm">
+                        Temukan arti kata dan terjemahan dari Bahasa Melayu Belitung ke Bahasa Indonesia
+                    </p>
+                </div>
+
+                <!-- Search -->
+                <div class="max-w-3xl mx-auto mb-12">
+                    <form @submit.prevent="handleSearch" class="relative">
+                        <input v-model="searchQuery" type="text"
+                            placeholder="Cari kata dalam Bahasa Melayu Belitung atau Bahasa Indonesia..."
+                            class="w-full px-6 py-4 pr-14 rounded-2xl border-2 border-white/50 bg-white/90 backdrop-blur-sm text-[#002b44] placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#54b0af] focus:border-transparent shadow-lg" />
+                        <button type="submit"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FCB415] hover:bg-[#e0a013] text-white p-3 rounded-xl transition-colors duration-200">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </button>
+                    </form>
+
+                    <div v-if="search" class="mt-4 text-center">
+                        <p class="text-sm text-[#002b44]/70">
+                            Menampilkan hasil pencarian untuk: <span class="font-semibold">"{{ search }}"</span>
+                            <button @click="searchQuery = ''; handleSearch()"
+                                class="ml-2 text-[#54b0af] hover:text-[#459a99] font-medium">
+                                Hapus pencarian
+                            </button>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <!-- HEADER: Lebih besar, teks bold, padding lebih tinggi -->
+                            <thead>
+                                <tr class="bg-[#54b0af] text-white">
+                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">Bahasa Melayu Belitung
+                                    </th>
+                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">Bahasa Indonesia</th>
+                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">Keterangan</th>
+                                    <th class="px-12 py-5 text-center text-base font-bold w-20">Audio</th>
+                                </tr>
+                            </thead>
+                            <!-- BODY: Baris lebih tinggi, padding lebih besar -->
+                            <tbody class="divide-y divide-gray-100">
+                                <tr v-for="(item, index) in kamus.data" :key="item.id"
+                                    :class="index % 2 === 0 ? 'bg-[#002b44]/5' : 'bg-white'"
+                                    class="hover:bg-[#54b0af]/10 transition-colors duration-200">
+                                    <td class="px-12 py-6">
+                                        <span class="text-[#002b44] font-semibold text-base">{{ item.bahasa_melayu
+                                            }}</span>
+                                    </td>
+                                    <td class="px-12 py-6">
+                                        <span class="text-gray-700 text-base">{{ item.bahasa_indonesia }}</span>
+                                    </td>
+                                    <td class="px-12 py-6">
+                                        <span class="text-gray-600 text-sm leading-relaxed line-clamp-3">{{
+                                            item.keterangan || '-' }}</span>
+                                    </td>
+                                    <td class="px-12 py-6 text-center">
+                                        <button v-if="item.audio" @click="playAudio(item.id, `/storage/${item.audio}`)"
+                                            class="inline-flex items-center justify-center w-12 h-12 bg-[#FCB415] hover:bg-[#e0a013] text-white rounded-full transition-all duration-200 transform hover:scale-110"
+                                            :class="{ 'bg-[#e0a013] animate-pulse': isPlaying === item.id }">
+                                            <svg v-if="isPlaying === item.id" class="w-6 h-6" fill="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                                            </svg>
+                                            <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                        </button>
+                                        <span v-else class="text-gray-400 text-sm">-</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Empty State (diperbesar juga) -->
+                        <div v-if="!kamus.data || kamus.data.length === 0" class="text-center py-20">
+                            <svg class="w-24 h-24 text-gray-300 mx-auto mb-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <p class="text-xl font-medium text-gray-600">
+                                {{ search ? 'Tidak ada hasil yang ditemukan' : 'Belum ada data kamus tersedia' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Pagination (HANYA ICON + ANGKA, TANPA TEKS PREV/NEXT) -->
+                    <div v-if="kamus.data && kamus.data.length > 0"
+                        class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="text-sm text-gray-600">
+                                Menampilkan {{ kamus.from }} - {{ kamus.to }} dari {{ kamus.total }} kata
+                            </div>
+
+                            <div class="flex items-center gap-1">
+                                <!-- Previous (icon only) -->
+                                <component :is="kamus.prev_page_url ? 'a' : 'span'" :href="kamus.prev_page_url"
+                                    class="p-2 rounded-lg transition-all" :class="kamus.prev_page_url
+                                        ? 'bg-white text-[#002b44] hover:bg-[#54b0af] hover:text-white border border-gray-300'
+                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </component>
+
+                                <!-- Page Numbers (hanya angka + ...) -->
+                                <template v-for="(link, i) in kamus.links" :key="i">
+                                    <component v-if="link.url && !isNaN(link.label)" :is="'a'" :href="link.url"
+                                        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+                                        :class="link.active
+                                            ? 'bg-[#54b0af] text-white shadow-md'
+                                            : 'bg-white text-[#002b44] hover:bg-[#54b0af] hover:text-white border border-gray-300'">
+                                        {{ link.label }}
+                                    </component>
+                                    <span v-else-if="link.label === '...'" class="px-3 py-1.5 text-sm text-gray-500">
+                                        ...
+                                    </span>
+                                </template>
+
+                                <!-- Next (icon only) -->
+                                <component :is="kamus.next_page_url ? 'a' : 'span'" :href="kamus.next_page_url"
+                                    class="p-2 rounded-lg transition-all" :class="kamus.next_page_url
+                                        ? 'bg-white text-[#002b44] hover:bg-[#54b0af] hover:text-white border border-gray-300'
+                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </component>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="mt-8 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-[#54b0af]/10 p-3 rounded-xl">
+                            <svg class="w-6 h-6 text-[#54b0af]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold text-[#002b44] mb-2">Tentang Kamus Digital</h4>
+                            <p class="text-gray-600 leading-relaxed">
+                                Kamus digital ini berisi kosakata Bahasa Melayu Belitung yang diterjemahkan ke Bahasa
+                                Indonesia. Gunakan fitur pencarian untuk menemukan kata yang Anda cari dengan cepat.
+                                Klik ikon speaker untuk mendengarkan pengucapan kata dalam Bahasa Melayu Belitung.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </FrontendLayout>
+</template>
+
+<style scoped>
+/* Custom scrollbar */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #54b0af;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #459a99;
+}
+</style>

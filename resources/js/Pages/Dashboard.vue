@@ -157,7 +157,7 @@ const getTypeIcon = (type) => {
                             <div class="absolute -bottom-4 -right-4 w-32 h-32 bg-cyan-200 dark:bg-cyan-900/30 rounded-full blur-2xl opacity-60"></div>
                             
                             <!-- Logo -->
-                            <img src="/kbkm2023.jpg" alt="Bilik Bercakap Logo" class="relative w-56 h-56 md:w-64 md:h-64 object-contain mx-auto">
+                            <img src="/images/kbkm2023.jpg" alt="Bilik Bercakap Logo" class="relative w-56 h-56 md:w-64 md:h-64 object-contain mx-auto">
                         </div>
                     </div>
                 </div>

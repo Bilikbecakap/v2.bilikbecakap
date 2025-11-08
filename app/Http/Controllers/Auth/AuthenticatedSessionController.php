@@ -21,6 +21,7 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'rememberedEmail' => request()->cookie('remembered_email'), 
         ]);
     }
 
@@ -32,6 +33,11 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        // Simpan email ke cookie jika remember me dicentang
+        if ($request->boolean('remember')) {
+            cookie()->queue('remembered_email', $request->email, 43200); // 30 hari
+        }
 
         // Log login activity
         activity()

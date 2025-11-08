@@ -336,6 +336,10 @@ onMounted(() => {
   if (props.artikel.judul_english) {
     form.judul_english = props.artikel.judul_english;
   }
+
+  if (props.artikel.tanggal_publish) {
+    form.tanggal_publish = props.artikel.tanggal_publish.slice(0, 16);
+  }
   
   // Thumbnail preview
   if (existingThumbnail.value) {

@@ -1,11 +1,22 @@
 <script setup>
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import { ref } from 'vue';
+
+const openFaq = ref(1);
+
+const toggleFaq = (index) => {
+    openFaq.value = openFaq.value === index ? null : index;
+};
+
+defineProps({
+    latestArtikel: Array
+});
 </script>
 
 <template>
 
-    <Head title="Beranda - Bilik Bercakap" />
+    <Head title="Bilikbecakap - Bersatu Memajukan Kebudayaan" />
 
     <FrontendLayout>
         <!-- Hero Section -->
@@ -280,6 +291,331 @@ import { Head } from '@inertiajs/vue3';
                     </div>
                 </div>
 
+            </div>
+        </section>
+
+        <!-- Achievement Section -->
+        <section class="py-20 bg-gradient-to-br from-[#002b44]/5 via-white to-[#54b0af]/5">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <!-- Left Column: Image -->
+                    <div class="relative group">
+                        <div class="relative overflow-hidden rounded-2xl shadow-2xl">
+                            <img src="/images/kbkm2023.jpg" alt="KBKM 2023"
+                                class="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700">
+                            <!-- Overlay Gradient -->
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-[#002b44]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                            </div>
+                        </div>
+
+                        <!-- Decorative Elements -->
+                        <div
+                            class="absolute -top-6 -left-6 w-24 h-24 bg-[#54b0af] rounded-full blur-2xl opacity-30 animate-pulse-slow">
+                        </div>
+                        <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-[#002b44] rounded-full blur-2xl opacity-20 animate-pulse-slow"
+                            style="animation-delay: 1s;"></div>
+
+                    </div>
+
+                    <!-- Right Column: Content -->
+                    <div class="space-y-6">
+                        <!-- Badge -->
+                        <div
+                            class="inline-flex items-center gap-2 bg-[#54b0af]/10 text-[#54b0af] px-4 py-2 rounded-full text-sm font-medium">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            Perjalanan Kami
+                        </div>
+
+                        <!-- Heading -->
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-[#002b44] leading-tight">
+                            Langkah Demi Langkah,
+                            <span class="text-[#54b0af] block mt-2">Melestarikan Bahasa dan Budaya Bersama</span>
+                        </h2>
+
+                        <!-- Description -->
+                        <div class="space-y-4 text-gray-600 leading-relaxed">
+                            <p>
+                                Seiring dengan dukungan pengguna, <span
+                                    class="font-semibold text-[#54b0af]">Bilikbecakap</span> terus berkembang dalam
+                                upaya pelestarian bahasa dan budaya Belitung Timur. Kami bangga bisa memberikan
+                                fitur-fitur yang semakin kaya dan bermanfaat bagi masyarakat.
+                            </p>
+                            <p>
+                                Bilik Becakap hadir di dalam program <span class="font-semibold text-[#002b44]">Kemah
+                                    Budaya Kaum Muda (KBKM) 2023</span> sebagai ruang inkubator yang mewadahi inisiatif
+                                kaum muda dalam menciptakan aplikasi dan prakarya serta menjadi jembatan yang
+                                mempertemukan antara gagasan dengan eksperimentasi di bidang <span
+                                    class="font-semibold text-[#54b0af]">STEAM</span> (Science, Technology, Engineering,
+                                Art, Mathematics). KBKM mendorong para peserta agar karyanya dapat terus berlanjut dan
+                                berdampak luas sehingga mampu menjadi solusi untuk permasalahan sosial di tengah
+                                masyarakat.
+                            </p>
+                        </div>
+
+                        <!-- CTA Button -->
+                        <div class="pt-4">
+                            <a href="#"
+                                class="inline-flex items-center gap-2 bg-[#54b0af] hover:bg-[#459a99] text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                Pelajari Lebih Lanjut
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="py-20 bg-[#002b44] relative overflow-hidden">
+            <!-- Decorative Background Elements -->
+            <div class="absolute top-0 right-0 w-96 h-96 bg-[#54b0af]/10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#54b0af]/10 rounded-full blur-3xl"></div>
+
+            <div class="container mx-auto px-6 relative z-10">
+                <!-- Section Header -->
+                <div class="text-center mb-16 space-y-4">
+                    <h2 class="text-4xl md:text-5xl font-bold text-white">Pertanyaan yang Sering Ditanyakan</h2>
+                    <p class="text-lg text-gray-300 max-w-2xl mx-auto">
+                        Temukan jawaban atas pertanyaan umum tentang Bilikbecakap
+                    </p>
+                </div>
+
+                <!-- FAQ Accordion -->
+                <div class="max-w-4xl mx-auto space-y-4">
+                    <!-- FAQ Item 1 -->
+                    <div
+                        class="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden hover:border-[#54b0af]/50 transition-all duration-300">
+                        <button @click="toggleFaq(1)"
+                            class="w-full px-8 py-6 flex items-center justify-between text-left group">
+                            <span class="text-lg font-semibold text-white pr-8">Apa itu Bilikbecakap?</span>
+                            <svg class="w-6 h-6 text-[#54b0af] transform transition-transform duration-300"
+                                :class="{ 'rotate-180': openFaq === 1 }" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div v-show="openFaq === 1" class="px-8 pb-6">
+                            <p class="text-gray-300 leading-relaxed">
+                                Bilikbecakap adalah platform digital yang didedikasikan untuk pelestarian bahasa dan
+                                budaya Belitung Timur, khususnya Bahasa Belitung.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 2 -->
+                    <div
+                        class="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden hover:border-[#54b0af]/50 transition-all duration-300">
+                        <button @click="toggleFaq(2)"
+                            class="w-full px-8 py-6 flex items-center justify-between text-left group">
+                            <span class="text-lg font-semibold text-white pr-8">Bagaimana cara menggunakan Kamus Digital
+                                di Bilikbecakap?</span>
+                            <svg class="w-6 h-6 text-[#54b0af] transform transition-transform duration-300"
+                                :class="{ 'rotate-180': openFaq === 2 }" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div v-show="openFaq === 2" class="px-8 pb-6">
+                            <p class="text-gray-300 leading-relaxed">
+                                Anda dapat mencari kata atau istilah dalam Bahasa Belitung dengan mengetik kata yang
+                                ingin dicari pada kolom Kamus Digital. Sistem akan menampilkan arti dan contoh
+                                penggunaan kata tersebut, memudahkan Anda dalam memahami konteks dan makna yang tepat.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 3 -->
+                    <div
+                        class="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden hover:border-[#54b0af]/50 transition-all duration-300">
+                        <button @click="toggleFaq(3)"
+                            class="w-full px-8 py-6 flex items-center justify-between text-left group">
+                            <span class="text-lg font-semibold text-white pr-8">Apa saja yang dapat dipelajari dalam
+                                Modul Pembelajaran Bahasa & Budaya?</span>
+                            <svg class="w-6 h-6 text-[#54b0af] transform transition-transform duration-300"
+                                :class="{ 'rotate-180': openFaq === 3 }" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div v-show="openFaq === 3" class="px-8 pb-6">
+                            <p class="text-gray-300 leading-relaxed">
+                                Modul pembelajaran kami mencakup dasar-dasar Bahasa Belitung, tata bahasa, serta wawasan
+                                budaya seperti adat istiadat dan sejarah Belitung Timur. Materi disusun secara
+                                interaktif untuk mempermudah pemahaman dan menarik minat belajar.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 4 -->
+                    <div
+                        class="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden hover:border-[#54b0af]/50 transition-all duration-300">
+                        <button @click="toggleFaq(4)"
+                            class="w-full px-8 py-6 flex items-center justify-between text-left group">
+                            <span class="text-lg font-semibold text-white pr-8">Bisakah Bilikbecakap menerjemahkan
+                                kalimat dari Bahasa Indonesia ke Bahasa Belitung?</span>
+                            <svg class="w-6 h-6 text-[#54b0af] transform transition-transform duration-300"
+                                :class="{ 'rotate-180': openFaq === 4 }" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div v-show="openFaq === 4" class="px-8 pb-6">
+                            <p class="text-gray-300 leading-relaxed">
+                                Ya, Bilikbecakap memiliki fitur mesin penerjemah yang dapat menerjemahkan kata atau
+                                kalimat dari Bahasa Indonesia ke Bahasa Belitung secara cepat. Cukup masukkan teks yang
+                                ingin diterjemahkan, dan hasilnya akan segera muncul.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 5 -->
+                    <div
+                        class="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden hover:border-[#54b0af]/50 transition-all duration-300">
+                        <button @click="toggleFaq(5)"
+                            class="w-full px-8 py-6 flex items-center justify-between text-left group">
+                            <span class="text-lg font-semibold text-white pr-8">Bagaimana Bilikbecakap berkontribusi
+                                pada pelestarian dan keberlanjutan bahasa serta budaya daerah?</span>
+                            <svg class="w-6 h-6 text-[#54b0af] transform transition-transform duration-300"
+                                :class="{ 'rotate-180': openFaq === 5 }" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div v-show="openFaq === 5" class="px-8 pb-6">
+                            <p class="text-gray-300 leading-relaxed">
+                                Bilikbecakap memiliki komitmen jangka panjang untuk mendukung pelestarian bahasa dan
+                                budaya Belitung Timur. Dengan menyediakan akses digital ke kamus, mesin penerjemah, dan
+                                modul pembelajaran budaya, platform ini membantu masyarakat lokal dan generasi muda
+                                menjaga dan menghargai warisan budaya mereka. Selain itu, Bilikbecakap berencana
+                                memperluas kolaborasi dengan lembaga pendidikan dan komunitas budaya untuk memperkaya
+                                konten serta memastikan keberlanjutan platform ini dalam jangka panjang.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Section -->
+        <section class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <!-- Section Header -->
+                <div class="text-center mb-16 space-y-4">
+                    <div
+                        class="inline-flex items-center gap-2 bg-[#54b0af]/10 text-[#54b0af] px-4 py-2 rounded-full text-sm font-medium">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                        </svg>
+                        Berita & Blog
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-bold text-[#002b44]">Jelajahi Berita & Blog Terbaru Kami</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                        Dapatkan informasi terkini seputar budaya, bahasa, dan perkembangan Bilikbecakap
+                    </p>
+                </div>
+
+                <!-- Blog Cards -->
+                <div v-if="latestArtikel && latestArtikel.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div v-for="artikel in latestArtikel" :key="artikel.id"
+                        class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-[#54b0af] transform hover:-translate-y-2">
+                        <!-- Image -->
+                        <div class="relative h-56 overflow-hidden bg-gradient-to-br from-[#54b0af]/10 to-gray-100">
+                            <img v-if="artikel.gambar_thumbnail" :src="artikel.gambar_thumbnail" :alt="artikel.judul"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <div v-else class="w-full h-full flex items-center justify-center">
+                                <svg class="w-20 h-20 text-gray-300" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                </svg>
+                            </div>
+                            <!-- Category Badge -->
+                            <div v-if="artikel.kategori"
+                                class="absolute top-4 left-4 bg-[#54b0af] text-white px-3 py-1 rounded-full text-sm font-medium">
+                                {{ artikel.kategori }}
+                            </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-6 space-y-4">
+                            <!-- Date & Author -->
+                            <div class="flex items-center gap-4 text-sm text-gray-500">
+                                <div class="flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    {{ new Date(artikel.tanggal_publish).toLocaleDateString('id-ID', {
+                                        day: 'numeric',
+                                    month: 'short', year: 'numeric' }) }}
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <!-- <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    {{ artikel.penulis }} -->
+                                </div>
+                            </div>
+
+                            <!-- Title -->
+                            <h3
+                                class="text-xl font-bold text-[#002b44] group-hover:text-[#54b0af] transition-colors line-clamp-2">
+                                {{ artikel.judul }}
+                            </h3>
+
+                            <!-- Excerpt -->
+                            <p class="text-gray-600 leading-relaxed line-clamp-3">
+                                {{ artikel.excerpt }}
+                            </p>
+
+                            <!-- Read More Button -->
+                            <a :href="`/artikel/${artikel.slug}`"
+                                class="inline-flex items-center gap-2 text-[#54b0af] font-semibold hover:gap-3 transition-all duration-300 group/link">
+                                Baca Selengkapnya
+                                <svg class="w-5 h-5 group-hover/link:translate-x-1 transition-transform" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div v-else class="text-center py-12">
+                    <svg class="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                    </svg>
+                    <p class="text-gray-500">Belum ada artikel tersedia</p>
+                </div>
+
+                <!-- View All Button -->
+                <div v-if="latestArtikel && latestArtikel.length > 0" class="text-center mt-12">
+                    <a href="/artikel"
+                        class="inline-flex items-center gap-2 bg-[#002b44] hover:bg-[#003a5c] text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        Lihat Semua Artikel
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </a>
+                </div>
             </div>
         </section>
 

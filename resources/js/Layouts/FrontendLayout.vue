@@ -53,22 +53,23 @@ onUnmounted(() => {
             'fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-gray-200',
             isScrolled ? 'bg-white shadow-md' : 'bg-white'
         ]">
-            <nav class="container mx-auto px-6 py-4">
+            <nav class="container mx-auto px-4 sm:px-6 py-4">
                 <div class="flex items-center justify-between">
                     <!-- Logo -->
                     <div class="flex items-center">
                         <Link href="/" class="flex items-center gap-3">
-                        <img src="/logo/bilikbecakap.png" alt="Bilik Bercakap" class="h-12 w-auto object-contain">
+                        <img src="/logo/bilikbecakap.png" alt="Bilik Bercakap"
+                            class="h-10 sm:h-12 w-auto object-contain">
                         </Link>
                     </div>
 
-                    <!-- Navigation Menu - Centered -->
-                    <div class="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+                    <!-- Desktop Menu: Hanya tampil di lg (≥1024px) -->
+                    <div class="hidden lg:flex items-center space-x-6 absolute left-1/2 transform -translate-x-1/2">
                         <Link href="/"
                             class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                         {{ t("messages.home") }}
                         </Link>
-                        <Link href="#"
+                        <Link href="/kamus"
                             class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                         Kamus
                         </Link>
@@ -80,8 +81,12 @@ onUnmounted(() => {
                             class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                         Pembelajaran
                         </Link>
+                        <Link href="#"
+                            class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                        Blog
+                        </Link>
 
-                        <!-- Dropdown Lainnya -->
+                        <!-- Dropdown Lainnya (Desktop) -->
                         <div class="relative" @mouseenter="showLainnyaDropdown = true"
                             @mouseleave="showLainnyaDropdown = false">
                             <button
@@ -105,15 +110,7 @@ onUnmounted(() => {
                                     </Link>
                                     <Link href="#"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#54b0af] hover:text-white transition-colors duration-200">
-                                    Artikel
-                                    </Link>
-                                    <Link href="#"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#54b0af] hover:text-white transition-colors duration-200">
                                     Tentang
-                                    </Link>
-                                    <Link href="#"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#54b0af] hover:text-white transition-colors duration-200">
-                                    Team
                                     </Link>
                                     <Link href="#"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#54b0af] hover:text-white transition-colors duration-200">
@@ -128,24 +125,23 @@ onUnmounted(() => {
                         </div>
                     </div>
 
-                    <!-- Language Switcher & Auth Button - Right Side (Desktop) -->
-                    <div class="hidden md:flex items-center gap-3">
-                        <!-- Auth Button -->
-                        <Link v-if="!$page.props.auth?.user" 
-                              :href="route('login')"
-                              class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-[#54b0af] border-2 border-[#54b0af] hover:bg-[#54b0af] hover:text-white">
-                            Masuk
+                    <!-- Right Side: Auth + Language (Desktop - lg+) -->
+                    <div class="hidden lg:flex items-center gap-3">
+                        <!-- Auth -->
+                        <Link v-if="!$page.props.auth?.user" :href="route('login')"
+                            class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-[#54b0af] border-2 border-[#54b0af] hover:bg-[#54b0af] hover:text-white">
+                        Masuk
                         </Link>
-                        <Link v-else 
-                              :href="route('dashboard')"
-                              class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99] flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                            Dashboard
+                        <Link v-else :href="route('dashboard')"
+                            class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99] flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                        Dashboard
                         </Link>
-                        
-                        <!-- Language Selector -->
+
+                        <!-- Language -->
                         <div class="relative">
                             <button @click="toggleLanguageDropdown"
                                 class="px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99] border-2 border-[#54b0af]">
@@ -161,12 +157,11 @@ onUnmounted(() => {
                                     <button v-for="(lang, code) in languages" :key="code" @click="switchLanguage(code)"
                                         :class="[
                                             'flex items-center justify-between w-full px-3 py-2 text-sm transition-colors duration-200',
-                                            currentLocale === code
-                                                ? 'bg-[#54b0af] text-white'
-                                                : 'text-gray-700 hover:bg-gray-50'
+                                            currentLocale === code ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-50'
                                         ]">
                                         <span>{{ lang.short }}</span>
-                                       <svg v-if="currentLocale === code" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg v-if="currentLocale === code" class="w-4 h-4" fill="currentColor"
+                                            viewBox="0 0 20 20">
                                             <path fill-rule="evenodd"
                                                 d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                                 clip-rule="evenodd" />
@@ -177,26 +172,12 @@ onUnmounted(() => {
                         </div>
                     </div>
 
-                    <!-- Mobile: Auth Button, Language Selector & Menu Button -->
-                    <div class="flex md:hidden items-center gap-3">
-                        <!-- Auth Button (Mobile) -->
-                        <Link v-if="!$page.props.auth?.user" 
-                              :href="route('login')"
-                              class="px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-[#54b0af] border-2 border-[#54b0af] hover:bg-[#54b0af] hover:text-white">
-                            Masuk
-                        </Link>
-                        <Link v-else 
-                              :href="route('dashboard')"
-                              class="px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99] flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                        </Link>
-                        
-                        <!-- Language Selector (Mobile) -->
+                    <!-- Mobile: Hamburger + Language (tampil di < lg) -->
+                    <div class="flex lg:hidden items-center gap-2">
+                        <!-- Language (Mobile) -->
                         <div class="relative">
                             <button @click="toggleLanguageDropdown"
-                                class="px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99]">
+                                class="px-2.5 py-1.5 rounded-lg font-medium text-xs transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99]">
                                 {{ languages[currentLocale].short }}
                             </button>
 
@@ -209,9 +190,7 @@ onUnmounted(() => {
                                     <button v-for="(lang, code) in languages" :key="code" @click="switchLanguage(code)"
                                         :class="[
                                             'flex items-center justify-between w-full px-3 py-2 text-sm transition-colors duration-200',
-                                            currentLocale === code
-                                                ? 'bg-[#54b0af] text-white'
-                                                : 'text-gray-700 hover:bg-gray-50'
+                                            currentLocale === code ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-50'
                                         ]">
                                         <span>{{ lang.short }}</span>
                                         <svg v-if="currentLocale === code" class="w-4 h-4" fill="currentColor"
@@ -225,9 +204,9 @@ onUnmounted(() => {
                             </transition>
                         </div>
 
-                        <!-- Hamburger Menu Button -->
+                        <!-- Hamburger -->
                         <button @click="showMobileMenu = !showMobileMenu"
-                            class="text-gray-700 transition-colors duration-200">
+                            class="text-gray-700 transition-colors duration-200 p-1">
                             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 6h16M4 12h16M4 18h16" />
@@ -242,7 +221,8 @@ onUnmounted(() => {
         <transition enter-active-class="transition ease-out duration-300" enter-from-class="translate-x-full"
             enter-to-class="translate-x-0" leave-active-class="transition ease-in duration-200"
             leave-from-class="translate-x-0" leave-to-class="translate-x-full">
-            <div v-show="showMobileMenu" class="fixed top-0 right-0 w-64 h-full bg-white shadow-2xl z-[60] md:hidden">
+            <div v-show="showMobileMenu"
+                class="fixed top-0 right-0 w-64 h-full bg-white shadow-2xl z-[60] lg:hidden overflow-y-auto">
                 <div class="flex justify-end p-4 border-b border-gray-100">
                     <button @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] transition-colors duration-200">
@@ -254,11 +234,32 @@ onUnmounted(() => {
                 </div>
 
                 <div class="px-6 py-6 flex flex-col space-y-4">
+                    <!-- Auth Buttons (Mobile) -->
+                    <div class="pb-4 border-b border-gray-200">
+                        <Link v-if="!$page.props.auth?.user" :href="route('login')" @click="showMobileMenu = false"
+                            class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99]">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                        </svg>
+                        Masuk
+                        </Link>
+                        <Link v-else :href="route('dashboard')" @click="showMobileMenu = false"
+                            class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99]">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                        Dashboard
+                        </Link>
+                    </div>
+
+                    <!-- Navigation Links -->
                     <Link href="/" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     {{ t("messages.home") }}
                     </Link>
-                    <Link href="#" @click="showMobileMenu = false"
+                    <Link href="/kamus" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Kamus
                     </Link>
@@ -270,22 +271,20 @@ onUnmounted(() => {
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Pembelajaran
                     </Link>
+                    <Link href="#" @click="showMobileMenu = false"
+                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                    Blog
+                    </Link>
+
                     <div class="border-t border-gray-200 my-2"></div>
+
                     <Link href="#" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Quiz
                     </Link>
                     <Link href="#" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Artikel
-                    </Link>
-                    <Link href="#" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Tentang
-                    </Link>
-                    <Link href="#" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Team
                     </Link>
                     <Link href="#" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
@@ -308,7 +307,7 @@ onUnmounted(() => {
         </transition>
 
         <!-- Main Content -->
-        <main class="pt-20">
+        <main class="pt-16">
             <slot />
         </main>
 
@@ -362,7 +361,7 @@ onUnmounted(() => {
                         <h3 class="text-xl font-semibold mb-6">Fitur</h3>
                         <ul class="space-y-3">
                             <li>
-                                <a href="#"
+                                <a href="/kamus"
                                     class="text-gray-300 hover:text-[#54b0af] transition-colors duration-200 flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

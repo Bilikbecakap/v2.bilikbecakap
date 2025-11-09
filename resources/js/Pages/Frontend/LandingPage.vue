@@ -56,7 +56,7 @@ defineProps({
 
                         <!-- CTA Buttons -->
                         <div class="flex flex-wrap items-center gap-4">
-                            <a href="#"
+                            <a href="#keunggulan-kami"
                                 class="inline-flex items-center gap-2 bg-[#54b0af] hover:bg-[#459a99] text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                 Mulai Belajar
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -64,7 +64,7 @@ defineProps({
                                         d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>
                             </a>
-                            <a href="#"
+                            <a href="/login"
                                 class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-[#002b44] px-8 py-4 rounded-full font-semibold border-2 border-[#002b44] transition-all duration-300 transform hover:-translate-y-1">
                                 Bergabung
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,12 +77,12 @@ defineProps({
                         <!-- Stats -->
                         <div class="grid grid-cols-3 gap-6 pt-8 border-t border-gray-200">
                             <div class="text-center">
-                                <div class="text-3xl font-bold text-[#54b0af]">1000+</div>
+                                <div class="text-3xl font-bold text-[#54b0af]">1300+</div>
                                 <div class="text-sm text-gray-600 mt-1">Kata dalam Kamus</div>
                             </div>
                             <div class="text-center">
                                 <div class="text-3xl font-bold text-[#54b0af]">10+</div>
-                                <div class="text-sm text-gray-600 mt-1">Modul Pembelajaran</div>
+                                <div class="text-sm text-gray-600 mt-1">Modul & Quizz Pembelajaran</div>
                             </div>
                             <div class="text-center">
                                 <div class="text-3xl font-bold text-[#54b0af]">80%</div>
@@ -158,7 +158,7 @@ defineProps({
         </section>
 
         <!-- What We Offer Section -->
-        <section class="py-20 bg-white">
+        <section class="py-20 bg-white" id="keunggulan-kami">
             <div class="container mx-auto px-6">
                 <!-- Section Header -->
                 <div class="text-center mb-16 space-y-4">
@@ -358,7 +358,7 @@ defineProps({
 
                         <!-- CTA Button -->
                         <div class="pt-4">
-                            <a href="#"
+                            <a href="/tentang"
                                 class="inline-flex items-center gap-2 bg-[#54b0af] hover:bg-[#459a99] text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                 Pelajari Lebih Lanjut
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

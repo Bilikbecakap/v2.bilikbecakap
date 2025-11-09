@@ -101,9 +101,9 @@ onUnmounted(() => {
                         </Link>
                         <Link href="#" :class="[
                             'font-medium transition-colors duration-200',
-                            isActive('/blog') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
+                            isActive('/artikel') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
                         ]">
-                        Blog
+                        Artikel
                         </Link>
 
                         <!-- Dropdown Lainnya (Desktop) -->
@@ -130,17 +130,11 @@ onUnmounted(() => {
                                     ]">
                                     Quiz
                                     </Link>
-                                    <Link href="#" :class="[
+                                    <Link href="/tentang" :class="[
                                         'block px-4 py-2 text-sm transition-colors duration-200',
                                         isActive('/tentang') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
                                     ]">
                                     Tentang
-                                    </Link>
-                                    <Link href="#" :class="[
-                                        'block px-4 py-2 text-sm transition-colors duration-200',
-                                        isActive('/kontak') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
-                                    ]">
-                                    Kontak
                                     </Link>
                                     <Link href="#" :class="[
                                         'block px-4 py-2 text-sm transition-colors duration-200',
@@ -301,7 +295,7 @@ onUnmounted(() => {
                     </Link>
                     <Link href="#" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Blog
+                    Artikel
                     </Link>
 
                     <div class="border-t border-gray-200 my-2"></div>
@@ -310,13 +304,9 @@ onUnmounted(() => {
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Quiz
                     </Link>
-                    <Link href="#" @click="showMobileMenu = false"
+                    <Link href="/tentang" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Tentang
-                    </Link>
-                    <Link href="#" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Kontak
                     </Link>
                     <Link href="#" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">

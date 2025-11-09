@@ -13,10 +13,12 @@ class PembelajaranController extends Controller
     public function index(Request $request)
     {
         $query = ModulPembelajaran::with(['category', 'creator'])
-        ->select([ // tambahkan field yang dibutuhkan
-            'id', 'title', 'slug', 'deskripsi', 'thumbnail', 'view_count', 'category_id', 'created_at'
-        ])
-        ->where('status', 'published');
+            ->select([
+                'id', 'title', 'slug', 'deskripsi', 'thumbnail', 'view_count',
+                'tanggal_publish', 'category_id', 'created_at'
+            ])
+            ->where('status', 'published');
+
         // Filter berdasarkan search
         if ($request->filled('search')) {
             $query->search($request->search);
@@ -40,17 +42,22 @@ class PembelajaranController extends Controller
                 case 'created_at':
                     $query->orderBy('created_at', $direction);
                     break;
+                case 'tanggal_publish':
+                    $query->orderBy('tanggal_publish', $direction);
+                    break;
                 default:
-                    $query->orderBy('created_at', 'desc');
+                    $query->orderBy('tanggal_publish', 'desc');
             }
         } else {
-            $query->orderBy('created_at', 'desc');
+            $query->orderBy('tanggal_publish', 'desc');
         }
 
         $modul = $query->paginate(12)->appends($request->query());
 
         // Get kategori untuk filter
-        $categoryList = MasterModul::where('is_active', true)->orderBy('nama_kategori')->get();
+        $categoryList = MasterModul::where('is_active', true)
+            ->orderBy('nama_kategori')
+            ->get();
 
         return Inertia::render('Frontend/Pembelajaran', [
             'modul' => $modul,
@@ -61,6 +68,7 @@ class PembelajaranController extends Controller
             'direction' => $request->direction,
         ]);
     }
+
 
 
     public function show($slug)

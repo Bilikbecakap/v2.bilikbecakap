@@ -1,7 +1,7 @@
 <script setup>
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 import { usePermissions } from "@/composables/usePermissions";
 import QuillEditor from "@/Components/QuillEditor.vue";
 
@@ -84,7 +84,58 @@ const removePdf = () => {
 };
 
 const submit = () => {
-  form.put(route("modul-pembelajaran.update", props.modul.id));
+  try {
+    form.processing = true;
+    form.clearErrors();
+    
+    const formData = new FormData();
+    
+    // Add all text fields
+    formData.append('category_id', form.category_id || '');
+    formData.append('title', form.title || '');
+    formData.append('slug', form.slug || '');
+    formData.append('deskripsi', form.deskripsi || '');
+    formData.append('content', form.content || '');
+    formData.append('video_embed', form.video_embed || '');
+    formData.append('status', form.status || '');
+    formData.append('tanggal_publish', form.tanggal_publish || '');
+    formData.append('_method', 'PUT');
+    
+    // Thumbnail handling
+    if (form.remove_thumbnail === '1') {
+      formData.append('remove_thumbnail', '1');
+    }
+    if (form.thumbnail) {
+      formData.append('thumbnail', form.thumbnail);
+    }
+    
+    // PDF handling
+    if (form.remove_pdf === '1') {
+      formData.append('remove_pdf', '1');
+    }
+    if (form.pdf_file) {
+      formData.append('pdf_file', form.pdf_file);
+    }
+    
+    // Send dengan async/await
+    fetch(route("modul-pembelajaran.update", props.modul.id), {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+      }
+    }).then(response => {
+      if (response.ok) {
+        window.location.href = route('modul-pembelajaran.index');
+      } else {
+        console.error('Error updating modul');
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error:', error);
+    form.processing = false;
+  }
 };
 
 // Watch for title changes to generate slug

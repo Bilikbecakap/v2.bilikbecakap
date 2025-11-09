@@ -173,7 +173,7 @@ class ArtikelController extends Controller implements HasMiddleware
                 default => 'Artikel berhasil dibuat.'
             };
 
-            return redirect()->route('artikel.index')->with('success', $message);
+            return redirect('/admin/artikel')->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -318,7 +318,7 @@ class ArtikelController extends Controller implements HasMiddleware
                 default => 'Artikel berhasil diupdate.'
             };
 
-            return redirect()->route('artikel.index')->with('success', $message);
+            return redirect('/admin/artikel')->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -357,7 +357,7 @@ class ArtikelController extends Controller implements HasMiddleware
 
             DB::commit();
 
-            return redirect()->route('artikel.index')->with('success', 'Artikel berhasil dihapus.');
+            return redirect('/admin/artikel')->with('success', 'Artikel berhasil dihapus.');
 
         } catch (\Exception $e) {
             DB::rollBack();

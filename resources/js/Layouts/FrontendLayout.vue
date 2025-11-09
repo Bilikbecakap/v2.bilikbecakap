@@ -99,7 +99,7 @@ onUnmounted(() => {
                         ]">
                         Pembelajaran
                         </Link>
-                        <Link href="#" :class="[
+                        <Link href="/artikel" :class="[
                             'font-medium transition-colors duration-200',
                             isActive('/artikel') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
                         ]">
@@ -135,6 +135,12 @@ onUnmounted(() => {
                                         isActive('/tentang') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
                                     ]">
                                     Tentang
+                                    </Link>
+                                    <Link href="/kontak" :class="[
+                                        'block px-4 py-2 text-sm transition-colors duration-200',
+                                        isActive('/kontak') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
+                                    ]">
+                                    Kontak
                                     </Link>
                                     <Link href="#" :class="[
                                         'block px-4 py-2 text-sm transition-colors duration-200',
@@ -293,7 +299,7 @@ onUnmounted(() => {
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Pembelajaran
                     </Link>
-                    <Link href="#" @click="showMobileMenu = false"
+                    <Link href="/artikel" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Artikel
                     </Link>
@@ -308,6 +314,10 @@ onUnmounted(() => {
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Tentang
                     </Link>
+                    <link href="/kontak" @click="showMobileMenu = false"
+                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                    Kontak
+                    </link>
                     <Link href="#" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Galeri
@@ -409,7 +419,7 @@ onUnmounted(() => {
                                 </a>
                             </li>
                             <li>
-                                <a href="#"
+                                <a href="/artikel"
                                     class="text-gray-300 hover:text-[#54b0af] transition-colors duration-200 flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

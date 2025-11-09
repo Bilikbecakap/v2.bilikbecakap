@@ -50,6 +50,8 @@ Route::get('/pembelajaran', [PembelajaranController::class, 'index'])->name('pem
 Route::get('/pembelajaran/{slug}', [PembelajaranController::class, 'show'])->name('pembelajaran.show');
 Route::get('/tentang', function () {return Inertia::render('Frontend/Tentang');})->name('tentang');
 Route::post('/komentar', [KomentarController::class, 'store'])->name('komentar.store');
+Route::get('/artikel', [BlogController::class, 'utama'])->name('artikel.index');
+Route::get('/artikel/{slug}', [BlogController::class, 'lihat'])->name('artikel.show');
 
 /*
 |--------------------------------------------------------------------------
@@ -135,6 +137,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/artikel/{artikel}/approve', [ArtikelController::class, 'approve'])->name('artikel.approve');
         Route::patch('/artikel/{artikel}/reject', [ArtikelController::class, 'reject'])->name('artikel.reject');
         Route::post('/artikel/upload-image', [ArtikelController::class, 'uploadImage'])->name('artikel.upload-image');
+        Route::get('/artikel/{artikel}/detail', [ArtikelController::class, 'show'])->name('admin.artikel.show');
 
         // Modul Pembelajaran
         Route::get('/modul-pembelajaran', [ModulPembelajaranController::class, 'index'])->name('modul-pembelajaran.index');

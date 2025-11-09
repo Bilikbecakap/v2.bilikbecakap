@@ -279,7 +279,7 @@ watch(
           </p>
         </div>
         <Link
-          :href="route('artikel.index')"
+          href="/admin/artikel"
           class="inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-150"
         >
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -665,7 +665,7 @@ watch(
       <!-- Submit -->
       <div class="flex justify-end gap-4">
         <Link
-          :href="route('artikel.index')"
+          href="/admin/artikel"
           class="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-150"
         >
           Batal

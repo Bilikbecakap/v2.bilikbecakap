@@ -67,12 +67,13 @@ import { Head } from '@inertiajs/vue3';
 
                     <!-- Right Column: Content -->
                     <div class="space-y-5 text-justify">
-                        <h2 class="text-3xl font-bold text-[#002b44]">Tentang Bilikbecakap</h2>
+                        <h2 class="text-3xl font-bold text-[#54b0af]">Tentang Bilikbecakap</h2>
                         <p class="text-gray-700 leading-relaxed">
                             Bilikbecakap lahir dari keresahan dan permasalahan yang muncul di Desa Senyubuk, yaitu belum
                             adanya arsip atau pendataan bahasa daerah setempat. Kondisi ini menimbulkan kekhawatiran di
                             kalangan masyarakat dan pemerintah desa akan kemungkinan hilangnya identitas bahasa daerah
-                            Melayu Belitung. Melalui Bilikbecakap, dihadirkan berbagai fitur seperti penerjemah bahasa, konten
+                            Melayu Belitung. Melalui Bilikbecakap, dihadirkan berbagai fitur seperti penerjemah bahasa,
+                            konten
                             informasi, serta video dan modul pembelajaran bahasa Melayu Belitung. Inisiatif ini
                             berupaya menjaga warisan bahasa daerah sekaligus memperkenalkan kekayaan budaya lokal
                             melalui pendekatan digital.
@@ -92,6 +93,7 @@ import { Head } from '@inertiajs/vue3';
             </div>
         </section>
 
+        <!-- Call to Action & Collaboration Section -->
         <section class="py-20 bg-gradient-to-t from-[#54b0af]/5 via-white to-white">
             <div class="max-w-6xl mx-auto px-6 text-center space-y-10">
                 <div class="space-y-5">
@@ -104,8 +106,183 @@ import { Head } from '@inertiajs/vue3';
                         <em>semuanya berharga</em>.
                     </p>
                 </div>
+
+                <!-- Contribution Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+                    <!-- Card 1: Berkontribusi -->
+                    <div
+                        class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border border-gray-100 hover:border-[#54b0af]/30">
+                        <div class="mb-6 flex justify-center">
+                            <div
+                                class="w-16 h-16 bg-gradient-to-br from-[#e0a013] to-[#e0a013] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-[#002b44] mb-3">Berkontribusi</h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">
+                            Bagikan kosakata baru, cerita tradisional, atau pengetahuan lokal yang kamu miliki.
+                            Kontribusi kamu akan membantu memperkaya database bahasa Melayu Belitung.
+                        </p>
+                    </div>
+
+                    <!-- Card 2: Belajar & Berbagi -->
+                    <div
+                        class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border border-gray-100 hover:border-[#54b0af]/30">
+                        <div class="mb-6 flex justify-center">
+                            <div
+                                class="w-16 h-16 bg-gradient-to-br from-[#e0a013] to-[#e0a013] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6.253v13m0-13C6.5 6.253 2 10.998 2 17.25c0 5.105 3.07 9.772 7.5 11.876m0-13c5.5 0 10 4.745 10 10.25 0 5.105-3.07 9.772-7.5 11.876M12 6.253L9.612 9.662m0 0C7.283 12.638 6 16.571 6 21c0 1.933.5 3.759 1.37 5.338m3.242-11.676c2.329-2.976 3.759-6.909 3.759-11.338 0-1.933-.5-3.759-1.37-5.338" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-[#002b44] mb-3">Belajar & Berbagi</h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">
+                            Akses modul pembelajaran interaktif, video edukasi, dan konten multimedia. Ajak teman dan
+                            keluarga untuk belajar bersama dalam komunitas kami.
+                        </p>
+                    </div>
+
+                    <!-- Card 3: Kolaborasi -->
+                    <div
+                        class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border border-gray-100 hover:border-[#54b0af]/30">
+                        <div class="mb-6 flex justify-center">
+                            <div
+                                class="w-16 h-16 bg-gradient-to-br from-[#e0a013] to-[#e0a013] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20h12a6 6 0 00-6-6 6 6 0 00-6 6z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-[#002b44] mb-3">Bermitra & Kolaborasi</h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">
+                            Kami terbuka untuk kerja sama dengan lembaga, organisasi, atau individu yang peduli dengan
+                            pelestarian bahasa daerah dan budaya lokal.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Bottom CTA -->
+                <div class="mt-16 pt-12 border-t border-gray-200">
+                    <p class="text-gray-700 text-lg mb-6">
+                        Bersama kita ciptakan ekosistem digital untuk pelestarian bahasa Melayu Belitung
+                    </p>
+                </div>
             </div>
         </section>
 
+        <!-- Bilikbecakap Terus Berkembang dan Tumbuh -->
+        <section class="py-20 bg-white">
+            <div class="max-w-6xl mx-auto px-6">
+                <!-- Main Title -->
+                <div class="text-center space-y-4 mb-16">
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-[#002b44] leading-tight">
+                        Bilikbecakap Terus Berkembang dan Tumbuh
+                    </h2>
+                    <p class="text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">
+                        Di bilikbecakap, kami berkomitmen untuk menghadirkan pengalaman terbaik dalam mempelajari dan
+                        melestarikan bahasa serta budaya Melayu Belitung. Setiap fitur kami, dari kamus digital hingga
+                        mesin terjemahan, dikembangkan dengan proses yang terstruktur dan teliti.
+                    </p>
+                </div>
+
+                <!-- Features Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+                    <!-- Feature 1: Observasi & Dokumentasi Budaya -->
+                    <div
+                        class="group bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border border-gray-100 hover:border-[#54b0af]/30">
+                        <div class="mb-6 flex items-start">
+                            <div
+                                class="w-14 h-14 bg-gradient-to-br from-[#54b0af] to-[#3d8b8a] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-xl font-bold text-[#002b44]">Observasi & Dokumentasi Budaya</h3>
+                            </div>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed">
+                            Mengamati langsung budaya dan bahasa di masyarakat Belitung membantu kami memastikan akurasi
+                            konten. Proses observasi ini memberi kami pemahaman yang mendalam untuk menyajikan bahasa
+                            dan budaya Melayu Belitung secara autentik.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2: Pengembangan Media Pembelajaran -->
+                    <div
+                        class="group bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border border-gray-100 hover:border-[#54b0af]/30">
+                        <div class="mb-6 flex items-start">
+                            <div
+                                class="w-14 h-14 bg-gradient-to-br from-[#54b0af] to-[#3d8b8a] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6.253v13m0-13C6.5 6.253 2 10.998 2 17.25c0 5.105 3.07 9.772 7.5 11.876m0-13c5.5 0 10 4.745 10 10.25 0 5.105-3.07 9.772-7.5 11.876M12 6.253L9.612 9.662m0 0C7.283 12.638 6 16.571 6 21c0 1.933.5 3.759 1.37 5.338m3.242-11.676c2.329-2.976 3.759-6.909 3.759-11.338 0-1.933-.5-3.759-1.37-5.338" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-xl font-bold text-[#002b44]">Pengembangan Media Pembelajaran</h3>
+                            </div>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed">
+                            Kami menyediakan media pembelajaran yang interaktif, seperti modul dan video pembelajaran,
+                            untuk membantu pengguna memahami bahasa dan budaya Melayu Belitung secara mendalam. Materi
+                            ini disusun dengan pendekatan yang mudah dipahami dan mencakup berbagai aspek.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3: Pelatihan Model Terjemahan -->
+                    <div
+                        class="group bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border border-gray-100 hover:border-[#54b0af]/30">
+                        <div class="mb-6 flex items-start">
+                            <div
+                                class="w-14 h-14 bg-gradient-to-br from-[#54b0af] to-[#3d8b8a] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5.36-5.36l-.707-.707M9 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-xl font-bold text-[#002b44]">Pelatihan Model Terjemahan</h3>
+                            </div>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed">
+                            Dengan menggunakan teknologi AI, kami melatih model terjemahan untuk mengenali dan
+                            menerjemahkan bahasa Melayu Belitung secara otomatis. Ini melibatkan pemrosesan data dalam
+                            jumlah besar dan penyesuaian model agar hasil terjemahan semakin presisi.
+                        </p>
+                    </div>
+
+                    <!-- Feature 4: Pengucapan & Penuturan Kata -->
+                    <div
+                        class="group bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border border-gray-100 hover:border-[#54b0af]/30">
+                        <div class="mb-6 flex items-start">
+                            <div
+                                class="w-14 h-14 bg-gradient-to-br from-[#54b0af] to-[#3d8b8a] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001 7.072m2.828-9.9a9 9 0 0012.728 0M9 4.804A7.968 7.968 0 015.172 4m13.656 0A7.968 7.968 0 0015 4.804" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-xl font-bold text-[#002b44]">Pengucapan & Penuturan Kata</h3>
+                            </div>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed">
+                            Untuk melestarikan keaslian bahasa, kami menyediakan panduan pengucapan kata secara tepat.
+                            Fitur ini membantu pengguna mempelajari intonasi, dialek, dan pengucapan yang benar.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </FrontendLayout>
 </template>

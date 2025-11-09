@@ -64,7 +64,7 @@ defineProps({
                                         d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>
                             </a>
-                            <a href="/login"
+                            <a href="#"
                                 class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-[#002b44] px-8 py-4 rounded-full font-semibold border-2 border-[#002b44] transition-all duration-300 transform hover:-translate-y-1">
                                 Bergabung
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

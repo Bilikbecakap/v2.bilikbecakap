@@ -486,7 +486,7 @@ const getThumbnailUrl = (thumbnail) => {
                 <div class="flex items-center justify-end gap-2">
                   <!-- View Button -->
                   <Link
-                    :href="route('artikel.show', item.id)"
+                    :href="route('admin.artikel.show', item.id)"
                     class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-300 border border-slate-200 dark:border-slate-600 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-150"
                     title="Lihat Artikel"
                   >

@@ -242,4 +242,9 @@ class ModulPembelajaran extends Model
             }
         });
     }
+
+    public function komentars()
+    {
+        return $this->morphMany(Komentar::class, 'commentable')->where('status', 'approved');
+    }
 }

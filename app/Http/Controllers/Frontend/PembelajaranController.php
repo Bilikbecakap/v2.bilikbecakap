@@ -85,9 +85,12 @@ class PembelajaranController extends Controller
             ->limit(6)
             ->get();
 
+        $komentars = $modul->komentars()->orderBy('created_at', 'desc')->get();
+
         return Inertia::render('Frontend/PembelajaranDetail', [
             'modul' => $modul,
-            'otherModules' => $otherModules
+            'otherModules' => $otherModules,
+            'komentars' => $komentars, 
         ]);
     }
 }

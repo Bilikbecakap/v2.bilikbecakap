@@ -27,6 +27,7 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\QuizQuestionController;
 use App\Http\Controllers\QuizAttemptController;
 use App\Http\Controllers\GambarGaleriController;
+use App\Http\Controllers\KomentarController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -48,6 +49,7 @@ Route::post('/penerjemah/process', [PenerjemahController::class, 'translate'])->
 Route::get('/pembelajaran', [PembelajaranController::class, 'index'])->name('pembelajaran');
 Route::get('/pembelajaran/{slug}', [PembelajaranController::class, 'show'])->name('pembelajaran.show');
 Route::get('/tentang', function () {return Inertia::render('Frontend/Tentang');})->name('tentang');
+Route::post('/komentar', [KomentarController::class, 'store'])->name('komentar.store');
 
 /*
 |--------------------------------------------------------------------------
@@ -181,6 +183,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/galeri/{galeri}/edit', [GambarGaleriController::class, 'edit'])->name('galeri.edit');
         Route::put('/galeri/{galeri}', [GambarGaleriController::class, 'update'])->name('galeri.update');
         Route::delete('/galeri/{galeri}', [GambarGaleriController::class, 'destroy'])->name('galeri.destroy');
+
+        //Komentar Management
+        Route::get('/komentar', [KomentarController::class, 'index'])->name('komentar.index');
+        Route::patch('/komentar/{komentar}/approve', [KomentarController::class, 'approve'])->name('komentar.approve');
+        Route::patch('/komentar/{komentar}/reject', [KomentarController::class, 'reject'])->name('komentar.reject');
+        Route::delete('/komentar/{komentar}', [KomentarController::class, 'destroy'])->name('komentar.destroy');
 
     });
     // Translate Management

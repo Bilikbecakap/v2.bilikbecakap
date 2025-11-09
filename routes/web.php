@@ -50,8 +50,8 @@ Route::get('/pembelajaran', [PembelajaranController::class, 'index'])->name('pem
 Route::get('/pembelajaran/{slug}', [PembelajaranController::class, 'show'])->name('pembelajaran.show');
 Route::get('/tentang', function () {return Inertia::render('Frontend/Tentang');})->name('tentang');
 Route::post('/komentar', [KomentarController::class, 'store'])->name('komentar.store');
-Route::get('/artikel', [BlogController::class, 'utama'])->name('artikel.index');
-Route::get('/artikel/{slug}', [BlogController::class, 'lihat'])->name('artikel.show');
+Route::get('/artikel', [BlogController::class, 'daftar'])->name('artikel.index');
+Route::get('/artikel/{slug}', [BlogController::class, 'baca'])->name('artikel.show');
 
 /*
 |--------------------------------------------------------------------------

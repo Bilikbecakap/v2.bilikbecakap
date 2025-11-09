@@ -5,11 +5,13 @@ import { ref } from 'vue';
 
 const props = defineProps({
     artikel: Object,
+    populerArtikel: Array,
     kategoriList: Array,
     search: String,
     kategori: String,
     sort: String,
     direction: String,
+    locale: String,
 });
 
 const searchQuery = ref(props.search || '');
@@ -34,24 +36,16 @@ const handleKategoryFilter = (categoryId) => {
     });
 };
 
-// ===== IMPROVED FUNCTIONS =====
 const truncateText = (text, maxWords = 30) => {
     if (!text) return '';
-
-    // Strip HTML tags
     const plainText = text.replace(/<[^>]*>/g, '');
-
-    // Split dan filter empty strings
     const words = plainText.split(' ').filter(word => word.trim().length > 0);
-
-    // Truncate
     return words.slice(0, maxWords).join(' ') + (words.length > maxWords ? '...' : '');
 };
 
 const getExcerpt = (artikel) => {
-    // Prioritas konten berdasarkan bahasa
-    const konten = artikel.konten_indonesia || artikel.konten_melayu || artikel.konten_english;
-    return truncateText(konten, 30); // 30 kata untuk excerpt yang lebih panjang
+    const konten = artikel.konten;
+    return truncateText(konten, 30);
 };
 
 const formatDate = (date) => {
@@ -61,17 +55,18 @@ const formatDate = (date) => {
         year: 'numeric'
     });
 };
+
+const getTitle = (artikel) => {
+    return artikel.judul || 'Artikel';
+};
 </script>
 
 <template>
-
     <Head title="Artikel & Blog - Bilik Bercakap" />
 
     <FrontendLayout>
         <section class="py-12 pt-24 min-h-screen relative overflow-hidden">
-
             <div class="container mx-auto px-6 relative z-20">
-
                 <!-- Header -->
                 <div class="text-center mb-12">
                     <h1 class="text-4xl md:text-5xl font-bold text-[#54b0af] mb-4 drop-shadow-sm">
@@ -82,7 +77,6 @@ const formatDate = (date) => {
                         Bilik Bercakap
                     </p>
                 </div>
-
 
                 <!-- Main Layout: 2/3 + 1/3 -->
                 <div class="grid lg:grid-cols-3 gap-8">
@@ -98,7 +92,7 @@ const formatDate = (date) => {
                                 <div class="relative overflow-hidden h-80 md:h-96">
                                     <Link :href="`/artikel/${post.slug}`" class="block w-full h-full">
                                     <img v-if="post.gambar_thumbnail" :src="`/storage/${post.gambar_thumbnail}`"
-                                        :alt="post.judul_indonesia"
+                                        :alt="getTitle(post)"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                     <div v-else
                                         class="w-full h-full bg-gradient-to-br from-[#54b0af]/20 to-[#54b0af]/10 flex items-center justify-center">
@@ -149,11 +143,11 @@ const formatDate = (date) => {
                                     <Link :href="`/artikel/${post.slug}`" class="block group/title">
                                     <h2
                                         class="text-2xl md:text-3xl font-bold text-[#002b44] mb-4 group-hover/title:text-[#54b0af] transition-colors">
-                                        {{ post.judul_indonesia || post.judul_melayu || post.judul_english }}
+                                        {{ getTitle(post) }}
                                     </h2>
                                     </Link>
 
-                                    <!-- Description/Excerpt - IMPROVED -->
+                                    <!-- Description/Excerpt -->
                                     <p class="text-gray-600 leading-relaxed mb-6 line-clamp-3 text-base">
                                         {{ getExcerpt(post) }}
                                     </p>
@@ -245,13 +239,14 @@ const formatDate = (date) => {
                             <h3 class="text-lg font-bold text-[#002b44] mb-6 flex items-center gap-2">
                                 <span class="text-[#FCB415]">━━</span> Popular Feeds
                             </h3>
-                            <div class="space-y-4">
-                                <Link v-for="item in artikel.data?.slice(0, 3)" :key="item.id"
+                            <div v-if="populerArtikel && populerArtikel.length > 0" class="space-y-4">
+                                <Link v-for="item in populerArtikel" :key="item.id"
                                     :href="`/artikel/${item.slug}`"
                                     class="flex gap-3 pb-4 border-b border-gray-100 last:border-b-0 hover:opacity-80 transition-opacity group">
                                 <!-- Thumbnail -->
                                 <div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
                                     <img v-if="item.gambar_thumbnail" :src="`/storage/${item.gambar_thumbnail}`"
+                                        :alt="getTitle(item)"
                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
                                     <div v-else class="w-full h-full flex items-center justify-center">
                                         <svg class="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24"
@@ -265,7 +260,7 @@ const formatDate = (date) => {
                                 <div class="flex-1 min-w-0">
                                     <h4
                                         class="font-semibold text-[#002b44] text-sm line-clamp-2 group-hover:text-[#54b0af]">
-                                        {{ item.judul_indonesia || item.judul_melayu }}
+                                        {{ getTitle(item) }}
                                     </h4>
                                     <p class="text-xs text-[#002b44] mt-2 flex items-center gap-1">
                                         <svg class="w-4 h-4 text-[#54b0af]" fill="none" viewBox="0 0 24 24"
@@ -282,24 +277,34 @@ const formatDate = (date) => {
                                 </div>
                                 </Link>
                             </div>
+                            <div v-else class="text-center text-gray-500 py-6">
+                                <p class="text-sm">Belum ada artikel populer</p>
+                            </div>
                         </div>
 
                         <!-- Categories Section -->
                         <div class="bg-white/95 backdrop-blur-sm rounded-lg p-6 border border-gray-100">
                             <h3 class="text-lg font-bold text-[#002b44] mb-4 flex items-center gap-2">
-                                <span class="text-[#FCB415]">━━</span> Categories
+                                <span class="text-[#FCB415]">━━</span> Kategori
                             </h3>
-                            <div class="space-y-2">
-                                <button @click="handleKategoryFilter('')"
-                                    :class="['w-full text-left px-4 py-2 rounded-lg transition-all', !kategori ? 'bg-[#54b0af] text-white' : 'bg-gray-50 text-[#002b44] hover:bg-gray-100']"
-                                    class="text-sm font-medium">
-                                    Semua Kategori
-                                </button>
-                                <button v-for="cat in kategoriList" :key="cat.id" @click="handleKategoryFilter(cat.id)"
-                                    :class="['w-full text-left px-4 py-2 rounded-lg transition-all', kategori == cat.id ? 'bg-[#54b0af] text-white' : 'bg-gray-50 text-[#002b44] hover:bg-gray-100']"
-                                    class="text-sm font-medium">
+                            <div class="flex flex-wrap gap-2">
+                                <!-- All Categories Badge -->
+                                <Link href="/artikel"
+                                    class="px-3 py-2 bg-[#54b0af]/10 text-[#54b0af] hover:bg-[#54b0af] hover:text-white rounded-full text-xs font-semibold uppercase tracking-wide transition-all">
+                                    Semua
+                                </Link>
+                                
+                                <!-- Individual Categories Badges -->
+                                <Link v-for="cat in kategoriList" :key="cat.id"
+                                    :href="`/artikel?kategori=${cat.id}`"
+                                    :class="[
+                                        'px-3 py-2 rounded-full text-xs font-semibold uppercase tracking-wide transition-all',
+                                        kategori == cat.id
+                                            ? 'bg-[#54b0af] text-white' 
+                                            : 'bg-gray-100 text-[#002b44] hover:bg-[#54b0af]/10 hover:text-[#54b0af]'
+                                    ]">
                                     {{ cat.nama_kategori }}
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     </div>

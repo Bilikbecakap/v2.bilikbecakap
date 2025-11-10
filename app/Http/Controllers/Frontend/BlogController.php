@@ -66,7 +66,7 @@ class BlogController extends Controller
         $populerArtikelRaw = Artikel::with('kategori')
             ->where('status', 'published')
             ->orderBy('views_count', 'desc')
-            ->limit(3)
+            ->limit(5)
             ->get();
 
         $populerArtikel = $populerArtikelRaw->map(fn($item) => $this->transformArtikel($item, $locale));
@@ -131,10 +131,17 @@ class BlogController extends Controller
             ->orderBy('nama_kategori')
             ->get();
 
+        // Get approved comments
+        $komentars = $artikel->komentars()
+            ->where('status', 'approved')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return Inertia::render('Frontend/BlogDetail', [
             'artikel' => $artikelTransformed,
             'otherArticles' => $otherArticles,
             'kategoriList' => $kategoriList,
+            'komentars' => $komentars,
             'locale' => $locale,
         ]);
     }

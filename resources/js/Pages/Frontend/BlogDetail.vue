@@ -1,6 +1,6 @@
 <script setup>
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
@@ -8,7 +8,45 @@ const props = defineProps({
     otherArticles: Array,
     kategoriList: Array,
     locale: String,
+    komentars: Array,
 });
+
+const copyLinkStatus = ref(false);
+
+const form = useForm({
+    nama: '',
+    kontak: '',
+    isi_komentar: '',
+    commentable_type: 'App\\Models\\Artikel',
+    commentable_id: props.artikel.id,
+});
+
+const notification = ref({
+    show: false,
+    message: '',
+    type: 'success',
+});
+
+const submitKomentar = () => {
+    form.post('/komentar', {
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset('nama', 'kontak', 'isi_komentar');
+            showNotification('Komentar berhasil dikirim, admin akan segera membaca pesan kamu.');
+        },
+        onError: (errors) => {
+            const firstError = Object.values(errors)[0]?.[0] || 'Gagal mengirim komentar.';
+            showNotification(firstError, 'error');
+        }
+    });
+};
+
+const showNotification = (message, type = 'success') => {
+    notification.value = { show: true, message, type };
+    setTimeout(() => {
+        notification.value.show = false;
+    }, 3000);
+};
 
 const getTitle = computed(() => {
     return props.artikel?.judul || 'Artikel';
@@ -17,6 +55,14 @@ const getTitle = computed(() => {
 const getContent = computed(() => {
     return props.artikel?.konten || '';
 });
+
+const getCurrentURL = () => {
+    return window.location.href;
+};
+
+const getShareText = () => {
+    return `${getTitle.value} - Bilik Bercakap`;
+};
 
 const formatDate = (date) => {
     return new Date(date).toLocaleDateString('id-ID', {
@@ -39,6 +85,42 @@ const getExcerpt = (article) => {
     const konten = article.konten_indonesia || article.konten_melayu || article.konten_english;
     return truncateText(konten, 25);
 };
+
+// ✅ Share ke Facebook
+const shareToFacebook = () => {
+    const url = getCurrentURL();
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(facebookUrl, 'facebook-share', 'width=600,height=400');
+};
+
+// ✅ Share ke X (Twitter)
+const shareToX = () => {
+    const url = getCurrentURL();
+    const text = getShareText();
+    const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(xUrl, 'x-share', 'width=600,height=400');
+};
+
+// ✅ Share ke WhatsApp
+const shareToWhatsApp = () => {
+    const url = getCurrentURL();
+    const text = `${getShareText()} ${url}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, 'whatsapp-share', 'width=600,height=400');
+};
+
+// ✅ Copy Link ke Clipboard
+const copyToClipboard = async () => {
+    try {
+        await navigator.clipboard.writeText(getCurrentURL());
+        copyLinkStatus.value = true;
+        setTimeout(() => {
+            copyLinkStatus.value = false;
+        }, 2000);
+    } catch (err) {
+        console.error('Gagal copy link:', err);
+    }
+};
 </script>
 
 <template>
@@ -57,7 +139,7 @@ const getExcerpt = (article) => {
                 <!-- Main Content Grid: 2/3 + 1/3 -->
                 <div class="grid lg:grid-cols-3 gap-8">
                     <!-- Left Column: Article Detail (2/3) -->
-                    <div class="lg:col-span-2 space-y-8">
+                    <div class="lg:col-span-2 space-y-2">
                         <!-- Article Header Card -->
                         <div class="bg-white/95 backdrop-blur-sm rounded-lg overflow-hidden border border-gray-100">
                             <!-- Hero Image -->
@@ -145,23 +227,134 @@ const getExcerpt = (article) => {
                         </div>
 
                         <!-- Share & Navigation -->
-                        <div class="bg-white/95 backdrop-blur-sm rounded-lg border border-gray-100 p-6 flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <span class="text-sm text-gray-600">Bagikan Artikel:</span>
-                                <a href="#" class="p-2 bg-blue-50 hover:bg-blue-100 rounded-lg text-blue-600 transition-colors" title="Share on Facebook">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                                    </svg>
-                                </a>
-                                <a href="#" class="p-2 bg-sky-50 hover:bg-sky-100 rounded-lg text-sky-600 transition-colors" title="Share on Twitter">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M23.953 4.57a10 10 0 002.856-3.915 9.964 9.964 0 01-2.824.856 4.958 4.958 0 00-8.527-4.59 4.923 4.923 0 00-1.622 6.478 14.025 14.025 0 01-10.17-5.144 4.934 4.934 0 001.524 6.573 4.903 4.903 0 01-2.239-.616c-.054 2.281 1.581 4.415 3.949 4.89a4.935 4.935 0 01-2.224.084 4.928 4.928 0 004.6 3.419A9.9 9.9 0 010 17.54a13.977 13.977 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                                    </svg>
-                                </a>
+                        <div class="bg-white/95 backdrop-blur-sm rounded-lg border border-gray-100 p-6">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                                <!-- Share Section -->
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm font-semibold text-gray-700">Bagikan Artikel:</span>
+                                    <div class="flex items-center gap-2">
+                                        <!-- Facebook Share -->
+                                        <button @click="shareToFacebook"
+                                            class="p-2.5 bg-blue-50 hover:bg-blue-100 rounded-lg text-blue-600 transition-all duration-300 hover:scale-110"
+                                            title="Bagikan ke Facebook">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                            </svg>
+                                        </button>
+
+                                        <!-- X (Twitter) Share -->
+                                        <button @click="shareToX"
+                                            class="p-2.5 bg-black/5 hover:bg-black/10 rounded-lg text-black transition-all duration-300 hover:scale-110"
+                                            title="Bagikan ke X (Twitter)">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.514l-5.106-6.694L2.306 21.75H-1v-3.308l7.227-8.26L-1.667 2.25h6.514l5.106 6.694 6.104-6.694zM17.5 19.25h1.828L6.362 4.25H4.5l13 15z"/>
+                                            </svg>
+                                        </button>
+
+                                        <!-- WhatsApp Share -->
+                                        <button @click="shareToWhatsApp"
+                                            class="p-2.5 bg-green-50 hover:bg-green-100 rounded-lg text-green-600 transition-all duration-300 hover:scale-110"
+                                            title="Bagikan ke WhatsApp">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.958 1.37l-.355.214-3.66-.96.978 3.59-.235.374a9.861 9.861 0 1513.815-4.794" />
+                                            </svg>
+                                        </button>
+
+                                        <!-- Copy Link -->
+                                        <button @click="copyToClipboard"
+                                            :class="[
+                                                'p-2.5 rounded-lg transition-all duration-300 hover:scale-110',
+                                                copyLinkStatus 
+                                                    ? 'bg-green-50 text-green-600' 
+                                                    : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                                            ]"
+                                            :title="copyLinkStatus ? 'Link Tersalin!' : 'Salin Link'">
+                                            <svg v-if="!copyLinkStatus" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                            </svg>
+                                            <svg v-else class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Back to Articles Link -->
+                                <Link href="/artikel" class="inline-flex items-center gap-2 text-[#54b0af] hover:text-[#459a99] font-semibold transition-colors whitespace-nowrap">
+                                    ← Kembali ke Artikel
+                                </Link>
                             </div>
-                            <Link href="/artikel" class="inline-flex items-center gap-2 text-[#54b0af] hover:text-[#459a99] font-semibold transition-colors">
-                                ← Kembali ke Artikel
-                            </Link>
+                        </div>
+
+                        <!-- Comments Section -->
+                        <div class="bg-white/95 backdrop-blur-sm rounded-lg p-6 border border-gray-100">
+                            <h3 class="text-lg font-bold text-[#002b44] mb-4">Komentar</h3>
+
+                            <!-- Form Komentar -->
+                            <form @submit.prevent="submitKomentar" class="space-y-3 mb-5">
+                                <input v-model="form.nama" type="text" placeholder="Nama Anda *"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#54b0af]"
+                                    required />
+                                <input v-model="form.kontak" type="text" placeholder="Email atau kontak (opsional)"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#54b0af]" />
+                                <textarea v-model="form.isi_komentar" placeholder="Tulis komentar Anda *" rows="3"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#54b0af]"
+                                    required></textarea>
+                                <button type="submit" :disabled="form.processing"
+                                    class="w-full bg-[#54b0af] hover:bg-[#459a99] text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-70">
+                                    {{ form.processing ? 'Mengirim...' : 'Kirim Komentar' }}
+                                </button>
+                            </form>
+
+                            <!-- Daftar Komentar -->
+                            <div v-if="props.komentars?.length" class="space-y-4 max-h-80 overflow-y-auto pr-1">
+                                <div v-for="komentar in props.komentars" :key="komentar.id"
+                                    class="bg-gray-50/60 dark:bg-slate-100/10 rounded-xl p-3 border border-gray-200/50 dark:border-slate-700/50">
+                                    <div class="flex items-start gap-3">
+                                        <!-- Avatar Placeholder -->
+                                        <div
+                                            class="flex-shrink-0 w-8 h-8 rounded-full bg-[#54b0af]/10 flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-[#54b0af]" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
+
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-baseline justify-between gap-2">
+                                                <h4 class="font-semibold text-[#002b44] text-sm">{{ komentar.nama }}
+                                                </h4>
+                                                <time class="text-xs text-gray-500 whitespace-nowrap">
+                                                    {{ new Date(komentar.created_at).toLocaleDateString('id-ID', {
+                                                        day: 'numeric',
+                                                    month: 'short',
+                                                    year: 'numeric'
+                                                    }) }}
+                                                </time>
+                                            </div>
+                                            <p class="text-gray-700 text-sm mt-1 leading-relaxed">
+                                                {{ komentar.isi_komentar }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="text-gray-500 text-sm italic">
+                                Belum ada komentar.
+                            </div>
+                        </div>
+
+                        <!-- Notifikasi -->
+                        <div v-if="notification.show">
+                            <div :class="[
+                                'px-4 py-3 rounded-lg text-sm font-medium text-white shadow-md',
+                                notification.type === 'success'
+                                    ? 'bg-[#54b0af]'
+                                    : 'bg-red-500'
+                            ]">
+                                {{ notification.message }}
+                            </div>
                         </div>
                     </div>
 
@@ -173,7 +366,7 @@ const getExcerpt = (article) => {
                                 <span class="text-[#FCB415]">━━</span> Popular Feeds
                             </h3>
                             <div class="space-y-4">
-                                <Link v-for="item in otherArticles?.slice(0, 3)" :key="item.id"
+                                <Link v-for="item in otherArticles?.slice(0, 5)" :key="item.id"
                                     :href="`/artikel/${item.slug}`"
                                     class="flex gap-3 pb-4 border-b border-gray-100 last:border-b-0 hover:opacity-80 transition-opacity group">
                                 <!-- Thumbnail -->

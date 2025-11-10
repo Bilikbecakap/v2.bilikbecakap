@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use App\Models\User;
 use Inertia\Inertia;
 
 class ArtikelController extends Controller implements HasMiddleware
@@ -193,15 +194,16 @@ class ArtikelController extends Controller implements HasMiddleware
 
         $kategoriList = MasterArtikel::where('is_active', true)->orderBy('urutan')->get();
 
-        // ADD: Kirim informasi permission ke frontend
         $artikel->can_edit = $hasApprovalPermission || $isOwner;
         $artikel->can_delete = $hasApprovalPermission || $isOwner;
+        $userList = User::select('id', 'name')->get();
 
         return Inertia::render('Artikel/Edit', [
             'artikel' => $artikel,
             'kategoriList' => $kategoriList,
-            'hasApprovalPermission' => $hasApprovalPermission,  // ADD
-            'currentUserId' => auth()->id()  // ADD
+            'userList' => $userList,
+            'hasApprovalPermission' => $hasApprovalPermission, 
+            'currentUserId' => auth()->id()
         ]);
     }
 
@@ -291,6 +293,10 @@ class ArtikelController extends Controller implements HasMiddleware
                 }
                 $thumbnailPath = $request->file('gambar_thumbnail')->store('artikel-thumbnails', 'public');
                 $data['gambar_thumbnail'] = $thumbnailPath;
+            }
+
+            if (auth()->user()->hasRole('super-admin') && $request->has('created_by')) {
+                $data['created_by'] = $request->created_by;
             }
 
             $artikel->update($data);

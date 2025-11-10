@@ -142,7 +142,7 @@ onUnmounted(() => {
                                     ]">
                                     Kontak
                                     </Link>
-                                    <Link href="#" :class="[
+                                    <Link href="/galeri" :class="[
                                         'block px-4 py-2 text-sm transition-colors duration-200',
                                         isActive('/galeri') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
                                     ]">
@@ -318,7 +318,7 @@ onUnmounted(() => {
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Kontak
                     </link>
-                    <Link href="#" @click="showMobileMenu = false"
+                    <Link href="/galeri" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Galeri
                     </Link>

@@ -30,7 +30,11 @@ class KuisController extends Controller
                   ->orWhere('description', 'LIKE', '%' . $request->search . '%');
         }
 
-        $quizzes = $query->orderBy('created_at', 'desc')->paginate(12)->appends($request->query());
+        $quizzes = $query
+            ->orderByRaw("FIELD(type, 'umum', 'modul')")
+            ->orderBy('created_at', 'desc')
+            ->paginate(12)
+            ->appends($request->query());
 
         // Transform untuk menambah total_questions
         $quizzes->getCollection()->transform(function ($quiz) {

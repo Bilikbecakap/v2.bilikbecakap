@@ -7,6 +7,8 @@ use App\Http\Controllers\Frontend\PenerjemahController;
 use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\Frontend\PembelajaranController;
 use App\Http\Controllers\Frontend\KuisController;
+use App\Http\Controllers\Frontend\KontakController;
+use App\Http\Controllers\Frontend\GaleriController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PageProjectController;
 use App\Http\Controllers\ProfileController;
@@ -60,6 +62,10 @@ Route::post('/quiz-attempt/{quiz}/begin', [KuisController::class, 'begin'])->nam
 Route::get('/quiz-attempt/{quiz}/{attempt}', [KuisController::class, 'quiz'])->name('quiz-attempt.quiz');
 Route::post('/quiz-attempt/{quiz}/{attempt}/submit', [KuisController::class, 'submit'])->name('quiz-attempt.submit');
 Route::get('/quiz-attempt/{quiz}/{attempt}/result', [KuisController::class, 'result'])->name('quiz-attempt.result');
+Route::get('/kontak', [KontakController::class, 'index'])->name('kontak.index');
+Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
+Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri.public');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -200,6 +206,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/komentar/{komentar}/approve', [KomentarController::class, 'approve'])->name('komentar.approve');
         Route::patch('/komentar/{komentar}/reject', [KomentarController::class, 'reject'])->name('komentar.reject');
         Route::delete('/komentar/{komentar}', [KomentarController::class, 'destroy'])->name('komentar.destroy');
+
+        Route::get('/kontak-masuk', [KontakController::class, 'adminIndex'])->name('admin.kontak.index');
+        Route::get('/kontak-masuk/{kontak}', [KontakController::class, 'adminShow'])->name('admin.kontak.show');
+        Route::delete('/kontak-masuk/{kontak}', [KontakController::class, 'adminDestroy'])->name('admin.kontak.destroy');
+        Route::post('/kontak-masuk/bulk-delete', [KontakController::class, 'bulkDelete'])->name('admin.kontak.bulk-delete');
 
     });
     // Translate Management

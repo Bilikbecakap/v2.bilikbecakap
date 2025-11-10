@@ -307,6 +307,15 @@ const getTitle = (artikel) => {
                                 </Link>
                             </div>
                         </div>
+
+                        <!-- Call to Action -->
+                        <div class="bg-gradient-to-br from-[#54b0af] to-[#459a99] rounded-lg p-6 text-white space-y-3">
+                            <h3 class="font-bold text-lg">Ingin Bergabung?</h3>
+                            <p class="text-sm opacity-90">Jadilah bagian dari komunitas Bilik Bercakap dan lestarikan bahasa Melayu Belitung bersama kami.</p>
+                            <a href="/" class="inline-block w-full text-center bg-white text-[#54b0af] font-semibold py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                                Pelajari Lebih Lanjut
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

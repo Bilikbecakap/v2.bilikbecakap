@@ -28,6 +28,9 @@ import { Head } from '@inertiajs/vue3';
                 <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-[#002b44] leading-tight">
                     Tentang Kami
                 </h1>
+                <p class="text-lg text-gray-700 max-w-2xl mx-auto">
+                    Inisiatif digital untuk melestarikan bahasa dan budaya Melayu Belitung.
+                </p>
             </div>
 
             <!-- Wave Divider -->

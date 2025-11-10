@@ -124,7 +124,7 @@ onUnmounted(() => {
                                 leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
                                 <div v-show="showLainnyaDropdown"
                                     class="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2">
-                                    <Link href="#" :class="[
+                                    <Link href="/kuis" :class="[
                                         'block px-4 py-2 text-sm transition-colors duration-200',
                                         isActive('/quiz') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
                                     ]">
@@ -306,7 +306,7 @@ onUnmounted(() => {
 
                     <div class="border-t border-gray-200 my-2"></div>
 
-                    <Link href="#" @click="showMobileMenu = false"
+                    <Link href="/kuis" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
                     Quiz
                     </Link>

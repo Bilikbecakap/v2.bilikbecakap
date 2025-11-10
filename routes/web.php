@@ -6,6 +6,7 @@ use App\Http\Controllers\Frontend\KamusController;
 use App\Http\Controllers\Frontend\PenerjemahController;
 use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\Frontend\PembelajaranController;
+use App\Http\Controllers\Frontend\KuisController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PageProjectController;
 use App\Http\Controllers\ProfileController;
@@ -52,6 +53,13 @@ Route::get('/tentang', function () {return Inertia::render('Frontend/Tentang');}
 Route::post('/komentar', [KomentarController::class, 'store'])->name('komentar.store');
 Route::get('/artikel', [BlogController::class, 'daftar'])->name('artikel.index');
 Route::get('/artikel/{slug}', [BlogController::class, 'baca'])->name('artikel.show');
+Route::get('/kuis', [KuisController::class, 'index'])->name('kuis.index');
+Route::get('/kuis/{quiz}', [KuisController::class, 'show'])->name('kuis.show');
+Route::get('/kuis/{quiz}/mulai', [KuisController::class, 'start'])->name('kuis.start');
+Route::post('/quiz-attempt/{quiz}/begin', [KuisController::class, 'begin'])->name('quiz-attempt.begin');
+Route::get('/quiz-attempt/{quiz}/{attempt}', [KuisController::class, 'quiz'])->name('quiz-attempt.quiz');
+Route::post('/quiz-attempt/{quiz}/{attempt}/submit', [KuisController::class, 'submit'])->name('quiz-attempt.submit');
+Route::get('/quiz-attempt/{quiz}/{attempt}/result', [KuisController::class, 'result'])->name('quiz-attempt.result');
 
 /*
 |--------------------------------------------------------------------------

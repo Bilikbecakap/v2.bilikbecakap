@@ -80,7 +80,7 @@ class GeminiService
     public function testConnection()
     {
         try {
-            $response = Http::timeout(10)->post($this->apiUrl . '?key=' . $this->apiKey, [
+            $response = Http::timeout(10)->withOptions(['force_ip_resolve' => 'v4'])->post($this->apiUrl . '?key=' . $this->apiKey, [
                 'contents' => [
                     [
                         'parts' => [
@@ -169,7 +169,7 @@ class GeminiService
                     Terjemahan (HANYA hasil, tanpa penjelasan, dengan kapitalisasi yang benar):";
             }
 
-            $response = Http::timeout(30)->post($this->apiUrl . '?key=' . $this->apiKey, [
+            $response = Http::timeout(30)->withOptions(['force_ip_resolve' => 'v4'])->post($this->apiUrl . '?key=' . $this->apiKey, [
                 'contents' => [
                     [
                         'parts' => [
@@ -427,7 +427,7 @@ class GeminiService
     {
         $prompt = "Translate this Indonesian text to English. Only return the translation, no explanation. Maintain proper capitalization: \"{$text}\"";
         
-        $response = Http::timeout(30)->post($this->apiUrl . '?key=' . $this->apiKey, [
+        $response = Http::timeout(30)->withOptions(['force_ip_resolve' => 'v4'])->post($this->apiUrl . '?key=' . $this->apiKey, [
             'contents' => [
                 [
                     'parts' => [
@@ -479,7 +479,7 @@ class GeminiService
                 
                 Jawaban (natural dan informatif):";
 
-            $response = Http::timeout(30)->post($this->apiUrl . '?key=' . $this->apiKey, [
+            $response = Http::timeout(30)->withOptions(['force_ip_resolve' => 'v4'])->post($this->apiUrl . '?key=' . $this->apiKey, [
                 'contents' => [
                     [
                         'parts' => [
@@ -659,7 +659,7 @@ class GeminiService
         return "
             TENTANG BILIKBECAKAP
             
-            Bilikbecakap lahir dari keresahan masyarakat Belitung atas belum adanya arsip bahasa daerah Melayu Belitung yang dikhawatirkan akan hilang. Melalui fitur seperti penerjemah, konten informasi, serta video dan modul pembelajaran, Bilikbecakap berupaya melestarikan dan mengenalkan bahasa serta budaya lokal secara digital. Inisiatif ini berawal dari program Kemah Budaya Kaum Muda (KBKM) 2023 dan kini dikelola oleh Yayasan Basamudera Indonesia yang melanjutkan semangat kolaborasi, inovasi, dan pelestarian bahasa daerah di era modern.
+            Bilikbecakap lahir dari keresahan masyarakat Belitung Timur atas belum adanya arsip bahasa daerah Melayu Belitung yang dikhawatirkan akan hilang. Melalui fitur seperti penerjemah, konten informasi, serta video dan modul pembelajaran, Bilikbecakap berupaya melestarikan dan mengenalkan bahasa serta budaya lokal secara digital. Inisiatif ini berawal dari program Kemah Budaya Kaum Muda (KBKM) 2023 dan kini dikelola oleh Yayasan Basamudera Indonesia yang melanjutkan semangat kolaborasi, inovasi, dan pelestarian bahasa daerah di era modern.
             
             DIDUKUNG OLEH:
             - Kementerian Kebudayaan
@@ -709,7 +709,7 @@ class GeminiService
                 
                 Jawaban (lanjutkan percakapan dengan natural):";
 
-            $response = Http::timeout(30)->post($this->apiUrl . '?key=' . $this->apiKey, [
+            $response = Http::timeout(30)->withOptions(['force_ip_resolve' => 'v4'])->post($this->apiUrl . '?key=' . $this->apiKey, [
                 'contents' => [
                     [
                         'parts' => [

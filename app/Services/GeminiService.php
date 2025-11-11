@@ -186,7 +186,7 @@ class GeminiService
                     Terjemahan (HANYA hasil, tanpa penjelasan, dengan kapitalisasi yang benar):";
             }
 
-            $response = Http::timeout(30)->withOptions(['force_ip_resolve' => 'v4'])->post($this->apiUrl . '?key=' . $this->apiKey, [
+            $response = $this->makeRequest([
                 'contents' => [
                     [
                         'parts' => [
@@ -399,7 +399,7 @@ class GeminiService
                 
                 Jawaban (natural dan informatif):";
 
-            $response = Http::timeout(30)->withOptions(['force_ip_resolve' => 'v4'])->post($this->apiUrl . '?key=' . $this->apiKey, [
+            $response = $this->makeRequest([
                 'contents' => [
                     [
                         'parts' => [
@@ -609,7 +609,7 @@ class GeminiService
                 
                 Jawaban (lanjutkan percakapan dengan natural):";
 
-            $response = Http::timeout(30)->withOptions(['force_ip_resolve' => 'v4'])->post($this->apiUrl . '?key=' . $this->apiKey, [
+            $response = $this->makeRequest([
                 'contents' => [
                     [
                         'parts' => [

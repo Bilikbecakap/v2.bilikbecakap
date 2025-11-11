@@ -102,14 +102,6 @@ const submit = () => {
                             <div class="text-gray-700 text-lg">
                                 Senyubuk, Belitung Timur, Indonesia
                             </div>
-
-                            <!-- Phone -->
-                            <div>
-                                <a href="tel:+62812345678"
-                                    class="text-[#002b44] font-semibold text-lg hover:text-[#54b0af] transition underline">
-                                    +62 (812) 3456 7890
-                                </a>
-                            </div>
                         </div>
                     </div>
 

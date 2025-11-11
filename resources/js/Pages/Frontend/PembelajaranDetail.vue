@@ -8,6 +8,7 @@ const props = defineProps({
     modul: Object,
     otherModules: Array,
     komentars: Array,
+    relatedQuiz: Object,
 });
 
 const form = useForm({
@@ -17,6 +18,15 @@ const form = useForm({
     commentable_type: 'App\\Models\\ModulPembelajaran',
     commentable_id: props.modul.id,
 });
+
+const limitWords = (text, limit = 20) => {
+    if (!text) return '';
+    const words = text.split(' ');
+    if (words.length > limit) {
+        return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+};
 
 const submitKomentar = () => {
     form.post('/komentar', {
@@ -115,7 +125,6 @@ const showNotification = (message, type = 'success') => {
 
                 <!-- 2/3 + 1/3 Layout -->
                 <div class="grid lg:grid-cols-3 gap-8">
-                    <!-- 2/3: Konten Utama -->
                     <!-- 2/3: Konten Utama -->
                     <div class="lg:col-span-2">
                         <div
@@ -299,8 +308,63 @@ const showNotification = (message, type = 'success') => {
                             </div>
                         </div>
 
+                        <!-- Card Quiz Terkait (NEW) -->
+                        <div v-if="relatedQuiz"
+                            class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
+                            <h3 class="text-lg font-bold text-[#002b44] mb-4">
+                                📝 Kuis Terkait
+                            </h3>
+
+                            <div class="bg-gradient-to-br from-[#54b0af]/10 to-[#FCB415]/10 rounded-xl p-4 space-y-3">
+                                <!-- Quiz Thumbnail -->
+                                <div v-if="relatedQuiz.thumbnail" class="w-full h-32 rounded-lg overflow-hidden">
+                                    <img :src="`/storage/${relatedQuiz.thumbnail}`" :alt="relatedQuiz.title"
+                                        class="w-full h-full object-cover" />
+                                </div>
+
+                                <!-- Quiz Info -->
+                                <div>
+                                    <h4 class="font-semibold text-[#002b44] mb-2">{{ relatedQuiz.title }}</h4>
+                                    <p class="text-sm text-gray-600 mb-3">
+                                        {{ limitWords(relatedQuiz.description, 20) }}
+                                    </p>
+
+                                    <!-- Quiz Duration -->
+                                    <div class="flex items-center gap-2 text-sm text-[#002b44]/70 mb-4">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>{{ relatedQuiz.duration }} Menit</span>
+                                    </div>
+
+                                    <!-- CTA Button -->
+                                    <Link :href="`/kuis/${relatedQuiz.slug}`"
+                                        class="block w-full bg-gradient-to-r from-[#54b0af] to-[#459a99] hover:shadow-lg text-white font-semibold py-2.5 px-4 rounded-lg transition-all text-center text-sm">
+                                    <span class="flex items-center justify-center gap-2">
+                                        Mulai Kuis
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </span>
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <!-- Info Box -->
+                            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p class="text-xs text-blue-800">
+                                    ✓ Selesaikan modul ini terlebih dahulu sebelum mengerjakan kuis.
+                                </p>
+                            </div>
+                        </div>
+
                         <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
-                            <h3 class="text-lg font-bold text-[#002b44] mb-3">Komentar</h3>
+                            <h3 class="text-lg font-bold text-[#002b44]">Komentar</h3>
+                            <p class="text-sm text-gray-600 mb-6">
+                                Berikan komentar, masukan dan kritik terhadap modul pembelajaran ini.
+                            </p>
 
                             <!-- Form Komentar -->
                             <form @submit.prevent="submitKomentar" class="space-y-3 mb-5">
@@ -341,8 +405,8 @@ const showNotification = (message, type = 'success') => {
                                                 <time class="text-xs text-gray-500 whitespace-nowrap">
                                                     {{ new Date(komentar.created_at).toLocaleDateString('id-ID', {
                                                         day: 'numeric',
-                                                    month: 'short',
-                                                    year: 'numeric'
+                                                        month: 'short',
+                                                        year: 'numeric'
                                                     }) }}
                                                 </time>
                                             </div>

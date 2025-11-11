@@ -15,6 +15,7 @@ class Quizzes extends Model
     protected $fillable = [
         'modul_pembelajaran_id',
         'title',
+        'slug',
         'description',
         'thumbnail',
         'master_media_music_quiz_id',

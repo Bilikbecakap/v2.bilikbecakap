@@ -52,8 +52,10 @@ class KuisController extends Controller
     /**
      * Show quiz detail & start quiz form
      */
-    public function show(Quizzes $quiz)
+    public function show($slug)
     {
+        $quiz = Quizzes::where('slug', $slug)->firstOrFail();
+
         // Pastikan quiz active
         if ($quiz->status !== 'active') {
             return back()->withErrors(['error' => 'Kuis ini tidak tersedia.']);
@@ -76,8 +78,10 @@ class KuisController extends Controller
     /**
      * Begin quiz attempt - create attempt record dan tampilkan soal
      */
-    public function begin(Request $request, Quizzes $quiz)
+    public function begin(Request $request, $slug)
     {
+        $quiz = Quizzes::where('slug', $slug)->firstOrFail();
+
         $request->validate([
             'participant_name' => 'required|string|max:255',
         ], [
@@ -98,7 +102,7 @@ class KuisController extends Controller
 
             DB::commit();
 
-            return redirect()->route('quiz-attempt.quiz', [$quiz->id, $attempt->id]);
+            return redirect()->route('quiz-attempt.quiz', $quiz->slug);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -109,11 +113,20 @@ class KuisController extends Controller
     /**
      * Display quiz questions untuk dikerjakan
      */
-    public function quiz(Quizzes $quiz, QuizAttempt $attempt)
+    public function quiz($slug)
     {
-        // Validasi bahwa attempt milik quiz ini
-        if ($attempt->quiz_id !== $quiz->id) {
-            return back()->withErrors(['error' => 'Invalid quiz attempt.']);
+        $quiz = Quizzes::where('slug', $slug)->firstOrFail();
+
+        // Cek attempt terbaru yang belum completed
+        $attempt = $quiz->attempts()
+            ->whereNull('completed_at')
+            ->latest('created_at')
+            ->first();
+
+        // Jika tidak ada attempt aktif, redirect ke detail
+        if (!$attempt) {
+            return redirect()->route('kuis.show', $slug)
+                ->withErrors(['error' => 'Kuis belum dimulai atau sudah selesai.']);
         }
 
         $quiz->load('masterMediaMusicQuiz');
@@ -133,11 +146,19 @@ class KuisController extends Controller
     /**
      * Submit quiz answers dan hitung score
      */
-    public function submit(Request $request, Quizzes $quiz, QuizAttempt $attempt)
+    public function submit(Request $request, $slug)
     {
-        // Validasi bahwa attempt milik quiz ini
-        if ($attempt->quiz_id !== $quiz->id) {
-            return back()->withErrors(['error' => 'Invalid quiz attempt.']);
+        $quiz = Quizzes::where('slug', $slug)->firstOrFail();
+
+        // Cek attempt terbaru yang belum completed
+        $attempt = $quiz->attempts()
+            ->whereNull('completed_at')
+            ->latest('created_at')
+            ->first();
+
+        // Jika tidak ada attempt aktif
+        if (!$attempt) {
+            return back()->withErrors(['error' => 'Kuis belum dimulai atau sudah selesai.']);
         }
 
         $request->validate([
@@ -198,7 +219,7 @@ class KuisController extends Controller
 
             DB::commit();
 
-            return redirect()->route('quiz-attempt.result', [$quiz->id, $attempt->id]);
+            return redirect()->route('quiz-attempt.result', $quiz->slug);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -210,11 +231,20 @@ class KuisController extends Controller
     /**
      * Display quiz result
      */
-    public function result(Quizzes $quiz, QuizAttempt $attempt)
+    public function result($slug)
     {
-        // Validasi bahwa attempt milik quiz ini
-        if ($attempt->quiz_id !== $quiz->id) {
-            return back()->withErrors(['error' => 'Invalid quiz attempt.']);
+        $quiz = Quizzes::where('slug', $slug)->firstOrFail();
+
+        // Cek attempt terbaru yang sudah completed
+        $attempt = $quiz->attempts()
+            ->whereNotNull('completed_at')
+            ->latest('completed_at')
+            ->first();
+
+        // Jika tidak ada attempt yang completed
+        if (!$attempt) {
+            return redirect()->route('kuis.show', $slug)
+                ->withErrors(['error' => 'Hasil kuis tidak ditemukan.']);
         }
 
         // Load attempt dengan jawaban

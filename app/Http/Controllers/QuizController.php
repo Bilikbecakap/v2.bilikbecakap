@@ -104,7 +104,7 @@ class QuizController extends Controller implements HasMiddleware
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048', 
-            'master_media_music_quiz_id' => 'nullable|exists:master_media_music_quiz,id', // UBAH
+            'master_media_music_quiz_id' => 'nullable|exists:master_media_music_quiz,id', 
             'duration' => 'required|integer|min:1',
             'type' => 'required|in:umum,modul',
             'modul_pembelajaran_id' => 'required_if:type,modul|nullable|exists:modul_pembelajaran,id',
@@ -114,7 +114,7 @@ class QuizController extends Controller implements HasMiddleware
             'thumbnail.image' => 'Thumbnail harus berupa gambar.',
             'thumbnail.mimes' => 'Thumbnail harus berformat jpeg, jpg, png, atau webp.',
             'thumbnail.max' => 'Ukuran thumbnail maksimal 2MB.',
-            'master_media_music_quiz_id.exists' => 'Music quiz yang dipilih tidak valid.', // UBAH
+            'master_media_music_quiz_id.exists' => 'Music quiz yang dipilih tidak valid.',
             'duration.required' => 'Durasi quiz wajib diisi.',
             'duration.min' => 'Durasi minimal 1 menit.',
             'type.required' => 'Tipe quiz wajib dipilih.',
@@ -131,11 +131,13 @@ class QuizController extends Controller implements HasMiddleware
                 $data['modul_pembelajaran_id'] = null;
             }
 
+            // Auto-generate slug dari title
+            $data['slug'] = \Illuminate\Support\Str::slug($data['title']);
+
             if ($request->hasFile('thumbnail')) {
                 $thumbnailPath = $request->file('thumbnail')->store('quizzes/thumbnails', 'public');
                 $data['thumbnail'] = $thumbnailPath;
             }
-
 
             $quiz = Quizzes::create($data);
 
@@ -146,7 +148,7 @@ class QuizController extends Controller implements HasMiddleware
                     'type' => $data['type'],
                     'status' => $data['status'],
                     'has_thumbnail' => isset($data['thumbnail']),
-                    'has_music' => isset($data['master_media_music_quiz_id']), // UBAH
+                    'has_music' => isset($data['master_media_music_quiz_id']),
                 ])
                 ->log('Created new quiz');
 
@@ -236,6 +238,9 @@ class QuizController extends Controller implements HasMiddleware
                 $data['modul_pembelajaran_id'] = null;
             }
 
+            // Auto-generate slug dari title
+            $data['slug'] = \Illuminate\Support\Str::slug($data['title']);
+
             if ($request->remove_thumbnail) {
                 $quiz->deleteThumbnail();
                 $data['thumbnail'] = null;
@@ -250,7 +255,6 @@ class QuizController extends Controller implements HasMiddleware
                 $data['thumbnail'] = $thumbnailPath;
             }
 
-
             $quiz->update($data);
 
             activity()
@@ -262,7 +266,7 @@ class QuizController extends Controller implements HasMiddleware
                     'old_status' => $quiz->getOriginal('status'),
                     'new_status' => $data['status'],
                     'thumbnail_updated' => $request->hasFile('thumbnail'),
-                    'music_updated' => isset($data['master_media_music_quiz_id']), // UBAH
+                    'music_updated' => isset($data['master_media_music_quiz_id']),
                 ])
                 ->log('Updated quiz');
 

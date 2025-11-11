@@ -300,7 +300,7 @@ const submitQuiz = () => {
     answers: form.answers
   };
 
-  form.post(`/quiz-attempt/${props.quiz.id}/${props.attempt.id}/submit`, {
+  form.post(route('quiz-attempt.submit', props.quiz.slug), {
     data: payload,
     preserveScroll: true,
     onSuccess: () => {
@@ -330,7 +330,7 @@ const autoSubmit = () => {
     answers: form.answers
   };
 
-  form.post(`/quiz-attempt/${props.quiz.id}/${props.attempt.id}/submit`, {
+  form.post(route('quiz-attempt.submit', props.quiz.slug), {
     data: payload,
     preserveScroll: true,
     onSuccess: () => {

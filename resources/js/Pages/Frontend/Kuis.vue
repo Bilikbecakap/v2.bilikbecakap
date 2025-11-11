@@ -172,7 +172,7 @@ const getDifficultyBadge = (attemptCount) => {
                         <!-- Quiz Content -->
                         <div class="p-5 space-y-4">
                             <!-- Title -->
-                            <a :href="`/kuis/${quiz.id}`" class="block hover:text-[#54b0af] transition-colors">
+                            <a :href="`/kuis/${quiz.slug}`" class="block hover:text-[#54b0af] transition-colors">
                                 <h3 class="font-bold text-[#002b44] text-lg line-clamp-2">{{ quiz.title }}</h3>
                             </a>
 
@@ -200,7 +200,7 @@ const getDifficultyBadge = (attemptCount) => {
                             </div>
 
                             <!-- CTA Button -->
-                            <a :href="`/kuis/${quiz.id}`"
+                            <a :href="`/kuis/${quiz.slug}`"
                                 class="block w-full bg-gradient-to-r from-[#54b0af] to-[#459a99] hover:shadow-lg text-white font-semibold py-3 rounded-xl transition-all duration-300 text-center group/btn">
                                 <span class="flex items-center justify-center gap-2">
                                     Mulai Kuis

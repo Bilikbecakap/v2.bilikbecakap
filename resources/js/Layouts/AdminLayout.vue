@@ -213,7 +213,7 @@ onUnmounted(() => {
             </Link>
 
             <!-- Menu Kontak -->
-            <Link v-if="can('view kontak')" href="admin/kontak-masuk" @click="isMobile ? toggleSidebar() : null" :class="[
+            <Link v-if="can('view kontak')" href="/admin/kontak-masuk" @click="isMobile ? toggleSidebar() : null" :class="[
               'group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 border',
               $page.url.startsWith('/admin/kontak')
                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'

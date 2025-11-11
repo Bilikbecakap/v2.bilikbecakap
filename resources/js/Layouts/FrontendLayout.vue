@@ -126,7 +126,7 @@ onUnmounted(() => {
                                     class="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2">
                                     <Link href="/kuis" :class="[
                                         'block px-4 py-2 text-sm transition-colors duration-200',
-                                        isActive('/quiz') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
+                                        isActive('/kuis') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
                                     ]">
                                     Quiz
                                     </Link>

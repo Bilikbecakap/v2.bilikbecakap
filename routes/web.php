@@ -56,16 +56,14 @@ Route::post('/komentar', [KomentarController::class, 'store'])->name('komentar.s
 Route::get('/artikel', [BlogController::class, 'daftar'])->name('artikel.index');
 Route::get('/artikel/{slug}', [BlogController::class, 'baca'])->name('artikel.show');
 Route::get('/kuis', [KuisController::class, 'index'])->name('kuis.index');
-Route::get('/kuis/{quiz}', [KuisController::class, 'show'])->name('kuis.show');
-Route::get('/kuis/{quiz}/mulai', [KuisController::class, 'start'])->name('kuis.start');
-Route::post('/quiz-attempt/{quiz}/begin', [KuisController::class, 'begin'])->name('quiz-attempt.begin');
-Route::get('/quiz-attempt/{quiz}/{attempt}', [KuisController::class, 'quiz'])->name('quiz-attempt.quiz');
-Route::post('/quiz-attempt/{quiz}/{attempt}/submit', [KuisController::class, 'submit'])->name('quiz-attempt.submit');
-Route::get('/quiz-attempt/{quiz}/{attempt}/result', [KuisController::class, 'result'])->name('quiz-attempt.result');
+Route::get('/kuis/{slug}', [KuisController::class, 'show'])->name('kuis.show');
+Route::post('/kuis/{slug}/begin', [KuisController::class, 'begin'])->name('quiz-attempt.begin');
+Route::get('/kuis/{slug}/do', [KuisController::class, 'quiz'])->name('quiz-attempt.quiz');
+Route::post('/kuis/{slug}/do/submit', [KuisController::class, 'submit'])->name('quiz-attempt.submit');
+Route::get('/kuis/{slug}/result', [KuisController::class, 'result'])->name('quiz-attempt.result');
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak.index');
 Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
 Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri.public');
-
 
 /*
 |--------------------------------------------------------------------------

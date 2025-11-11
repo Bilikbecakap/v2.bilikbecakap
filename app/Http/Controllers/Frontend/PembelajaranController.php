@@ -95,10 +95,18 @@ class PembelajaranController extends Controller
 
         $komentars = $modul->komentars()->orderBy('created_at', 'desc')->get();
 
+        // Ambil quiz yang sesuai dengan modul ini
+        $relatedQuiz = \App\Models\Quizzes::where('modul_pembelajaran_id', $modul->id)
+            ->where('type', 'modul')
+            ->where('status', 'active')
+            ->select(['id', 'title', 'slug', 'description', 'thumbnail', 'duration'])
+            ->first();
+
         return Inertia::render('Frontend/PembelajaranDetail', [
             'modul' => $modul,
             'otherModules' => $otherModules,
-            'komentars' => $komentars, 
+            'komentars' => $komentars,
+            'relatedQuiz' => $relatedQuiz,  // Tambah ini
         ]);
     }
 }

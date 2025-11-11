@@ -71,6 +71,15 @@ Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri.public')
 Route::post('/chatbot/send', [ChatbotController::class, 'sendMessage'])->name('chatbot.send');
 Route::get('/chatbot/context-options', [ChatbotController::class, 'getContextOptions'])->name('chatbot.context');
 
+Route::get('/test-gemini', function() {
+    $service = new \App\Services\GeminiService();
+    
+    return response()->json([
+        'api_key_exists' => !empty(env('GEMINI_API_KEY')),
+        'connection_test' => $service->testConnection(),
+        'database_stats' => $service->getDatabaseStats(),
+    ]);
+});
 /*
 |--------------------------------------------------------------------------
 | Admin Panel Routes

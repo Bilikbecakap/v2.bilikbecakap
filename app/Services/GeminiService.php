@@ -32,7 +32,8 @@ class GeminiService
                 'timeout' => $timeout,
                 'headers' => [
                     'Content-Type' => 'application/json'
-                ]
+                ],
+                'verify' => false,
             ]);
 
             return new class($response) {
@@ -51,6 +52,11 @@ class GeminiService
                 }
             };
         } catch (RequestException $e) {
+                Log::error('Gemini API Error', [
+                'message' => $e->getMessage(),
+                'response' => $e->hasResponse() ? $e->getResponse()->getBody() : null,
+                'request' => $e->getRequest()->getUri()
+            ]);
             return new class {
                 public function successful() { return false; }
                 public function json() { return []; }

@@ -46,6 +46,7 @@ use Inertia\Inertia;
 
 // Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
+Route::get('/language/{locale}', [LanguageController::class, 'switch'])->name('language.switch');
 Route::get('/kamus', [KamusController::class, 'index'])->name('kamus.public');
 Route::get('/penerjemah', [PenerjemahController::class, 'index'])->name('penerjemah');
 Route::post('/penerjemah/process', [PenerjemahController::class, 'translate'])->name('penerjemah.process');
@@ -75,9 +76,6 @@ Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri.public')
 */
 
 Route::middleware(['auth', 'verified'])->group(function () {
-
-    // Dashboard Admin
-    Route::get('/language/{locale}', [LanguageController::class, 'switch'])->name('language.switch');
 
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');

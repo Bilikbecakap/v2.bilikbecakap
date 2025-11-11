@@ -2,7 +2,9 @@
 import { ref, watch } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
+import { useTranslations } from '@/composables/useTranslations';
 
+const { t } = useTranslations();
 const props = defineProps({
     modul: Object,
     categoryList: Array,
@@ -82,10 +84,10 @@ watch(searchQuery, () => {
                 <!-- Header -->
                 <div class="text-center mb-12">
                     <h1 class="text-4xl md:text-5xl font-bold text-[#54b0af] mb-4 drop-shadow-sm">
-                        Modul Pembelajaran Bahasa Belitung
+                        {{ t('messages.modul pembelajaran bahasa belitung') }}
                     </h1>
                     <p class="text-lg text-[#002b44]/80 max-w-2xl mx-auto drop-shadow-sm">
-                        Jelajahi modul pembelajaran interaktif untuk mengenal kosakata, tata bahasa, dan budaya Belitung
+                        {{ t('messages.modul pembelajaran bahasa belitung deskripsi') }}
                     </p>
                 </div>
 
@@ -93,8 +95,7 @@ watch(searchQuery, () => {
                 <div class="max-w-4xl mx-auto mb-12 space-y-6">
                     <!-- Search -->
                     <form @submit.prevent="handleSearch" class="relative">
-                        <input v-model="searchQuery" type="text"
-                            placeholder="Cari judul modul atau deskripsi..."
+                        <input v-model="searchQuery" type="text" :placeholder="t('messages.pembelajaran placeholder')"
                             class="w-full px-6 py-4 pr-14 rounded-2xl border-2 border-white/50 bg-white/90 backdrop-blur-sm text-[#002b44] placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#54b0af] focus:border-transparent shadow-lg" />
                         <button type="submit"
                             class="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FCB415] hover:bg-[#e0a013] text-white p-3 rounded-xl transition-colors duration-200">
@@ -107,7 +108,7 @@ watch(searchQuery, () => {
 
                     <!-- Active Search Info -->
                     <div v-if="search || category" class="flex flex-wrap items-center gap-3 text-sm text-[#002b44]/70">
-                        <span v-if="search">Pencarian: <span class="font-semibold">"{{ search }}"</span></span>
+                        <span v-if="search">{{ t('messages.Pencarian') }}: <span class="font-semibold">"{{ search }}"</span></span>
                         <span v-if="category">
                             Kategori:
                             <span class="font-semibold">
@@ -116,7 +117,7 @@ watch(searchQuery, () => {
                         </span>
                         <button @click="searchQuery = ''; selectedCategory = ''; applyFilters()"
                             class="text-[#54b0af] hover:text-[#459a99] font-medium">
-                            Hapus filter
+                            {{ t('messages.Hapus pencarian') }}
                         </button>
                     </div>
                 </div>
@@ -162,7 +163,7 @@ watch(searchQuery, () => {
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
-                                        {{ item.view_count }} dilihat
+                                        {{ item.view_count }} {{ t('messages.views') }}
                                     </span>
                                 </div>
                             </div>
@@ -179,7 +180,7 @@ watch(searchQuery, () => {
                             d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                     <p class="text-xl font-medium text-gray-600">
-                        {{ search || category ? 'Tidak ada modul yang ditemukan' : 'Belum ada modul pembelajaran tersedia' }}
+                        {{ search || category ? t('messages.no_results_found') : t('messages.no_data_available') }}
                     </p>
                 </div>
 
@@ -188,7 +189,7 @@ watch(searchQuery, () => {
                     class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-4 mt-8">
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div class="text-sm text-gray-600">
-                            Menampilkan {{ modul.from }} - {{ modul.to }} dari {{ modul.total }} modul
+                            {{ t('messages.menampilkan') }} {{ modul.from }} - {{ modul.to }} {{ t('messages.dari') }} {{ modul.total }} modul
                         </div>
 
                         <div class="flex items-center gap-1">
@@ -243,11 +244,9 @@ watch(searchQuery, () => {
                             </svg>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold text-[#002b44] mb-2">Tentang Modul Pembelajaran</h4>
+                            <h4 class="text-lg font-semibold text-[#002b44] mb-2">{{ t('messages.tentang modul pembelajaran') }}</h4>
                             <p class="text-gray-600 leading-relaxed">
-                                Modul ini dirancang untuk membantu Anda belajar Bahasa Melayu Belitung secara bertahap.
-                                Setiap modul berisi materi, latihan, dan kuis untuk menguji pemahaman.
-                                Gunakan filter di atas untuk menemukan topik yang Anda minati.
+                                {{ t('messages.tentang modul pembelajaran deskripsi') }}
                             </p>
                         </div>
                     </div>

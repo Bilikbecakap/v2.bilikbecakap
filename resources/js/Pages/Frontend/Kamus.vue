@@ -2,12 +2,14 @@
 import { ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
+import { useTranslations } from '@/composables/useTranslations';
 
 const props = defineProps({
     kamus: Object,
     search: String,
 });
 
+const { t } = useTranslations();
 const searchQuery = ref(props.search || '');
 const isPlaying = ref(null);
 const audioPlayer = ref(null);
@@ -56,18 +58,17 @@ const playAudio = (kamusId, audioUrl) => {
                 <!-- Header -->
                 <div class="text-center mb-12">
                     <h1 class="text-4xl md:text-5xl font-bold text-[#54b0af] mb-4 drop-shadow-sm">
-                        Kamus Digital Bahasa Belitung
+                        {{ t('messages.kamus digital bahasa belitung') }}
                     </h1>
                     <p class="text-lg text-[#002b44]/80 max-w-2xl mx-auto drop-shadow-sm">
-                        Temukan arti kata dan terjemahan dari Bahasa Melayu Belitung ke Bahasa Indonesia
+                        {{ t('messages.kamus digital bahasa belitung deskripsi') }}
                     </p>
                 </div>
 
                 <!-- Search -->
                 <div class="max-w-3xl mx-auto mb-12">
                     <form @submit.prevent="handleSearch" class="relative">
-                        <input v-model="searchQuery" type="text"
-                            placeholder="Cari kata dalam Bahasa Melayu Belitung atau Bahasa Indonesia..."
+                        <input v-model="searchQuery" type="text" :placeholder="t('messages.kamus placeholder')"
                             class="w-full px-6 py-4 pr-14 rounded-2xl border-2 border-white/50 bg-white/90 backdrop-blur-sm text-[#002b44] placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#54b0af] focus:border-transparent shadow-lg" />
                         <button type="submit"
                             class="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FCB415] hover:bg-[#e0a013] text-white p-3 rounded-xl transition-colors duration-200">
@@ -80,10 +81,10 @@ const playAudio = (kamusId, audioUrl) => {
 
                     <div v-if="search" class="mt-4 text-center">
                         <p class="text-sm text-[#002b44]/70">
-                            Menampilkan hasil pencarian untuk: <span class="font-semibold">"{{ search }}"</span>
+                            {{ t('messages.Menampilkan hasil pencarian untuk') }}: <span class="font-semibold">"{{ search }}"</span>
                             <button @click="searchQuery = ''; handleSearch()"
                                 class="ml-2 text-[#54b0af] hover:text-[#459a99] font-medium">
-                                Hapus pencarian
+                                {{ t('messages.Hapus pencarian') }}
                             </button>
                         </p>
                     </div>
@@ -96,11 +97,11 @@ const playAudio = (kamusId, audioUrl) => {
                             <!-- HEADER: Lebih besar, teks bold, padding lebih tinggi -->
                             <thead>
                                 <tr class="bg-[#54b0af] text-white">
-                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">Bahasa Melayu Belitung
+                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">{{ t('messages.bahasa melayu belitung') }}
                                     </th>
-                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">Bahasa Indonesia</th>
-                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">Keterangan</th>
-                                    <th class="px-12 py-5 text-center text-base font-bold w-20">Audio</th>
+                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">{{ t('messages.bahasa indonesia') }}</th>
+                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">{{ t('messages.keterangan') }}</th>
+                                    <th class="px-12 py-5 text-center text-base font-bold w-20">{{ t('messages.audio') }}</th>
                                 </tr>
                             </thead>
                             <!-- BODY: Baris lebih tinggi, padding lebih besar -->
@@ -110,7 +111,7 @@ const playAudio = (kamusId, audioUrl) => {
                                     class="hover:bg-[#54b0af]/10 transition-colors duration-200">
                                     <td class="px-12 py-6">
                                         <span class="text-[#002b44] font-semibold text-base">{{ item.bahasa_melayu
-                                            }}</span>
+                                        }}</span>
                                     </td>
                                     <td class="px-12 py-6">
                                         <span class="text-gray-700 text-base">{{ item.bahasa_indonesia }}</span>
@@ -145,7 +146,7 @@ const playAudio = (kamusId, audioUrl) => {
                                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
                             <p class="text-xl font-medium text-gray-600">
-                                {{ search ? 'Tidak ada hasil yang ditemukan' : 'Belum ada data kamus tersedia' }}
+                                {{ search ? t('messages.no_results_found') : t('messages.no_data_available') }}
                             </p>
                         </div>
                     </div>
@@ -155,7 +156,7 @@ const playAudio = (kamusId, audioUrl) => {
                         class="px-6 py-4 bg-gray-50 border-t border-gray-200">
                         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div class="text-sm text-gray-600">
-                                Menampilkan {{ kamus.from }} - {{ kamus.to }} dari {{ kamus.total }} kata
+                                {{ t('messages.menampilkan') }} {{ kamus.from }} - {{ kamus.to }} {{ t('messages.dari') }} {{ kamus.total }} {{ t('messages.kata') }}
                             </div>
 
                             <div class="flex items-center gap-1">
@@ -209,11 +210,9 @@ const playAudio = (kamusId, audioUrl) => {
                             </svg>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold text-[#002b44] mb-2">Tentang Kamus Digital</h4>
+                            <h4 class="text-lg font-semibold text-[#002b44] mb-2">{{ t('messages.Tentang Kamus Digital') }}</h4>
                             <p class="text-gray-600 leading-relaxed">
-                                Kamus digital ini berisi kosakata Bahasa Melayu Belitung yang diterjemahkan ke Bahasa
-                                Indonesia. Gunakan fitur pencarian untuk menemukan kata yang Anda cari dengan cepat.
-                                Klik ikon speaker untuk mendengarkan pengucapan kata dalam Bahasa Melayu Belitung.
+                                {{ t('messages.Tentang Kamus Digital Deskripsi') }}
                             </p>
                         </div>
                     </div>

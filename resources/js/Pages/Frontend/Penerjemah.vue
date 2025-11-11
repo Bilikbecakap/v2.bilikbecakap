@@ -2,11 +2,13 @@
 import { ref, computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
+import { useTranslations } from '@/composables/useTranslations'
 
 const props = defineProps({
     user: Object,
 });
 
+const { t } = useTranslations();
 // Form state
 const inputText = ref('');
 const outputText = ref('');
@@ -101,10 +103,10 @@ const translate = async () => {
                 <!-- Header -->
                 <div class="text-center mb-12">
                     <h1 class="text-4xl md:text-5xl font-bold text-[#54b0af] mb-4 drop-shadow-sm">
-                        Penerjemah Bahasa Melayu Belitung
+                        {{ t('messages.Penerjemah Bahasa Melayu Belitung') }}
                     </h1>
                     <p class="text-lg text-[#002b44]/80 max-w-2xl mx-auto drop-shadow-sm">
-                        Terjemahkan teks antara Bahasa Indonesia dan Bahasa Melayu Belitung dengan teknologi Kecerdasan Buatan
+                        {{ t('messages.Penerjemah Bahasa Melayu Belitung Deskripsi') }}
                     </p>
                 </div>
 
@@ -199,7 +201,7 @@ const translate = async () => {
                                     @click="clearAll"
                                     class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors"
                                 >
-                                    🗑️ Hapus
+                                    🗑️ {{ t('messages.delete') }}
                                 </button>
                                 <button
                                     @click="translate"
@@ -210,7 +212,7 @@ const translate = async () => {
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    <span>{{ isTranslating ? 'Menerjemahkan...' : 'Terjemahkan' }}</span>
+                                    <span>{{ isTranslating ? t('messages.translating') : t('messages.translate') }}</span>
                                 </button>
                             </div>
                         </div>
@@ -226,11 +228,9 @@ const translate = async () => {
                             </svg>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold text-[#002b44] mb-2">Tentang Penerjemah</h4>
+                            <h4 class="text-lg font-semibold text-[#002b44] mb-2">{{ t('messages.tentang penerjemah') }}</h4>
                             <p class="text-gray-600 leading-relaxed">
-                                Penerjemah ini menggunakan metode <strong>Hybrid</strong> yang menggabungkan database kata dengan teknologi AI. 
-                                Sistem akan mencari di database terlebih dahulu untuk hasil yang akurat, dan menggunakan AI sebagai fallback 
-                                jika kata tidak ditemukan di database.
+                               {{ t('messages.tentang penerjemah deskripsi') }}
                             </p>
                         </div>
                     </div>

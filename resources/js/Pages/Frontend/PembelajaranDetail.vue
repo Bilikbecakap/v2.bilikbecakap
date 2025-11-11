@@ -3,7 +3,9 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { ref, onMounted } from 'vue';
+import { useTranslations } from '@/composables/useTranslations';
 
+const { t } = useTranslations();
 const props = defineProps({
     modul: Object,
     otherModules: Array,
@@ -120,7 +122,7 @@ const showNotification = (message, type = 'success') => {
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
-                Kembali
+                {{ t('messages.kembali') }}
                 </Link>
 
                 <!-- 2/3 + 1/3 Layout -->
@@ -246,7 +248,7 @@ const showNotification = (message, type = 'success') => {
                             class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 sticky top-6">
                             <!-- Modul Lainnya -->
                             <div class="mb-6">
-                                <h3 class="text-lg font-bold text-[#002b44] mb-3">Modul Lainnya</h3>
+                                <h3 class="text-lg font-bold text-[#002b44] mb-3">{{ t('messages.modul lainnya') }}</h3>
                                 <div class="space-y-0 divide-y divide-gray-100">
                                     <Link v-for="item in otherModules" :key="item.id"
                                         :href="`/pembelajaran/${item.slug}`"
@@ -272,7 +274,7 @@ const showNotification = (message, type = 'success') => {
                                             </h4>
                                             <p class="text-xs text-[#002b44]/60 mt-1">
                                                 {{ item.category?.nama_kategori || 'Umum' }} • {{ item.view_count }}
-                                                dilihat
+                                                {{ t('messages.views') }}
                                             </p>
                                         </div>
                                     </div>
@@ -291,9 +293,10 @@ const showNotification = (message, type = 'success') => {
                                         </svg>
                                     </div>
                                     <div>
-                                        <h4 class="font-semibold text-[#002b44] text-sm mb-1">Petunjuk</h4>
+                                        <h4 class="font-semibold text-[#002b44] text-sm mb-1">{{ t('messages.petunjuk')
+                                            }}</h4>
                                         <p class="text-xs text-gray-600 leading-relaxed">
-                                            Baca deskripsi, tonton video, unduh PDF. Lihat modul lainnya di samping.
+                                            {{ t('messages.petunjuk detail') }}
                                         </p>
                                     </div>
                                 </div>
@@ -303,7 +306,7 @@ const showNotification = (message, type = 'success') => {
                             <div class="text-center">
                                 <Link :href="'/pembelajaran'"
                                     class="text-sm text-[#54b0af] hover:text-[#459a99] font-medium">
-                                Lihat semua modul
+                                {{ t('messages.lihat semua modul') }}
                                 </Link>
                             </div>
                         </div>
@@ -312,7 +315,7 @@ const showNotification = (message, type = 'success') => {
                         <div v-if="relatedQuiz"
                             class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
                             <h3 class="text-lg font-bold text-[#002b44] mb-4">
-                                📝 Kuis Terkait
+                                📝 {{ t('messages.kuis terkait') }}
                             </h3>
 
                             <div class="bg-gradient-to-br from-[#54b0af]/10 to-[#FCB415]/10 rounded-xl p-4 space-y-3">
@@ -335,14 +338,14 @@ const showNotification = (message, type = 'success') => {
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <span>{{ relatedQuiz.duration }} Menit</span>
+                                        <span>{{ relatedQuiz.duration }} {{ t('messages.menit') }}</span>
                                     </div>
 
                                     <!-- CTA Button -->
                                     <Link :href="`/kuis/${relatedQuiz.slug}`"
                                         class="block w-full bg-gradient-to-r from-[#54b0af] to-[#459a99] hover:shadow-lg text-white font-semibold py-2.5 px-4 rounded-lg transition-all text-center text-sm">
                                     <span class="flex items-center justify-center gap-2">
-                                        Mulai Kuis
+                                        {{ t('messages.mulai kuis') }}
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -355,30 +358,34 @@ const showNotification = (message, type = 'success') => {
                             <!-- Info Box -->
                             <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                 <p class="text-xs text-blue-800">
-                                    ✓ Selesaikan modul ini terlebih dahulu sebelum mengerjakan kuis.
+                                    ✓ {{ t('messages.keterangan kuis') }}
                                 </p>
                             </div>
                         </div>
 
                         <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
-                            <h3 class="text-lg font-bold text-[#002b44]">Komentar</h3>
+                            <h3 class="text-lg font-bold text-[#002b44]">{{ t('messages.komentar') }}</h3>
                             <p class="text-sm text-gray-600 mb-6">
-                                Berikan komentar, masukan dan kritik terhadap modul pembelajaran ini.
+                                {{ t('messages.komentar detail') }}
                             </p>
 
                             <!-- Form Komentar -->
                             <form @submit.prevent="submitKomentar" class="space-y-3 mb-5">
-                                <input v-model="form.nama" type="text" placeholder="Nama Anda *"
+                                <input v-model="form.nama" type="text" :placeholder="t('messages.your_name')"
                                     class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#54b0af]"
                                     required />
-                                <input v-model="form.kontak" type="text" placeholder="Email atau kontak (opsional)"
+
+                                <input v-model="form.kontak" type="text" :placeholder="t('messages.email_or_contact')"
                                     class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#54b0af]" />
-                                <textarea v-model="form.isi_komentar" placeholder="Tulis komentar Anda *" rows="3"
+
+                                <textarea v-model="form.isi_komentar" :placeholder="t('messages.write_comment')"
+                                    rows="3"
                                     class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#54b0af]"
                                     required></textarea>
+
                                 <button type="submit" :disabled="form.processing"
                                     class="w-full bg-[#54b0af] hover:bg-[#459a99] text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-70">
-                                    {{ form.processing ? 'Mengirim...' : 'Kirim Komentar' }}
+                                    {{ form.processing ? t('messages.sending') : t('messages.send_comment') }}
                                 </button>
                             </form>
 
@@ -418,7 +425,7 @@ const showNotification = (message, type = 'success') => {
                                 </div>
                             </div>
                             <div v-else class="text-gray-500 text-sm italic">
-                                Belum ada komentar.
+                                {{ t('messages.belum ada komentar') }}
                             </div>
                         </div>
 

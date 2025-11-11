@@ -35,12 +35,14 @@ return [
     'created' => 'Dibuat',
     'actions' => 'Aksi',
     'view' => 'Lihat',
+    'views' => 'Dilihat',
     'edit' => 'Edit',
     'delete' => 'Hapus',
     'confirm' => 'Konfirmasi',
     'cancel' => 'Batal',
     'update' => 'Perbarui',
-
+    'kembali' => 'Kembali',
+    
     'add_new_user' => 'Tambah Pengguna Baru',
     'add_new_role' => 'Tambah Peran Baru',
     'create_new_user' => 'Buat Pengguna Baru',
@@ -54,4 +56,134 @@ return [
     'home' => 'Beranda',
     'about' => 'Tentang',
     'contact' => 'Kontak',
+    'kamus' => 'Kamus',
+    'translator' => 'Penerjemah',
+    'learning' => 'Pembelajaran',
+    'learning_modules' => 'Modul Pembelajaran',
+    'articles' => 'Artikel',
+    'quiz' => 'Kuis',
+    'gallery' => 'Galeri',
+    'others' => 'Lainnya',
+    'footer description' => 'Platform pelestarian bahasa daerah Melayu Belitung dengan berbagai fitur sebagai kebudayaan daerah.',
+    'translating' => 'Menerjemahkan...',
+    'translate' => 'Terjemahkan',
+
+
+    //konten landingpage
+    'Platform Pelestarian Budaya Belitung' => 'Platform Pelestarian Budaya Belitung',
+    'welcome_to' => 'Selamat Datang di',
+    'welcome_massage' => 'Jelajahi dan pelajari bahasa serta budaya Belitung Timur dengan Bilikbecakap. Kami hadir untuk menjaga warisan budaya Belitung melalui kamus digital, mesin penerjemah bahasa daerah, pembelajaran interaktif, dan modul budaya.',
+    'start_learning' => 'Mulai Belajar',
+    'join' => 'Bergabung',
+    'words in the dictionary' => 'Kata dalam Kamus',
+    'Modul dan Kuis Pembelajaran' => 'Modul & Kuis Pembelajaran',
+    'akurasi penerjemah' => 'Akurasi Penerjemah',
+    'Temukan Keunggulan Kami' => 'Temukan Keunggulan Kami',
+    'Fitur Utama' => 'Fitur Utama',
+    'Fitur Utama Deskripsi' => 'Berbagai fitur yang memudahkan Anda dalam mempelajari dan melestarikan Bahasa Melayu Belitung.',
+    'Mesin Penerjemah' => 'Mesin Penerjemah',
+    'Mesin Penerjemah Deskripsi' => 'Terjemahkan kata atau kalimat dari Bahasa Indonesia ke Bahasa Melayu Belitung secara instan dengan akurasi tinggi.',
+    'kamus digital' => 'Kamus Digital',
+    'kamus digital deskripsi' => 'Cari makna kata dan istilah dalam Bahasa Melayu Belitung dengan mudah dan cepat.',
+    'coba sekarang' => 'Coba Sekarang',
+    'pembelajaran dan kuis' => 'Pembelajaran & Kuis',
+    'pembelajaran dan kuis deskripsi' => 'Nikmati pembelajaran Budaya Belitung serta lestarikan bahasa dan budaya melalui quiz interaktif.',
+    'perjalanan kami' => 'Perjalanan Kami',
+    'perjalanan kami deskripsi 1' => 'Langkah Demi Langkah.',
+    'perjalanan kami deskripsi 2' => 'Melestarikan Bahasa dan Budaya Bersama',
+
+    'our_journey_deskripsi_1' => 'Seiring dengan dukungan pengguna',
+    'our_journey_deskripsi_2' => 'terus berkembang dalam upaya pelestarian bahasa dan budaya Belitung Timur. Kami bangga bisa memberikan fitur-fitur yang semakin kaya dan bermanfaat bagi masyarakat.',
+    'our_journey_deskripsi_3' => 'Bilik Becakap hadir di dalam program <span class="font-semibold text-[#002b44]">Kemah Budaya Kaum Muda (KBKM) 2023</span> sebagai ruang inkubator yang mewadahi inisiatif kaum muda dalam menciptakan aplikasi dan prakarya serta menjadi jembatan yang mempertemukan antara gagasan dengan eksperimentasi di bidang <span
+                                    class="font-semibold text-[#54b0af]">STEAM</span> (Science, Technology, Engineering, Art, Mathematics). KBKM mendorong para peserta agar karyanya dapat terus berlanjut dan
+                                berdampak luas sehingga mampu menjadi solusi untuk permasalahan sosial di tengah.',
+    'pelajari lebih lanjut' => 'Pelajari Lebih Lanjut',
+    'faq_title' => 'Pertanyaan yang Sering Ditanyakan',
+    'faq_desc' => 'Temukan jawaban atas pertanyaan umum tentang Bilikbecakap',
+    'faq_1' => 'Apa itu Bilikbecakap?',
+    'faq_2' => 'Bagaimana cara menggunakan Kamus Digital di Bilikbecakap?',
+    'faq_3' => 'Apa saja yang dapat dipelajari dalam Modul Pembelajaran Bahasa & Budaya?',
+    'faq_4' => 'Bisakah Bilikbecakap menerjemahkan kalimat dari Bahasa Indonesia ke Bahasa Melayu Belitung?',
+    'faq_5' => 'Bagaimana Bilikbecakap berkontribusi pada pelestarian dan keberlanjutan bahasa serta budaya daerah?',
+    'faq_answer_1' => 'Bilikbecakap adalah platform digital yang didedikasikan untuk pelestarian bahasa dan
+                                budaya Belitung Timur, khususnya Bahasa Belitung.',
+    'faq_answer_2' => 'Anda dapat mencari kata atau istilah dalam Bahasa Belitung dengan mengetik kata yang
+                                ingin dicari pada kolom Kamus Digital. Sistem akan menampilkan arti dan contoh
+                                penggunaan kata tersebut, memudahkan Anda dalam memahami konteks dan makna yang tepat.',
+    'faq_answer_3' => 'Modul pembelajaran kami mencakup dasar-dasar Bahasa Melayu Belitung, tata bahasa, serta wawasan
+                                budaya seperti adat istiadat dan sejarah Belitung Timur. Materi disusun secara
+                                interaktif untuk mempermudah pemahaman dan menarik minat belajar.',
+    'faq_answer_4' => 'Ya, Bilikbecakap memiliki fitur mesin penerjemah yang dapat menerjemahkan kata atau
+                                kalimat dari Bahasa Indonesia ke Bahasa Melayu Belitung secara cepat. Cukup masukkan teks yang
+                                ingin diterjemahkan, dan hasilnya akan segera muncul.',
+    'faq_answer_5' => 'Bilikbecakap memiliki komitmen jangka panjang untuk mendukung pelestarian bahasa dan
+                                budaya Belitung Timur. Dengan menyediakan akses digital ke kamus, mesin penerjemah, dan
+                                modul pembelajaran budaya, platform ini membantu masyarakat lokal dan generasi muda
+                                menjaga dan menghargai warisan budaya mereka. Selain itu, Bilikbecakap berencana
+                                memperluas kolaborasi dengan lembaga pendidikan dan komunitas budaya untuk memperkaya
+                                konten serta memastikan keberlanjutan platform ini dalam jangka panjang.',
+
+    'berita dan blog' => 'Berita & Artikel',
+    'berita dan blog title' => 'Jelajahi Berita & Blog Terbaru Kami.',
+    'berita dan blog deskripsi' => 'Dapatkan informasi terkini seputar budaya, bahasa, dan perkembangan Bilikbecakap.',
+    'lihat semua artikel' => 'Lihat Semua Artikel',
+    'baca selengkapnya' => 'Baca Selengkapnya',
+
+    'kamus digital bahasa belitung' => 'Kamus Digital Bahasa Belitung',
+    'kamus digital bahasa belitung deskripsi' => 'Temukan arti kata dan terjemahan dari Bahasa Melayu Belitung ke Bahasa Indonesia.',
+    'kamus placeholder' => 'Cari kata dalam Bahasa Melayu Belitung atau Bahasa Indonesia...',
+    'Menampilkan hasil pencarian untuk' => 'Menampilkan hasil pencarian untuk',
+    'Hapus pencarian' => 'Hapus pencarian',
+    'Pencarian' => 'Pencarian',
+    'cari' => 'Cari',
+
+
+    'bahasa melayu belitung' => 'Bahasa Melayu Belitung',
+    'bahasa indonesia' => 'Bahasa Indonesia',
+    'keterangan' => 'Keterangan',
+    'audio' => 'Audio',
+    'no_results_found' => 'Tidak ada hasil yang ditemukan',
+    'no_data_available' => 'Belum ada data kamus tersedia',
+    'menampilkan' => 'Menampilkan',
+    'dari' => 'dari',
+    'kata' => 'kata',
+    'Tentang Kamus Digital' => 'Tentang Kamus Digital',
+    'Tentang Kamus Digital Deskripsi' => 'Kamus digital ini berisi kosakata Bahasa Melayu Belitung yang diterjemahkan ke Bahasa Indonesia. Gunakan fitur pencarian untuk menemukan kata yang Anda cari dengan cepat. Klik ikon speaker untuk mendengarkan pengucapan kata dalam Bahasa Melayu Belitung.',
+
+    'Penerjemah Bahasa Melayu Belitung' => 'Penerjemah Bahasa Melayu Belitung',
+    'Penerjemah Bahasa Melayu Belitung Deskripsi' => 'Terjemahkan teks antara Bahasa Indonesia dan Bahasa Melayu Belitung menggunakan teknologi Kecerdasan Buatan.',
+    'tentang penerjemah' => 'Tentang Penerjemah',
+    'tentang penerjemah deskripsi' => 'Penerjemah ini menggunakan metode Hybrid yang menggabungkan database kata dengan teknologi AI. Sistem akan mencari di database terlebih dahulu untuk hasil yang akurat, dan menggunakan AI sebagai fallback jika kata tidak ditemukan di database.',
+
+    'modul pembelajaran bahasa belitung' => 'Modul Pembelajaran Bahasa Belitung',
+    'modul pembelajaran bahasa belitung deskripsi' => 'Jelajahi modul pembelajaran interaktif untuk mengenal kosakata, tata bahasa, dan budaya Belitung.',
+
+    'pembelajaran placeholder' => 'Cari judul modul atau deskripsi...',
+    'tentang modul pembelajaran' => 'Tentang Modul Pembelajaran',
+    'tentang modul pembelajaran deskripsi' => 'Modul ini dirancang untuk membantu Anda belajar Bahasa Melayu Belitung secara bertahap. Setiap modul berisi materi, latihan, dan kuis untuk menguji pemahaman. Gunakan filter di atas untuk menemukan topik yang Anda minati.',
+
+    'modul lainnya' => 'Modul Lainnya',
+    'petunjuk' => 'Petunjuk',
+    'petunjuk detail' => 'Baca deskripsi, tonton video, unduh PDF. Lihat modul lainnya di samping.',
+    'lihat semua modul' => 'Lihat semua modul',
+    'kuis terkait' => 'Kuis Terkait',
+    'mulai kuis' => 'Mulai Kuis',
+    'menit' => 'Menit',
+    'keterangan kuis' => 'Selesaikan modul ini terlebih dahulu sebelum mengerjakan kuis.',
+    'komentar' => 'Komentar',
+    'komentar detail' => 'Berikan komentar, masukan dan kritik terhadap modul pembelajaran ini.',
+    'your_name' => 'Nama Anda *',
+    'email_or_contact' => 'Email atau kontak (opsional)',
+    'write_comment' => 'Tulis komentar Anda *',
+    'sending' => 'Mengirim...',
+    'send_comment' => 'Kirim Komentar',
+    'belum ada komentar' => 'Belum ada komentar',
+
+    'blog title' => 'Jelajahi Berita & Artikel Terbaru',
+    'blog title deskripsi' => 'Temukan wawasan mendalam tentang pelestarian bahasa, budaya lokal, dan perkembangan komunitas Bilikbecakap.',
+    'popular feeds' => 'Berita Populer',
+    'kategori' => 'Kategori',
+    'Ingin Bergabung' => 'Ingin Bergabung?',
+    'Ingin Bergabung Deskripsi' => 'Jadilah bagian dari komunitas Bilik Bercakap dan lestarikan bahasa Melayu Belitung bersama kami.',
+
 ];

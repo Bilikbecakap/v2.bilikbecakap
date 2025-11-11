@@ -2,6 +2,7 @@
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { Head, router, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { useTranslations } from '@/composables/useTranslations';
 
 const props = defineProps({
     artikel: Object,
@@ -14,6 +15,7 @@ const props = defineProps({
     locale: String,
 });
 
+const { t } = useTranslations();
 const searchQuery = ref(props.search || '');
 const selectedKategori = ref(props.kategori || '');
 
@@ -70,11 +72,10 @@ const getTitle = (artikel) => {
                 <!-- Header -->
                 <div class="text-center mb-12">
                     <h1 class="text-4xl md:text-5xl font-bold text-[#54b0af] mb-4 drop-shadow-sm">
-                        Jelajahi Berita & Blog Terbaru Kami
+                        {{ t('messages.blog title') }}
                     </h1>
                     <p class="text-lg text-[#002b44]/80 max-w-2xl mx-auto drop-shadow-sm">
-                        Temukan wawasan mendalam tentang pelestarian bahasa, budaya lokal, dan perkembangan komunitas
-                        Bilik Bercakap
+                        {{ t('messages.blog title deskripsi') }}
                     </p>
                 </div>
 
@@ -117,7 +118,7 @@ const getTitle = (artikel) => {
                                                     d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
                                                     clip-rule="evenodd"></path>
                                             </svg>
-                                            <span class="text-gray-700">{{ post.views_count || 0 }} Views</span>
+                                            <span class="text-gray-700">{{ post.views_count || 0 }} {{ t('messages.views') }}</span>
                                         </div>
 
                                         <!-- Date -->
@@ -155,7 +156,7 @@ const getTitle = (artikel) => {
                                     <!-- Read More Button -->
                                     <Link :href="`/artikel/${post.slug}`"
                                         class="inline-flex items-center gap-2 bg-[#54b0af] hover:bg-[#459a99] text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:translate-x-1">
-                                    Baca Selengkapnya
+                                    {{ t('messages.baca selengkapnya') }}
                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -177,7 +178,7 @@ const getTitle = (artikel) => {
                                     d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                             </svg>
                             <p class="text-xl font-medium text-gray-600 mb-2">
-                                {{ search ? 'Tidak ada artikel yang ditemukan' : 'Belum ada artikel tersedia' }}
+                                {{ search ? t('messages.no_results_found') : t('messages.no_data_available') }}
                             </p>
                         </div>
 
@@ -222,14 +223,14 @@ const getTitle = (artikel) => {
                         <!-- Search Section -->
                         <div class="bg-white/95 backdrop-blur-sm rounded-lg p-6 border border-gray-100">
                             <h3 class="text-lg font-bold text-[#54b0af] mb-4 flex items-center gap-2">
-                                <span class="text-[#FCB415]">━━</span> Search
+                                <span class="text-[#FCB415]">━━</span> {{ t('messages.cari') }}
                             </h3>
                             <form @submit.prevent="handleSearch" class="space-y-3">
                                 <input v-model="searchQuery" type="text" placeholder="Keywords Here...."
                                     class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-[#54b0af] focus:outline-none transition-colors text-sm">
                                 <button type="submit"
                                     class="w-full bg-[#54b0af] hover:bg-[#459a99] text-white py-3 rounded-lg font-semibold transition-all">
-                                    Search
+                                    {{ t('messages.cari') }}
                                 </button>
                             </form>
                         </div>
@@ -237,7 +238,7 @@ const getTitle = (artikel) => {
                         <!-- Popular Feeds Section -->
                         <div class="bg-white/95 backdrop-blur-sm rounded-lg p-6 border border-gray-100">
                             <h3 class="text-lg font-bold text-[#002b44] mb-6 flex items-center gap-2">
-                                <span class="text-[#FCB415]">━━</span> Popular Feeds
+                                <span class="text-[#FCB415]">━━</span> {{ t('messages.popular feeds') }}
                             </h3>
                             <div v-if="populerArtikel && populerArtikel.length > 0" class="space-y-4">
                                 <Link v-for="item in populerArtikel" :key="item.id"
@@ -285,7 +286,7 @@ const getTitle = (artikel) => {
                         <!-- Categories Section -->
                         <div class="bg-white/95 backdrop-blur-sm rounded-lg p-6 border border-gray-100">
                             <h3 class="text-lg font-bold text-[#002b44] mb-4 flex items-center gap-2">
-                                <span class="text-[#FCB415]">━━</span> Kategori
+                                <span class="text-[#FCB415]">━━</span> {{ t('messages.kategori') }}
                             </h3>
                             <div class="flex flex-wrap gap-2">
                                 <!-- All Categories Badge -->
@@ -310,10 +311,10 @@ const getTitle = (artikel) => {
 
                         <!-- Call to Action -->
                         <div class="bg-gradient-to-br from-[#54b0af] to-[#459a99] rounded-lg p-6 text-white space-y-3">
-                            <h3 class="font-bold text-lg">Ingin Bergabung?</h3>
-                            <p class="text-sm opacity-90">Jadilah bagian dari komunitas Bilik Bercakap dan lestarikan bahasa Melayu Belitung bersama kami.</p>
+                            <h3 class="font-bold text-lg">{{ t('messages.Ingin Bergabung') }}</h3>
+                            <p class="text-sm opacity-90">{{ t('messages.Ingin Bergabung Deskripsi') }}</p>
                             <a href="/" class="inline-block w-full text-center bg-white text-[#54b0af] font-semibold py-2 rounded-lg hover:bg-gray-100 transition-colors">
-                                Pelajari Lebih Lanjut
+                                {{ t('messages.pelajari lebih lanjut') }}
                             </a>
                         </div>
                     </div>

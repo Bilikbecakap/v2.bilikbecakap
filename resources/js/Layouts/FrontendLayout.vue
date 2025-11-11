@@ -73,7 +73,6 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Desktop Menu: Hanya tampil di lg (≥1024px) -->
-                    <!-- Desktop Menu: Hanya tampil di lg (≥1024px) -->
                     <div class="hidden lg:flex items-center space-x-6 absolute left-1/2 transform -translate-x-1/2">
                         <Link href="/" :class="[
                             'font-medium transition-colors duration-200',
@@ -85,25 +84,25 @@ onUnmounted(() => {
                             'font-medium transition-colors duration-200',
                             isActive('/kamus') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
                         ]">
-                        Kamus
+                        {{ t("messages.kamus") }}
                         </Link>
                         <Link href="/penerjemah" :class="[
                             'font-medium transition-colors duration-200',
                             isActive('/penerjemah') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
                         ]">
-                        Penerjemah
+                        {{ t("messages.translator") }}
                         </Link>
                         <Link href="/pembelajaran" :class="[
                             'font-medium transition-colors duration-200',
                             isActive('/pembelajaran') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
                         ]">
-                        Pembelajaran
+                        {{ t("messages.learning") }}
                         </Link>
                         <Link href="/artikel" :class="[
                             'font-medium transition-colors duration-200',
                             isActive('/artikel') ? 'text-[#54b0af] font-bold' : 'text-gray-700 hover:text-[#54b0af]'
                         ]">
-                        Artikel
+                        {{ t("messages.articles") }}
                         </Link>
 
                         <!-- Dropdown Lainnya (Desktop) -->
@@ -111,7 +110,7 @@ onUnmounted(() => {
                             @mouseleave="showLainnyaDropdown = false">
                             <button
                                 class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200 flex items-center gap-1">
-                                Lainnya
+                                {{ t("messages.others") }}
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 9l-7 7-7-7" />
@@ -128,25 +127,25 @@ onUnmounted(() => {
                                         'block px-4 py-2 text-sm transition-colors duration-200',
                                         isActive('/kuis') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
                                     ]">
-                                    Quiz
+                                    {{ t("messages.quiz") }}
                                     </Link>
                                     <Link href="/tentang" :class="[
                                         'block px-4 py-2 text-sm transition-colors duration-200',
                                         isActive('/tentang') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
                                     ]">
-                                    Tentang
+                                    {{ t("messages.about") }}
                                     </Link>
                                     <Link href="/kontak" :class="[
                                         'block px-4 py-2 text-sm transition-colors duration-200',
                                         isActive('/kontak') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
                                     ]">
-                                    Kontak
+                                    {{ t("messages.contact") }}
                                     </Link>
                                     <Link href="/galeri" :class="[
                                         'block px-4 py-2 text-sm transition-colors duration-200',
                                         isActive('/galeri') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
                                     ]">
-                                    Galeri
+                                    {{ t("messages.gallery") }}
                                     </Link>
                                 </div>
                             </transition>
@@ -158,7 +157,7 @@ onUnmounted(() => {
                         <!-- Auth -->
                         <Link v-if="!$page.props.auth?.user" :href="route('login')"
                             class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-[#54b0af] border-2 border-[#54b0af] hover:bg-[#54b0af] hover:text-white">
-                        Masuk
+                        {{ t("messages.login") }}
                         </Link>
                         <Link v-else :href="route('dashboard')"
                             class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99] flex items-center gap-2">
@@ -289,38 +288,38 @@ onUnmounted(() => {
                     </Link>
                     <Link href="/kamus" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Kamus
+                    {{ t("messages.kamus") }}
                     </Link>
                     <Link href="/penerjemah" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Penerjemah
+                    {{ t("messages.translator") }}
                     </Link>
                     <Link href="/pembelajaran" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Pembelajaran
+                    {{ t("messages.learning") }}
                     </Link>
                     <Link href="/artikel" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Artikel
+                    {{ t("messages.articles") }}
                     </Link>
 
                     <div class="border-t border-gray-200 my-2"></div>
 
                     <Link href="/kuis" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Quiz
+                    {{ t("messages.quiz") }}
                     </Link>
                     <Link href="/tentang" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Tentang
+                    {{ t("messages.about") }}
                     </Link>
                     <link href="/kontak" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Kontak
+                    {{ t("messages.contact") }}
                     </link>
                     <Link href="/galeri" @click="showMobileMenu = false"
                         class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                    Galeri
+                    {{ t("messages.gallery") }}
                     </Link>
                 </div>
             </div>
@@ -348,8 +347,7 @@ onUnmounted(() => {
                         <img src="/logo/bilikbecakap-putih.png" alt="Bilik Bercakap"
                             class="h-16 w-auto object-contain mb-4">
                         <p class="text-gray-300 text-sm leading-relaxed mb-6">
-                            Platform pelestarian bahasa daerah Melayu Belitung dengan berbagai fitur sebagai
-                            kebudayaan daerah.
+                            {{ t("messages.footer description") }}
                         </p>
                         <!-- Social Media -->
                         <div class="flex items-center gap-4">
@@ -395,7 +393,7 @@ onUnmounted(() => {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 5l7 7-7 7" />
                                     </svg>
-                                    Kamus Digital
+                                    {{ t("messages.kamus") }}
                                 </a>
                             </li>
                             <li>
@@ -405,7 +403,7 @@ onUnmounted(() => {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 5l7 7-7 7" />
                                     </svg>
-                                    Pembelajaran
+                                    {{ t("messages.learning") }}
                                 </a>
                             </li>
                             <li>
@@ -415,7 +413,7 @@ onUnmounted(() => {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 5l7 7-7 7" />
                                     </svg>
-                                    Penerjemah
+                                    {{ t("messages.translator") }}
                                 </a>
                             </li>
                             <li>
@@ -425,7 +423,7 @@ onUnmounted(() => {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 5l7 7-7 7" />
                                     </svg>
-                                    Artikel
+                                    {{ t("messages.articles") }}
                                 </a>
                             </li>
                         </ul>

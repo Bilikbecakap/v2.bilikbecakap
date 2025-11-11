@@ -24,6 +24,14 @@ const selectedItems = ref([]);
 const selectAll = ref(false);
 const showBulkActions = ref(false);
 
+// Modal states untuk konfirmasi
+const showDeleteModal = ref(false);
+const showApproveModal = ref(false);
+const showRejectModal = ref(false);
+const selectedKamus = ref(null);
+const modalAction = ref(null); // 'single', 'bulk'
+const bulkActionData = ref(null);
+
 // Computed untuk row numbers
 const getRowNumber = (index) => {
     const currentPage = props.kamus.current_page || 1;
@@ -100,95 +108,168 @@ const clearSelection = () => {
     showBulkActions.value = false;
 };
 
+// Modal functions untuk delete
+const openDeleteModal = (kamus, isBulk = false) => {
+    selectedKamus.value = kamus;
+    modalAction.value = 'single';
+    if (isBulk) {
+        modalAction.value = 'bulk';
+        bulkActionData.value = {
+            count: selectedItems.value.length,
+            items: selectedItems.value.map(id => 
+                props.kamus.data.find(k => k.id === id)
+            ).filter(Boolean)
+        };
+    }
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (modalAction.value === 'bulk') {
+        bulkDelete();
+    } else {
+        performDelete();
+    }
+    showDeleteModal.value = false;
+};
+
+const performDelete = () => {
+    if (selectedKamus.value) {
+        router.delete(`/admin/kamus/${selectedKamus.value.id}`);
+        selectedKamus.value = null;
+    }
+};
+
+// Modal functions untuk approve
+const openApproveModal = (isBulk = false) => {
+    modalAction.value = 'single';
+    if (isBulk) {
+        modalAction.value = 'bulk';
+        bulkActionData.value = {
+            count: selectedItems.value.filter(id => {
+                const item = props.kamus.data.find(k => k.id === id);
+                return item && item.status === 3;
+            }).length
+        };
+    }
+    showApproveModal.value = true;
+};
+
+const confirmApprove = () => {
+    if (modalAction.value === 'bulk') {
+        performBulkApprove();
+    } else {
+        performApprove();
+    }
+    showApproveModal.value = false;
+};
+
+const performApprove = () => {
+    if (selectedKamus.value) {
+        router.patch(`/admin/kamus/${selectedKamus.value.id}/approve`);
+        selectedKamus.value = null;
+    }
+};
+
+// Modal functions untuk reject
+const openRejectModal = (isBulk = false) => {
+    modalAction.value = 'single';
+    if (isBulk) {
+        modalAction.value = 'bulk';
+        bulkActionData.value = {
+            count: selectedItems.value.filter(id => {
+                const item = props.kamus.data.find(k => k.id === id);
+                return item && item.status === 3;
+            }).length
+        };
+    }
+    showRejectModal.value = true;
+};
+
+const confirmReject = () => {
+    if (modalAction.value === 'bulk') {
+        performBulkReject();
+    } else {
+        performReject();
+    }
+    showRejectModal.value = false;
+};
+
+const performReject = () => {
+    if (selectedKamus.value) {
+        router.patch(`/admin/kamus/${selectedKamus.value.id}/reject`);
+        selectedKamus.value = null;
+    }
+};
+
+// Bulk actions
 const bulkDelete = () => {
     if (selectedItems.value.length === 0) return;
-    
-    const itemsToDelete = selectedItems.value.map(id => 
-        props.kamus.data.find(k => k.id === id)
-    ).filter(Boolean);
-    
-    const itemNames = itemsToDelete
-        .slice(0, 3)
-        .map(item => `"${item.bahasa_melayu}"`)
-        .join(', ');
-    
-    const moreItems = itemsToDelete.length > 3 ? ` dan ${itemsToDelete.length - 3} lainnya` : '';
-    
-    if (confirm(`Apakah Anda yakin ingin menghapus ${selectedItems.value.length} kamus (${itemNames}${moreItems})?`)) {
-        router.post('/admin/kamus/bulk-delete', {
-            ids: selectedItems.value
-        }, {
-            onSuccess: () => {
-                clearSelection();
-            }
-        });
-    }
+    router.post('/admin/kamus/bulk-delete', {
+        ids: selectedItems.value
+    }, {
+        onSuccess: () => {
+            clearSelection();
+        }
+    });
 };
 
-const bulkApprove = () => {
-    if (selectedItems.value.length === 0) return;
-    
+const performBulkApprove = () => {
     const pendingItems = selectedItems.value.filter(id => {
         const item = props.kamus.data.find(k => k.id === id);
         return item && item.status === 3;
     });
     
-    if (pendingItems.length === 0) {
-        alert('Tidak ada kamus dengan status menunggu yang dipilih.');
-        return;
-    }
+    if (pendingItems.length === 0) return;
     
-    if (confirm(`Apakah Anda yakin ingin menyetujui ${pendingItems.length} kamus yang dipilih?`)) {
-        router.post('/admin/kamus/bulk-approve', {
-            ids: pendingItems
-        }, {
-            onSuccess: () => {
-                clearSelection();
-            }
-        });
-    }
+    router.post('/admin/kamus/bulk-approve', {
+        ids: pendingItems
+    }, {
+        onSuccess: () => {
+            clearSelection();
+        }
+    });
 };
 
-const bulkReject = () => {
-    if (selectedItems.value.length === 0) return;
-    
+const performBulkReject = () => {
     const pendingItems = selectedItems.value.filter(id => {
         const item = props.kamus.data.find(k => k.id === id);
         return item && item.status === 3;
     });
     
-    if (pendingItems.length === 0) {
-        alert('Tidak ada kamus dengan status menunggu yang dipilih.');
-        return;
-    }
+    if (pendingItems.length === 0) return;
     
-    if (confirm(`Apakah Anda yakin ingin menolak ${pendingItems.length} kamus yang dipilih?`)) {
-        router.post('/admin/kamus/bulk-reject', {
-            ids: pendingItems
-        }, {
-            onSuccess: () => {
-                clearSelection();
-            }
-        });
-    }
+    router.post('/admin/kamus/bulk-reject', {
+        ids: pendingItems
+    }, {
+        onSuccess: () => {
+            clearSelection();
+        }
+    });
 };
 
-// Individual action functions
+// Old inline functions (kept for reference but now using modals)
 const deleteKamus = (id, bahasa_melayu) => {
-    if (confirm(`Apakah Anda yakin ingin menghapus kamus "${bahasa_melayu}"?`)) {
-        router.delete(`/admin/kamus/${id}`);
+    const item = props.kamus.data.find(k => k.id === id);
+    if (item) {
+        selectedKamus.value = item;
+        showDeleteModal.value = true;
     }
 };
 
 const approveKamus = (id) => {
-    if (confirm('Apakah Anda yakin ingin menyetujui kamus ini?')) {
-        router.patch(`/admin/kamus/${id}/approve`);
+    const item = props.kamus.data.find(k => k.id === id);
+    if (item) {
+        selectedKamus.value = item;
+        showApproveModal.value = true;
     }
 };
 
 const rejectKamus = (id) => {
-    if (confirm('Apakah Anda yakin ingin menolak kamus ini?')) {
-        router.patch(`/admin/kamus/${id}/reject`);
+    const item = props.kamus.data.find(k => k.id === id);
+    if (item) {
+        selectedKamus.value = item;
+        showRejectModal.value = true;
     }
 };
 
@@ -211,26 +292,20 @@ const formatDate = (date) => {
 
 const playAudio = (audioPath) => {
     if (audioPath) {
-        // Handle different audio path formats
         let audioUrl;
         if (audioPath.startsWith('http')) {
-            // Full URL
             audioUrl = audioPath;
         } else if (audioPath.startsWith('/storage/')) {
-            // Already has /storage/ prefix
             audioUrl = audioPath;
         } else if (audioPath.startsWith('storage/')) {
-            // Missing leading slash
             audioUrl = `/${audioPath}`;
         } else {
-            // Just filename, add full storage path
             audioUrl = `/storage/${audioPath}`;
         }
         
         const audio = new Audio(audioUrl);
         audio.play().catch(error => {
             console.error('Error playing audio:', error);
-            console.log('Attempted to play:', audioUrl);
             alert('Gagal memutar audio. File mungkin tidak ditemukan atau format tidak didukung.');
         });
     }
@@ -241,21 +316,17 @@ const truncateText = (text, maxLength = 50) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
 };
 
-// Perbaikan filter status - hilangkan parameter kosong dari URL
 const filterByStatus = (statusValue) => {
     const params = {};
     
-    // Hanya tambahkan parameter status jika tidak kosong
     if (statusValue && statusValue.trim() !== '') {
         params.status = statusValue;
     }
     
-    // Keep the current search if active
     if (searchQuery.value) {
         params.search = searchQuery.value;
     }
     
-    // Keep current sort if active
     if (props.sort) {
         params.sort = props.sort;
         params.direction = props.direction;
@@ -271,17 +342,14 @@ const filterByStatus = (statusValue) => {
 const performSearch = () => {
     const params = {};
     
-    // Hanya tambahkan parameter search jika tidak kosong
     if (searchQuery.value && searchQuery.value.trim() !== '') {
         params.search = searchQuery.value.trim();
     }
     
-    // Keep current status filter if active
     if (props.status && props.status.trim() !== '') {
         params.status = props.status;
     }
     
-    // Keep current sort if active
     if (props.sort) {
         params.sort = props.sort;
         params.direction = props.direction;
@@ -310,7 +378,6 @@ const sortByDate = (direction) => {
         direction: direction
     };
     
-    // Keep the current filters if active
     if (searchQuery.value && searchQuery.value.trim() !== '') {
         params.search = searchQuery.value.trim();
     }
@@ -325,13 +392,62 @@ const sortByDate = (direction) => {
     });
 };
 
-// Status options for filter
 const statusOptions = [
     { value: '', label: 'Semua Status' },
     { value: '1', label: 'Aktif' },
     { value: '3', label: 'Menunggu' },
     { value: '2', label: 'Tidak Aktif' }
 ];
+
+// Helpers untuk modal
+const getModalTitle = () => {
+    if (showDeleteModal.value) return 'Hapus Kamus';
+    if (showApproveModal.value) return 'Setujui Kamus';
+    if (showRejectModal.value) return 'Tolak Kamus';
+    return '';
+};
+
+const getModalMessage = () => {
+    if (showDeleteModal.value) {
+        if (modalAction.value === 'bulk') {
+            const items = bulkActionData.value.items.slice(0, 3);
+            const itemNames = items.map(item => `"${item.bahasa_melayu}"`).join(', ');
+            const moreItems = bulkActionData.value.count > 3 ? ` dan ${bulkActionData.value.count - 3} lainnya` : '';
+            return `Apakah Anda yakin ingin menghapus ${bulkActionData.value.count} kamus (${itemNames}${moreItems})? Tindakan ini tidak dapat dibatalkan.`;
+        }
+        return `Apakah Anda yakin ingin menghapus kamus "${selectedKamus.value?.bahasa_melayu}"? Tindakan ini tidak dapat dibatalkan.`;
+    }
+    
+    if (showApproveModal.value) {
+        if (modalAction.value === 'bulk') {
+            return `Apakah Anda yakin ingin menyetujui ${bulkActionData.value.count} kamus yang dipilih?`;
+        }
+        return `Apakah Anda yakin ingin menyetujui kamus "${selectedKamus.value?.bahasa_melayu}"?`;
+    }
+    
+    if (showRejectModal.value) {
+        if (modalAction.value === 'bulk') {
+            return `Apakah Anda yakin ingin menolak ${bulkActionData.value.count} kamus yang dipilih?`;
+        }
+        return `Apakah Anda yakin ingin menolak kamus "${selectedKamus.value?.bahasa_melayu}"?`;
+    }
+    
+    return '';
+};
+
+const getModalIcon = () => {
+    if (showDeleteModal.value) return 'delete';
+    if (showApproveModal.value) return 'approve';
+    if (showRejectModal.value) return 'reject';
+    return '';
+};
+
+const getModalButtonColor = () => {
+    if (showDeleteModal.value) return 'red';
+    if (showApproveModal.value) return 'green';
+    if (showRejectModal.value) return 'orange';
+    return 'blue';
+};
 </script>
 
 <template>
@@ -394,7 +510,7 @@ const statusOptions = [
                             <!-- Bulk Delete -->
                             <button 
                                 v-if="can('delete kamus') && selectedItemsInfo.canDelete > 0"
-                                @click="bulkDelete"
+                                @click="openDeleteModal(null, true)"
                                 class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors duration-150"
                                 title="Hapus Terpilih"
                             >
@@ -407,7 +523,7 @@ const statusOptions = [
                             <!-- Bulk Approve -->
                             <button 
                                 v-if="can('validasi kamus') && selectedItemsInfo.pendingItems > 0"
-                                @click="bulkApprove"
+                                @click="openApproveModal(true)"
                                 class="inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors duration-150"
                                 title="Setujui Terpilih"
                             >
@@ -420,7 +536,7 @@ const statusOptions = [
                             <!-- Bulk Reject -->
                             <button 
                                 v-if="can('validasi kamus') && selectedItemsInfo.pendingItems > 0"
-                                @click="bulkReject"
+                                @click="openRejectModal(true)"
                                 class="inline-flex items-center px-3 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30 rounded-lg hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors duration-150"
                                 title="Tolak Terpilih"
                             >
@@ -714,7 +830,7 @@ const statusOptions = [
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex items-center justify-center space-x-2">
 
-                                    <!-- Edit Button - tampil jika user punya permission edit DAN (punya validasi permission ATAU owner) -->
+                                    <!-- Edit Button -->
                                     <Link 
                                         v-if="can('edit kamus') && (item.can_edit)"
                                         :href="`/admin/kamus/${item.id}/edit`"
@@ -737,7 +853,7 @@ const statusOptions = [
                                         </svg>
                                     </div>
 
-                                    <!-- Approve Button (hanya untuk status menunggu dan user dengan permission validasi) -->
+                                    <!-- Approve Button -->
                                     <button 
                                         v-if="can('validasi kamus') && item.status === 3"
                                         @click="approveKamus(item.id)"
@@ -749,7 +865,7 @@ const statusOptions = [
                                         </svg>
                                     </button>
 
-                                    <!-- Reject Button (hanya untuk status menunggu dan user dengan permission validasi) -->
+                                    <!-- Reject Button -->
                                     <button 
                                         v-if="can('validasi kamus') && item.status === 3"
                                         @click="rejectKamus(item.id)"
@@ -761,7 +877,7 @@ const statusOptions = [
                                         </svg>
                                     </button>
 
-                                    <!-- Delete Button - tampil jika user punya permission delete DAN (punya validasi permission ATAU owner) -->
+                                    <!-- Delete Button -->
                                     <button 
                                         v-if="can('delete kamus') && (item.can_delete)"
                                         @click="deleteKamus(item.id, item.bahasa_melayu)" 
@@ -891,6 +1007,234 @@ const statusOptions = [
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
                     </Link>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div
+            v-if="showDeleteModal"
+            class="fixed inset-0 z-50 overflow-y-auto"
+            aria-labelledby="modal-title"
+            role="dialog"
+            aria-modal="true"
+        >
+            <div
+                class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+            >
+                <div
+                    class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity"
+                    aria-hidden="true"
+                    @click="showDeleteModal = false"
+                ></div>
+                <span
+                    class="hidden sm:inline-block sm:align-middle sm:h-screen"
+                    aria-hidden="true"
+                    >&#8203;</span
+                >
+                <div
+                    class="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
+                >
+                    <div class="sm:flex sm:items-start">
+                        <div
+                            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/20 sm:mx-0 sm:h-10 sm:w-10"
+                        >
+                            <svg
+                                class="h-6 w-6 text-red-600 dark:text-red-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+                                />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3
+                                class="text-lg leading-6 font-medium text-slate-900 dark:text-slate-100"
+                                id="modal-title"
+                            >
+                                Hapus Kamus
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-slate-500 dark:text-slate-400">
+                                    {{ getModalMessage() }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                        <button
+                            @click="confirmDelete"
+                            type="button"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-150"
+                        >
+                            Hapus
+                        </button>
+                        <button
+                            @click="showDeleteModal = false"
+                            type="button"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-700 text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-150"
+                        >
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approve Modal -->
+        <div
+            v-if="showApproveModal"
+            class="fixed inset-0 z-50 overflow-y-auto"
+            aria-labelledby="modal-title"
+            role="dialog"
+            aria-modal="true"
+        >
+            <div
+                class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+            >
+                <div
+                    class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity"
+                    aria-hidden="true"
+                    @click="showApproveModal = false"
+                ></div>
+                <span
+                    class="hidden sm:inline-block sm:align-middle sm:h-screen"
+                    aria-hidden="true"
+                    >&#8203;</span
+                >
+                <div
+                    class="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
+                >
+                    <div class="sm:flex sm:items-start">
+                        <div
+                            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 sm:mx-0 sm:h-10 sm:w-10"
+                        >
+                            <svg
+                                class="h-6 w-6 text-green-600 dark:text-green-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M5 13l4 4L19 7"
+                                />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3
+                                class="text-lg leading-6 font-medium text-slate-900 dark:text-slate-100"
+                                id="modal-title"
+                            >
+                                Setujui Kamus
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-slate-500 dark:text-slate-400">
+                                    {{ getModalMessage() }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                        <button
+                            @click="confirmApprove"
+                            type="button"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-150"
+                        >
+                            Setujui
+                        </button>
+                        <button
+                            @click="showApproveModal = false"
+                            type="button"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-700 text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-150"
+                        >
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reject Modal -->
+        <div
+            v-if="showRejectModal"
+            class="fixed inset-0 z-50 overflow-y-auto"
+            aria-labelledby="modal-title"
+            role="dialog"
+            aria-modal="true"
+        >
+            <div
+                class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+            >
+                <div
+                    class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity"
+                    aria-hidden="true"
+                    @click="showRejectModal = false"
+                ></div>
+                <span
+                    class="hidden sm:inline-block sm:align-middle sm:h-screen"
+                    aria-hidden="true"
+                    >&#8203;</span
+                >
+                <div
+                    class="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
+                >
+                    <div class="sm:flex sm:items-start">
+                        <div
+                            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-900/20 sm:mx-0 sm:h-10 sm:w-10"
+                        >
+                            <svg
+                                class="h-6 w-6 text-orange-600 dark:text-orange-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3
+                                class="text-lg leading-6 font-medium text-slate-900 dark:text-slate-100"
+                                id="modal-title"
+                            >
+                                Tolak Kamus
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-slate-500 dark:text-slate-400">
+                                    {{ getModalMessage() }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                        <button
+                            @click="confirmReject"
+                            type="button"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-600 text-base font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-150"
+                        >
+                            Tolak
+                        </button>
+                        <button
+                            @click="showRejectModal = false"
+                            type="button"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-700 text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-150"
+                        >
+                            Batal
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

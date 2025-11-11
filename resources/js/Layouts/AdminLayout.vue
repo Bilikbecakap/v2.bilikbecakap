@@ -141,7 +141,7 @@ onUnmounted(() => {
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
             ]" :title="!showingSidebar ? 'Kamus' : ''">
             <font-awesome-icon icon="book" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Kamus</span>
+            <span v-if="showingSidebar">{{ t("messages.kamus") }}</span>
             </Link>
             <!-- Menu Translate -->
             <Link href="/translate-test" @click="isMobile ? toggleSidebar() : null" :class="[
@@ -151,7 +151,7 @@ onUnmounted(() => {
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
             ]" :title="!showingSidebar ? 'Translate' : ''">
             <font-awesome-icon icon="language" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Translate</span>
+            <span v-if="showingSidebar">{{ t("messages.translator") }}</span>
             </Link>
             <!-- Menu Artikel -->
             <Link v-if="can('view artikel')" href="/admin/artikel" @click="isMobile ? toggleSidebar() : null" :class="[
@@ -161,7 +161,7 @@ onUnmounted(() => {
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
             ]" :title="!showingSidebar ? 'Artikel' : ''">
             <font-awesome-icon icon="newspaper" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Artikel</span>
+            <span v-if="showingSidebar">{{ t("messages.articles") }}</span>
             </Link>
 
             <!-- Menu Kuis -->
@@ -174,7 +174,7 @@ onUnmounted(() => {
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
             ]" :title="!showingSidebar ? 'Kuis' : ''">
             <font-awesome-icon icon="question-circle" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Kuis</span>
+            <span v-if="showingSidebar">{{ t("messages.quiz") }}</span>
             </Link>
 
             <!-- Menu Test Quiz -->
@@ -186,7 +186,7 @@ onUnmounted(() => {
                   : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
               ]" :title="!showingSidebar ? 'Test Quiz' : ''">
             <font-awesome-icon icon="question-circle" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Test Quiz</span>
+            <span v-if="showingSidebar">Test {{ t("messages.quiz") }}</span>
             </Link>
 
             <!-- Menu Modul Pembelajaran -->
@@ -198,7 +198,7 @@ onUnmounted(() => {
                   : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
               ]" :title="!showingSidebar ? 'Modul Pembelajaran' : ''">
             <font-awesome-icon icon="book-open" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Modul Pembelajaran</span>
+            <span v-if="showingSidebar">{{ t("messages.learning_modules") }}</span>
             </Link>
 
             <!-- Menu Galeri -->
@@ -209,7 +209,7 @@ onUnmounted(() => {
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
             ]" :title="!showingSidebar ? 'Galeri' : ''">
             <font-awesome-icon icon="images" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Galeri</span>
+            <span v-if="showingSidebar">{{ t("messages.gallery") }}</span>
             </Link>
 
             <!-- Menu Kontak -->
@@ -220,7 +220,7 @@ onUnmounted(() => {
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
             ]" :title="!showingSidebar ? 'Kontak' : ''">
             <font-awesome-icon icon="address-book" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Kontak</span>
+            <span v-if="showingSidebar">{{ t("messages.contact") }}</span>
             </Link>
 
             <!-- Menu Komentar -->
@@ -258,14 +258,14 @@ onUnmounted(() => {
               :title="!showingSidebar ? 'Dataset Translate' : ''"
             >
               <font-awesome-icon icon="language" class="w-5 h-5 mr-3 flex-shrink-0" />
-              <span v-if="showingSidebar">Dataset Translate</span>
+              <span v-if="showingSidebar">Dataset {{ t("messages.translator") }}</span>
             </Link>
 
           </div>
 
           <!-- Settings Section -->
           <div class="pt-6">
-            <p v-if="showingSidebar"
+            <p v-if="hasRole('super-admin')" 
               class="px-4 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">
               Settings
             </p>

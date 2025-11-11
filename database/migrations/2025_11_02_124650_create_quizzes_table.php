@@ -18,6 +18,7 @@ return new class extends Migration
                   ->constrained('modul_pembelajaran')
                   ->onDelete('cascade');
             $table->string('title');
+            $table->string('slug')->nullable()->unique()->after('title');
             $table->text('description')->nullable();
             $table->string('thumbnail')->nullable();
             $table->foreignId('master_media_music_quiz_id')
@@ -32,6 +33,7 @@ return new class extends Migration
             $table->index('modul_pembelajaran_id');
             $table->index('type');
             $table->index('status');
+            $table->index('slug');
         });
     }
 

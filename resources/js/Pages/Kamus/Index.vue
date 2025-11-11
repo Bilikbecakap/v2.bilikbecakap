@@ -295,12 +295,15 @@ const playAudio = (audioPath) => {
         let audioUrl;
         if (audioPath.startsWith('http')) {
             audioUrl = audioPath;
-        } else if (audioPath.startsWith('/storage/')) {
+        } else if (audioPath.startsWith('/serve-media/')) {
             audioUrl = audioPath;
+        } else if (audioPath.startsWith('/storage/')) {
+            // Convert /storage/ to /serve-media/kamus-audio/
+            audioUrl = audioPath.replace('/storage/', '/serve-media/kamus-audio/');
         } else if (audioPath.startsWith('storage/')) {
-            audioUrl = `/${audioPath}`;
+            audioUrl = `/serve-media/kamus-audio/${audioPath.replace('storage/', '')}`;
         } else {
-            audioUrl = `/storage/${audioPath}`;
+            audioUrl = `/serve-media/kamus-audio/${audioPath}`;
         }
         
         const audio = new Audio(audioUrl);

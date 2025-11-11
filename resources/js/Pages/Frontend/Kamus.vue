@@ -121,7 +121,7 @@ const playAudio = (kamusId, audioUrl) => {
                                             item.keterangan || '-' }}</span>
                                     </td>
                                     <td class="px-12 py-6 text-center">
-                                        <button v-if="item.audio" @click="playAudio(item.id, `/serve-media/kamus-audio/${item.audio}`)"
+                                        <button v-if="item.audio" @click="playAudio(item.id, `/serve-media/${item.audio}`)"
                                             class="inline-flex items-center justify-center w-12 h-12 bg-[#FCB415] hover:bg-[#e0a013] text-white rounded-full transition-all duration-200 transform hover:scale-110"
                                             :class="{ 'bg-[#e0a013] animate-pulse': isPlaying === item.id }">
                                             <svg v-if="isPlaying === item.id" class="w-6 h-6" fill="currentColor"

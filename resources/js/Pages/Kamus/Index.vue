@@ -297,19 +297,15 @@ const playAudio = (audioPath) => {
             audioUrl = audioPath;
         } else if (audioPath.startsWith('/serve-media/')) {
             audioUrl = audioPath;
-        } else if (audioPath.startsWith('/storage/')) {
-            // Convert /storage/ to /serve-media/kamus-audio/
-            audioUrl = audioPath.replace('/storage/', '/serve-media/kamus-audio/');
-        } else if (audioPath.startsWith('storage/')) {
-            audioUrl = `/serve-media/kamus-audio/${audioPath.replace('storage/', '')}`;
         } else {
-            audioUrl = `/serve-media/kamus-audio/${audioPath}`;
+            // audioPath = "kamus-audio/filename"
+            audioUrl = `/serve-media/${audioPath}`;
         }
         
         const audio = new Audio(audioUrl);
         audio.play().catch(error => {
             console.error('Error playing audio:', error);
-            alert('Gagal memutar audio. File mungkin tidak ditemukan atau format tidak didukung.');
+            alert('Gagal memutar audio.');
         });
     }
 };

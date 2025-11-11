@@ -9,6 +9,7 @@ use App\Http\Controllers\Frontend\PembelajaranController;
 use App\Http\Controllers\Frontend\KuisController;
 use App\Http\Controllers\Frontend\KontakController;
 use App\Http\Controllers\Frontend\GaleriController;
+use App\Http\Controllers\Frontend\ChatbotController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PageProjectController;
 use App\Http\Controllers\ProfileController;
@@ -65,6 +66,10 @@ Route::get('/kuis/{slug}/result', [KuisController::class, 'result'])->name('quiz
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak.index');
 Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
 Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri.public');
+
+//ai
+Route::post('/chatbot/send', [ChatbotController::class, 'sendMessage'])->name('chatbot.send');
+Route::get('/chatbot/context-options', [ChatbotController::class, 'getContextOptions'])->name('chatbot.context');
 
 /*
 |--------------------------------------------------------------------------

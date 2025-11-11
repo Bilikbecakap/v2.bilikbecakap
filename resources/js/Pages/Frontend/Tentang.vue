@@ -72,7 +72,7 @@ import { Head } from '@inertiajs/vue3';
                     <div class="space-y-5 text-justify">
                         <h2 class="text-3xl font-bold text-[#54b0af]">Tentang Bilikbecakap</h2>
                         <p class="text-gray-700 leading-relaxed">
-                            Bilikbecakap lahir dari keresahan dan permasalahan yang muncul di Desa Senyubuk, yaitu belum
+                            Bilikbecakap lahir dari keresahan dan permasalahan yang muncul di Belitung Timur, yaitu belum
                             adanya arsip atau pendataan bahasa daerah setempat. Kondisi ini menimbulkan kekhawatiran di
                             kalangan masyarakat dan pemerintah desa akan kemungkinan hilangnya identitas bahasa daerah
                             Melayu Belitung. Melalui Bilikbecakap, dihadirkan berbagai fitur seperti penerjemah bahasa,

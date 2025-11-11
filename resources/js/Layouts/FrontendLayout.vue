@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { useTranslations } from '@/composables/useTranslations';
+import FloatingChatbot from '@/Components/FloatingChatbot.vue';
 
 const { t } = useTranslations();
 const page = usePage();
@@ -478,6 +479,7 @@ onUnmounted(() => {
                 </div>
             </div>
         </footer>
+        <FloatingChatbot />
     </div>
 </template>
 

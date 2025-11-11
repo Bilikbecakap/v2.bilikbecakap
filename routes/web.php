@@ -80,6 +80,28 @@ Route::get('/test-gemini', function() {
         'database_stats' => $service->getDatabaseStats(),
     ]);
 });
+
+Route::get('/serve-media/{folder}/{filename}', function ($folder, $filename) {
+    $path = storage_path("app/public/{$folder}/{$filename}");
+    
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    
+    $mimeTypes = [
+        'kamus-audio' => 'audio/mpeg',
+        'quizzes/music' => 'audio/mpeg',
+    ];
+    
+    $contentType = $mimeTypes[$folder] ?? 'audio/mpeg';
+    
+    return response()->file($path, [
+        'Content-Type' => $contentType,
+        'Cache-Control' => 'public, max-age=86400',
+        'Accept-Ranges' => 'bytes'
+    ]);
+})->where(['folder' => '.*', 'filename' => '.*']);
+
 /*
 |--------------------------------------------------------------------------
 | Admin Panel Routes

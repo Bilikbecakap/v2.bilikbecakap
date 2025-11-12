@@ -174,4 +174,38 @@ return [
     'kategori' => 'Category',
     'Ingin Bergabung' => 'Join Us?',
     'Ingin Bergabung Deskripsi' => 'Be part of the Bilik Bercakap community and preserve the Belitung Malay language with us.',
+    'keywords' => 'Keywords',
+    'bagikan artikel' => 'Share Article',
+    'kembali ke artikel' => 'Back to Articles',
+
+    'tentang kami' => 'About Us',
+    'tentang kami deskripsi' => 'Digital initiative to preserve Belitung Malay language and culture.',
+    'about_bilikbecakap_1' => 'Bilikbecakap was born out of concerns and problems that arose in East Belitung, namely the lack of archives or data on the local language. This situation has caused concern among the community and village government about the possible loss of the Belitung Malay language identity. Through Bilikbecakap, various features are provided, such as a language translator, informational content, as well as videos and learning modules for the Belitung Malay language. This initiative aims to preserve the local language heritage while introducing the richness of local culture through a digital approach.',
+    'about_bilikbecakap_2' => 'Bilikbecakap was first developed in the 2023 Youth Culture Camp (KBKM) program as an incubation space that accommodates youth initiatives in creating STEAM (Science, Technology, Engineering, Art, and Mathematics) based works and innovations. Currently, Bilikbecakap is managed and continuously developed by the Basamudera Indonesia Foundation, which was formed from the Senyubuk KBKM 2023 team. This foundation is committed to continuing the spirit of collaboration, innovation, and preservation of regional languages so that they remain alive and relevant in the digital age.',
+    'ajakan_1' => 'Let’s Preserve Our Local Language Together',
+    'ajakan_2' => 'Bilikbecakap Continues to Grow and Evolve',
+    'ajakan_3' => 'Together, We Create a Digital Ecosystem for Preserving the Belitung Malay Language',
+    'ajakan_1_deskripsi' => 'Every vocabulary, folktale, or learning module you share
+                            is a <span class="font-semibold text-[#54b0af]">seed of cultural preservation</span> —
+                            <em>everything is valuable</em>.',
+    'ajakan_2_deskripsi' => 'At Bilikbecakap, we are committed to providing the best experience in learning and preserving the Belitung Malay language and culture. Every feature we offer, from the digital dictionary to the translation engine, is developed through a structured and meticulous process.',
+    'card_1' => 'Contribute',
+    'card_2' => 'Learn & Share',
+    'card_3' => 'Partner & Collaborate',
+    'card_4' => 'Cultural Observation & Documentation',
+    'card_5' => 'Learning Media Development',
+    'card_6' => 'Translation Model Training',
+    'card_7' => 'Pronunciation & Word Articulation',
+    'card_1_deskripsi' => 'Share new vocabulary, traditional stories, or local knowledge you have. Your contribution will help enrich the Belitung Malay language database.',
+    'card_2_deskripsi' => 'Access interactive learning modules, educational videos, and multimedia content. Invite friends and family to learn together within our community.',
+    'card_3_deskripsi' => 'We are open to collaborations with institutions, organizations, or individuals who care about preserving local languages and cultures.',
+    'card_4_deskripsi' => 'Directly observing the culture and language within the Belitung community helps us ensure content accuracy. This observation process provides us with deep insights to present the Belitung Malay language and culture authentically.',
+    'card_5_deskripsi' => 'We provide interactive learning media, such as modules and educational videos, to help users deeply understand the Belitung Malay language and culture. These materials are designed to be easy to understand and cover various aspects.',
+    'card_6_deskripsi' => 'By utilizing AI technology, we train translation models to recognize and automatically translate the Belitung Malay language. This involves processing large amounts of data and fine-tuning the model to achieve more precise translations.',
+    'card_7_deskripsi' => 'To preserve the authenticity of the language, we provide accurate pronunciation guides. This feature helps users learn the correct intonation, dialect, and pronunciation.',
+
+    'hubungi kami' => 'Contact Us',
+    'hubungi kami deskripsi' => 'We are ready to listen to any questions or feedback you may have',
+    'jangan ragu' => 'Don\'t Hesitate to Contact Us',
+    'jangan ragu deskripsi' => 'Want to know more about Bilikbecakap? Or have any questions? We are ready to help! You can contact us through the form below or use the contact details provided.'
 ];

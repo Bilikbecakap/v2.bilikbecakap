@@ -197,7 +197,7 @@ const handleKeydown = (e) => {
         leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100 scale-100 translate-y-0"
         leave-to-class="opacity-0 scale-95 translate-y-4">
         <div v-if="isOpen"
-            class="fixed bottom-6 right-6 w-96 h-[32rem] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-40 flex flex-col">
+            class="fixed bottom-6 right-6 w-80 h-96 sm:w-96 sm:h-[32rem] lg:w-96 lg:h-[32rem] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-40 flex flex-col">
             <!-- Header -->
             <div class="bg-gradient-to-r from-[#54b0af] to-[#459a99] text-white p-4 flex items-center justify-between">
                 <div>

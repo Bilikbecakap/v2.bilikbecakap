@@ -3,6 +3,7 @@ import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { useTranslations } from '@/composables/useTranslations';
 
 const form = useForm({
     nama: '',
@@ -13,6 +14,7 @@ const form = useForm({
 });
 
 const showSuccess = ref(false);
+const { t } = useTranslations();
 
 const submit = () => {
     form.post(route('kontak.store'), {
@@ -51,10 +53,10 @@ const submit = () => {
             <!-- Content -->
             <div class="max-w-4xl mx-auto text-center space-y-4 relative z-10">
                 <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-[#002b44] leading-tight">
-                    Hubungi Kami
+                    {{ t('messages.hubungi kami') }}
                 </h1>
                 <p class="text-lg text-gray-700 max-w-2xl mx-auto">
-                    Kami siap mendengarkan setiap masukan dan pertanyaan Anda
+                    {{ t('messages.hubungi kami deskripsi') }}
                 </p>
             </div>
 
@@ -76,15 +78,13 @@ const submit = () => {
                         <div class="space-y-6">
                             <div class="flex items-center space-x-2">
                                 <span class="text-4xl">🔔</span>
-                                <span class="text-[#54b0af] font-semibold text-lg">Contact Us</span>
+                                <span class="text-[#54b0af] font-semibold text-lg">{{ t('messages.hubungi kami') }}</span>
                             </div>
                             <h1 class="text-4xl md:text-5xl font-bold text-[#002b44] leading-tight">
-                                Jangan Ragu Untuk Menghubungi Kami
+                                {{ t('messages.jangan ragu') }}
                             </h1>
                             <p class="text-gray-600 text-lg leading-relaxed">
-                                Ingin tahu lebih banyak tentang Bilikbecakap? atau memiliki pertanyaan?
-                                Kami siap membantu! Hubungi kami melalui formulir di bawah ini atau
-                                gunakan detail kontak yang tersedia.
+                                {{ t('messages.jangan ragu deskripsi') }}
                             </p>
                         </div>
 

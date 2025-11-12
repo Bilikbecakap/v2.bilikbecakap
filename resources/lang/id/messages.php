@@ -185,5 +185,40 @@ return [
     'kategori' => 'Kategori',
     'Ingin Bergabung' => 'Ingin Bergabung?',
     'Ingin Bergabung Deskripsi' => 'Jadilah bagian dari komunitas Bilik Bercakap dan lestarikan bahasa Melayu Belitung bersama kami.',
+    'keywords' => 'Kata Kunci',
+    'bagikan artikel' => 'Bagikan Artikel',
+    'kembali ke artikel' => 'Kembali ke Artikel',
+
+    'tentang kami' => 'Tentang Kami',
+    'tentang kami deskripsi' => 'Inisiatif digital untuk melestarikan bahasa dan budaya Melayu Belitung.',
+    'about_bilikbecakap_1' => 'Bilikbecakap lahir dari keresahan dan permasalahan yang muncul di Belitung Timur, yaitu belum adanya arsip atau pendataan bahasa daerah setempat. Kondisi ini menimbulkan kekhawatiran di kalangan masyarakat dan pemerintah desa akan kemungkinan hilangnya identitas bahasa daerah Melayu Belitung. Melalui Bilikbecakap, dihadirkan berbagai fitur seperti penerjemah bahasa, konten informasi, serta video dan modul pembelajaran bahasa Melayu Belitung. Inisiatif ini berupaya menjaga warisan bahasa daerah sekaligus memperkenalkan kekayaan budaya lokal melalui pendekatan digital.',
+    'about_bilikbecakap_2' => 'Bilikbecakap pertama kali dikembangkan dalam program Kemah Budaya Kaum Muda (KBKM) 2023, sebagai ruang inkubasi yang mewadahi inisiatif kaum muda dalam menciptakan karya dan inovasi berbasis STEAM (Science, Technology, Engineering, Art, and Mathematics). Saat ini, Bilikbecakap dikelola dan terus dikembangkan oleh Yayasan Basamudera Indonesia, yang dibentuk dari tim Senyubuk KBKM 2023. Yayasan ini berkomitmen untuk melanjutkan semangat kolaborasi, inovasi, dan pelestarian bahasa daerah agar tetap hidup dan relevan di era digital.',
+    'ajakan_1' => 'Mari Bersama Melestarikan Bahasa Daerah',
+    'ajakan_2' => 'Bilikbecakap Terus Berkembang dan Tumbuh',
+    'ajakan_3' => 'Bersama kita ciptakan ekosistem digital untuk pelestarian bahasa Melayu Belitung',
+    'ajakan_1_deskripsi' => 'Setiap kosakata, cerita rakyat, atau modul pembelajaran yang kamu bagikan
+                        adalah <span class="font-semibold text-[#54b0af]">benih pelestarian budaya</span> —
+                        <em>semuanya berharga</em>.',
+    'ajakan_2_deskripsi' => 'Di bilikbecakap, kami berkomitmen untuk menghadirkan pengalaman terbaik dalam mempelajari dan melestarikan bahasa serta budaya Melayu Belitung. Setiap fitur kami, dari kamus digital hingga mesin terjemahan, dikembangkan dengan proses yang terstruktur dan teliti.',
+    'card_1' => 'Berkontribusi',
+    'card_2' => 'Belajar & Berbagi',
+    'card_3' => 'Bermitra & Kolaborasi',
+    'card_4' => 'Observasi & Dokumentasi Budaya',
+    'card_5' => 'Pengembangan Media Pembelajaran',
+    'card_6' => 'Pelatihan Model Terjemahan',
+    'card_7' => 'Pengucapan & Penuturan Kata',
+    'card_1_deskripsi' => 'Bagikan kosakata baru, cerita tradisional, atau pengetahuan lokal yang kamu miliki. Kontribusi kamu akan membantu memperkaya database bahasa Melayu Belitung.',
+    'card_2_deskripsi' => 'Akses modul pembelajaran interaktif, video edukasi, dan konten multimedia. Ajak teman dan keluarga untuk belajar bersama dalam komunitas kami.',
+    'card_3_deskripsi' => 'Kami terbuka untuk kerja sama dengan lembaga, organisasi, atau individu yang peduli dengan pelestarian bahasa daerah dan budaya lokal.',
+    'card_4_deskripsi' => 'Mengamati langsung budaya dan bahasa di masyarakat Belitung membantu kami memastikan akurasi konten. Proses observasi ini memberi kami pemahaman yang mendalam untuk menyajikan bahasa dan budaya Melayu Belitung secara autentik.',
+    'card_5_deskripsi' => 'Kami menyediakan media pembelajaran yang interaktif, seperti modul dan video pembelajaran, untuk membantu pengguna memahami bahasa dan budaya Melayu Belitung secara mendalam. Materi ini disusun dengan pendekatan yang mudah dipahami dan mencakup berbagai aspek.',
+    'card_6_deskripsi' => 'Dengan menggunakan teknologi AI, kami melatih model terjemahan untuk mengenali dan menerjemahkan bahasa Melayu Belitung secara otomatis. Ini melibatkan pemrosesan data dalam jumlah besar dan penyesuaian model agar hasil terjemahan semakin presisi.',
+    'card_7_deskripsi' => 'Untuk melestarikan keaslian bahasa, kami menyediakan panduan pengucapan kata secara tepat. Fitur ini membantu pengguna mempelajari intonasi, dialek, dan pengucapan yang benar.',
+
+    'hubungi kami' => 'Hubungi Kami',
+    'hubungi kami deskripsi' => 'Kami siap mendengarkan setiap masukan kan pertanyaen Anda',
+    'jangan ragu' => 'Jangan Ragu untuk Menghubungi Kami',
+    'jangan ragu deskripsi' => 'Ingin tahu lebih banyak tentang Bilikbecakap? atau memiliki pertanyaan? Kami siap membantu! Hubungi kami melalui formulir di bawah ini atau gunakan detail kontak yang tersedia.'
+
 
 ];

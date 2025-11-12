@@ -1,8 +1,9 @@
 <script setup>
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import { useTranslations } from '@/composables/useTranslations'
 
-
+const { t } = useTranslations();
 </script>
 
 <template>
@@ -26,10 +27,10 @@ import { Head } from '@inertiajs/vue3';
             <!-- Centered Content -->
             <div class="max-w-4xl mx-auto text-center space-y-4 relative z-10">
                 <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-[#002b44] leading-tight">
-                    Tentang Kami
+                    {{ t('messages.tentang kami') }}
                 </h1>
                 <p class="text-lg text-gray-700 max-w-2xl mx-auto">
-                    Inisiatif digital untuk melestarikan bahasa dan budaya Melayu Belitung.
+                    {{ t('messages.tentang kami deskripsi') }}
                 </p>
             </div>
 
@@ -70,26 +71,12 @@ import { Head } from '@inertiajs/vue3';
 
                     <!-- Right Column: Content -->
                     <div class="space-y-5 text-justify">
-                        <h2 class="text-3xl font-bold text-[#54b0af]">Tentang Bilikbecakap</h2>
+                        <h2 class="text-3xl font-bold text-[#54b0af]">{{ t('messages.about') }} Bilikbecakap</h2>
                         <p class="text-gray-700 leading-relaxed">
-                            Bilikbecakap lahir dari keresahan dan permasalahan yang muncul di Belitung Timur, yaitu belum
-                            adanya arsip atau pendataan bahasa daerah setempat. Kondisi ini menimbulkan kekhawatiran di
-                            kalangan masyarakat dan pemerintah desa akan kemungkinan hilangnya identitas bahasa daerah
-                            Melayu Belitung. Melalui Bilikbecakap, dihadirkan berbagai fitur seperti penerjemah bahasa,
-                            konten
-                            informasi, serta video dan modul pembelajaran bahasa Melayu Belitung. Inisiatif ini
-                            berupaya menjaga warisan bahasa daerah sekaligus memperkenalkan kekayaan budaya lokal
-                            melalui pendekatan digital.
+                            {{ t('messages.about_bilikbecakap_1') }}
                         </p>
                         <p class="text-gray-700 leading-relaxed">
-                            Bilikbecakap pertama kali dikembangkan dalam program Kemah Budaya Kaum Muda (KBKM) 2023,
-                            sebagai ruang inkubasi yang mewadahi inisiatif kaum muda dalam menciptakan karya dan inovasi
-                            berbasis STEAM (Science, Technology, Engineering, Art, and Mathematics).
-
-                            Saat ini, Bilikbecakap dikelola dan terus dikembangkan oleh Yayasan Basamudera Indonesia,
-                            yang dibentuk dari tim Senyubuk KBKM 2023. Yayasan ini berkomitmen untuk melanjutkan
-                            semangat kolaborasi, inovasi, dan pelestarian bahasa daerah agar tetap hidup dan relevan di
-                            era digital.
+                            {{ t('messages.about_bilikbecakap_2') }}
                         </p>
                     </div>
                 </div>
@@ -101,12 +88,9 @@ import { Head } from '@inertiajs/vue3';
             <div class="max-w-6xl mx-auto px-6 text-center space-y-10">
                 <div class="space-y-5">
                     <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-[#002b44] leading-tight">
-                        Mari Bersama Melestarikan Bahasa Daerah
+                        {{ t('messages.ajakan_1') }}
                     </h2>
-                    <p class="text-lg md:text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed">
-                        Setiap kosakata, cerita rakyat, atau modul pembelajaran yang kamu bagikan
-                        adalah <span class="font-semibold text-[#54b0af]">benih pelestarian budaya</span> —
-                        <em>semuanya berharga</em>.
+                    <p class="text-lg md:text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed" v-html="t('messages.ajakan_1_deskripsi')">
                     </p>
                 </div>
 
@@ -124,10 +108,9 @@ import { Head } from '@inertiajs/vue3';
                                 </svg>
                             </div>
                         </div>
-                        <h3 class="text-xl font-bold text-[#002b44] mb-3">Berkontribusi</h3>
+                        <h3 class="text-xl font-bold text-[#002b44] mb-3">{{ t('messages.card_1') }}</h3>
                         <p class="text-gray-600 leading-relaxed mb-4">
-                            Bagikan kosakata baru, cerita tradisional, atau pengetahuan lokal yang kamu miliki.
-                            Kontribusi kamu akan membantu memperkaya database bahasa Melayu Belitung.
+                            {{ t('messages.card_1_deskripsi') }}
                         </p>
                     </div>
 
@@ -143,10 +126,9 @@ import { Head } from '@inertiajs/vue3';
                                 </svg>
                             </div>
                         </div>
-                        <h3 class="text-xl font-bold text-[#002b44] mb-3">Belajar & Berbagi</h3>
+                        <h3 class="text-xl font-bold text-[#002b44] mb-3">{{ t('messages.card_2') }}</h3>
                         <p class="text-gray-600 leading-relaxed mb-4">
-                            Akses modul pembelajaran interaktif, video edukasi, dan konten multimedia. Ajak teman dan
-                            keluarga untuk belajar bersama dalam komunitas kami.
+                            {{ t('messages.card_2_deskripsi') }}
                         </p>
                     </div>
 
@@ -162,10 +144,9 @@ import { Head } from '@inertiajs/vue3';
                                 </svg>
                             </div>
                         </div>
-                        <h3 class="text-xl font-bold text-[#002b44] mb-3">Bermitra & Kolaborasi</h3>
+                        <h3 class="text-xl font-bold text-[#002b44] mb-3">{{ t('messages.card_3') }}</h3>
                         <p class="text-gray-600 leading-relaxed mb-4">
-                            Kami terbuka untuk kerja sama dengan lembaga, organisasi, atau individu yang peduli dengan
-                            pelestarian bahasa daerah dan budaya lokal.
+                            {{ t('messages.card_3_deskripsi') }}
                         </p>
                     </div>
                 </div>
@@ -173,7 +154,7 @@ import { Head } from '@inertiajs/vue3';
                 <!-- Bottom CTA -->
                 <div class="mt-16 pt-12 border-t border-gray-200">
                     <p class="text-gray-700 text-lg mb-6">
-                        Bersama kita ciptakan ekosistem digital untuk pelestarian bahasa Melayu Belitung
+                        {{ t('messages.ajakan_3') }}
                     </p>
                 </div>
             </div>
@@ -185,12 +166,10 @@ import { Head } from '@inertiajs/vue3';
                 <!-- Main Title -->
                 <div class="text-center space-y-4 mb-16">
                     <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-[#002b44] leading-tight">
-                        Bilikbecakap Terus Berkembang dan Tumbuh
+                        {{ t('messages.ajakan_2') }}
                     </h2>
                     <p class="text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">
-                        Di bilikbecakap, kami berkomitmen untuk menghadirkan pengalaman terbaik dalam mempelajari dan
-                        melestarikan bahasa serta budaya Melayu Belitung. Setiap fitur kami, dari kamus digital hingga
-                        mesin terjemahan, dikembangkan dengan proses yang terstruktur dan teliti.
+                        {{ t('messages.ajakan_2_deskripsi') }}
                     </p>
                 </div>
 
@@ -210,13 +189,11 @@ import { Head } from '@inertiajs/vue3';
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-xl font-bold text-[#002b44]">Observasi & Dokumentasi Budaya</h3>
+                                <h3 class="text-xl font-bold text-[#002b44]">{{ t('messages.card_4') }}</h3>
                             </div>
                         </div>
                         <p class="text-gray-700 leading-relaxed">
-                            Mengamati langsung budaya dan bahasa di masyarakat Belitung membantu kami memastikan akurasi
-                            konten. Proses observasi ini memberi kami pemahaman yang mendalam untuk menyajikan bahasa
-                            dan budaya Melayu Belitung secara autentik.
+                            {{ t('messages.card_4_deskripsi') }}
                         </p>
                     </div>
 
@@ -232,13 +209,11 @@ import { Head } from '@inertiajs/vue3';
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-xl font-bold text-[#002b44]">Pengembangan Media Pembelajaran</h3>
+                                <h3 class="text-xl font-bold text-[#002b44]">{{ t('messages.card_5') }}</h3>
                             </div>
                         </div>
                         <p class="text-gray-700 leading-relaxed">
-                            Kami menyediakan media pembelajaran yang interaktif, seperti modul dan video pembelajaran,
-                            untuk membantu pengguna memahami bahasa dan budaya Melayu Belitung secara mendalam. Materi
-                            ini disusun dengan pendekatan yang mudah dipahami dan mencakup berbagai aspek.
+                            {{ t('messages.card_5_deskripsi') }}
                         </p>
                     </div>
 
@@ -254,13 +229,11 @@ import { Head } from '@inertiajs/vue3';
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-xl font-bold text-[#002b44]">Pelatihan Model Terjemahan</h3>
+                                <h3 class="text-xl font-bold text-[#002b44]">{{ t('messages.card_6') }}</h3>
                             </div>
                         </div>
                         <p class="text-gray-700 leading-relaxed">
-                            Dengan menggunakan teknologi AI, kami melatih model terjemahan untuk mengenali dan
-                            menerjemahkan bahasa Melayu Belitung secara otomatis. Ini melibatkan pemrosesan data dalam
-                            jumlah besar dan penyesuaian model agar hasil terjemahan semakin presisi.
+                            {{ t('messages.card_6_deskripsi') }}
                         </p>
                     </div>
 
@@ -276,12 +249,11 @@ import { Head } from '@inertiajs/vue3';
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-xl font-bold text-[#002b44]">Pengucapan & Penuturan Kata</h3>
+                                <h3 class="text-xl font-bold text-[#002b44]">{{ t('messages.card_7') }}</h3>
                             </div>
                         </div>
                         <p class="text-gray-700 leading-relaxed">
-                            Untuk melestarikan keaslian bahasa, kami menyediakan panduan pengucapan kata secara tepat.
-                            Fitur ini membantu pengguna mempelajari intonasi, dialek, dan pengucapan yang benar.
+                            {{ t('messages.card_7_deskripsi') }}
                         </p>
                     </div>
                 </div>

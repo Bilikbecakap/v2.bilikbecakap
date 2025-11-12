@@ -151,21 +151,21 @@ const playAudio = (kamusId, audioUrl) => {
                         </div>
                     </div>
 
-                    <!-- Pagination (HANYA ICON + ANGKA, TANPA TEKS PREV/NEXT) -->
+                    <!-- Pagination (MOBILE RESPONSIVE) -->
                     <div v-if="kamus.data && kamus.data.length > 0"
-                        class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div class="text-sm text-gray-600">
+                        class="px-3 sm:px-6 py-4 bg-gray-50 border-t border-gray-200">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
+                            <div class="text-xs sm:text-sm text-gray-600 order-2 sm:order-1 whitespace-nowrap">
                                 {{ t('messages.menampilkan') }} {{ kamus.from }} - {{ kamus.to }} {{ t('messages.dari') }} {{ kamus.total }} {{ t('messages.kata') }}
                             </div>
 
-                            <div class="flex items-center gap-1">
+                            <div class="flex items-center gap-0.5 sm:gap-1 overflow-x-auto pb-1 sm:pb-0 order-1 sm:order-2 w-full sm:w-auto justify-center sm:justify-end">
                                 <!-- Previous (icon only) -->
                                 <component :is="kamus.prev_page_url ? 'a' : 'span'" :href="kamus.prev_page_url"
-                                    class="p-2 rounded-lg transition-all" :class="kamus.prev_page_url
+                                    class="p-1 sm:p-2 rounded-lg transition-all flex-shrink-0" :class="kamus.prev_page_url
                                         ? 'bg-white text-[#002b44] hover:bg-[#54b0af] hover:text-white border border-gray-300'
                                         : 'bg-gray-100 text-gray-400 cursor-not-allowed'">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15 19l-7-7 7-7" />
                                     </svg>
@@ -174,23 +174,23 @@ const playAudio = (kamusId, audioUrl) => {
                                 <!-- Page Numbers (hanya angka + ...) -->
                                 <template v-for="(link, i) in kamus.links" :key="i">
                                     <component v-if="link.url && !isNaN(link.label)" :is="'a'" :href="link.url"
-                                        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+                                        class="px-1.5 sm:px-3 py-1 sm:py-1.5 rounded text-xs sm:text-sm font-medium transition-all flex-shrink-0"
                                         :class="link.active
                                             ? 'bg-[#54b0af] text-white shadow-md'
                                             : 'bg-white text-[#002b44] hover:bg-[#54b0af] hover:text-white border border-gray-300'">
                                         {{ link.label }}
                                     </component>
-                                    <span v-else-if="link.label === '...'" class="px-3 py-1.5 text-sm text-gray-500">
+                                    <span v-else-if="link.label === '...'" class="px-0.5 sm:px-2 py-1 sm:py-1.5 text-xs sm:text-sm text-gray-500 flex-shrink-0">
                                         ...
                                     </span>
                                 </template>
 
                                 <!-- Next (icon only) -->
                                 <component :is="kamus.next_page_url ? 'a' : 'span'" :href="kamus.next_page_url"
-                                    class="p-2 rounded-lg transition-all" :class="kamus.next_page_url
+                                    class="p-1 sm:p-2 rounded-lg transition-all flex-shrink-0" :class="kamus.next_page_url
                                         ? 'bg-white text-[#002b44] hover:bg-[#54b0af] hover:text-white border border-gray-300'
                                         : 'bg-gray-100 text-gray-400 cursor-not-allowed'">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 5l7 7-7 7" />
                                     </svg>

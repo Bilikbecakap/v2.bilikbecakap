@@ -2,6 +2,8 @@
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import { useTranslations } from '@/composables/useTranslations';
+
 
 const props = defineProps({
     artikel: Object,
@@ -12,6 +14,7 @@ const props = defineProps({
 });
 
 const copyLinkStatus = ref(false);
+const { t } = useTranslations();
 
 const form = useForm({
     nama: '',
@@ -131,7 +134,7 @@ const copyToClipboard = async () => {
             <div class="container mx-auto px-6 relative z-20">
                 <!-- Breadcrumb -->
                 <div class="flex items-center gap-2 text-sm text-gray-600 mb-8">
-                    <Link href="/artikel" class="text-[#54b0af] hover:underline">Artikel</Link>
+                    <Link href="/artikel" class="text-[#54b0af] hover:underline">{{ t("messages.articles") }}</Link>
                     <span class="text-gray-400">/</span>
                     <span class="text-gray-700 truncate">{{ getTitle }}</span>
                 </div>
@@ -166,7 +169,7 @@ const copyToClipboard = async () => {
                                                 d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
                                                 clip-rule="evenodd"></path>
                                         </svg>
-                                        <span class="text-gray-700 font-medium">{{ artikel.views_count || 0 }} Views</span>
+                                        <span class="text-gray-700 font-medium">{{ artikel.views_count || 0 }} {{ t('messages.views') }}</span>
                                     </div>
 
                                     <!-- Date -->
@@ -216,7 +219,7 @@ const copyToClipboard = async () => {
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                                 </svg>
-                                Kata Kunci
+                                {{ t('messages.keywords') }}
                             </h3>
                             <div class="flex flex-wrap gap-2">
                                 <span v-for="(keyword, i) in artikel.meta_keywords.split(',')" :key="i"
@@ -231,7 +234,7 @@ const copyToClipboard = async () => {
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                                 <!-- Share Section -->
                                 <div class="flex items-center gap-3">
-                                    <span class="text-sm font-semibold text-gray-700">Bagikan Artikel:</span>
+                                    <span class="text-sm font-semibold text-gray-700">{{ t('messages.bagikan artikel') }}:</span>
                                     <div class="flex items-center gap-2">
                                         <!-- Facebook Share -->
                                         <button @click="shareToFacebook"
@@ -281,28 +284,28 @@ const copyToClipboard = async () => {
 
                                 <!-- Back to Articles Link -->
                                 <Link href="/artikel" class="inline-flex items-center gap-2 text-[#54b0af] hover:text-[#459a99] font-semibold transition-colors whitespace-nowrap">
-                                    ← Kembali ke Artikel
+                                    ← {{ t('messages.kembali ke artikel') }}
                                 </Link>
                             </div>
                         </div>
 
                         <!-- Comments Section -->
                         <div class="bg-white/95 backdrop-blur-sm rounded-lg p-6 border border-gray-100">
-                            <h3 class="text-lg font-bold text-[#002b44] mb-4">Komentar</h3>
+                            <h3 class="text-lg font-bold text-[#002b44] mb-4">{{ t('messages.komentar') }}</h3>
 
                             <!-- Form Komentar -->
                             <form @submit.prevent="submitKomentar" class="space-y-3 mb-5">
-                                <input v-model="form.nama" type="text" placeholder="Nama Anda *"
+                               <input v-model="form.nama" type="text" :placeholder="t('messages.your_name')"
                                     class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#54b0af]"
                                     required />
-                                <input v-model="form.kontak" type="text" placeholder="Email atau kontak (opsional)"
+                                <input v-model="form.kontak" type="text" :placeholder="t('messages.email_or_contact')"
                                     class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#54b0af]" />
-                                <textarea v-model="form.isi_komentar" placeholder="Tulis komentar Anda *" rows="3"
+                                <textarea v-model="form.isi_komentar" :placeholder="t('messages.write_comment')" rows="3"
                                     class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#54b0af]"
                                     required></textarea>
                                 <button type="submit" :disabled="form.processing"
                                     class="w-full bg-[#54b0af] hover:bg-[#459a99] text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-70">
-                                    {{ form.processing ? 'Mengirim...' : 'Kirim Komentar' }}
+                                    {{ form.processing ? t('messages.sending') : t('messages.send_comment') }}
                                 </button>
                             </form>
 
@@ -341,7 +344,7 @@ const copyToClipboard = async () => {
                                 </div>
                             </div>
                             <div v-else class="text-gray-500 text-sm italic">
-                                Belum ada komentar.
+                                {{ t('messages.belum ada komentar') }}.
                             </div>
                         </div>
 

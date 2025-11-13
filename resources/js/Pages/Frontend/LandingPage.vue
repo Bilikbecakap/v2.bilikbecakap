@@ -1,7 +1,7 @@
 <script setup>
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useTranslations } from '@/composables/useTranslations';
 
 const { t } = useTranslations();
@@ -14,6 +14,29 @@ const toggleFaq = (index) => {
 defineProps({
     latestArtikel: Array
 });
+
+// Counter animation
+const stat1 = ref(0);
+const stat2 = ref(0);
+const stat3 = ref(0);
+
+onMounted(() => {
+    animateCounter(stat1, 1300, 2000);
+    animateCounter(stat2, 10, 1500);
+    animateCounter(stat3, 80, 2000);
+});
+
+const animateCounter = (refValue, target, duration) => {
+    const start = 0;
+    const increment = target / (duration / 16);
+    const timer = setInterval(() => {
+        refValue.value += increment;
+        if (refValue.value >= target) {
+            refValue.value = target;
+            clearInterval(timer);
+        }
+    }, 16);
+};
 </script>
 
 <template>
@@ -32,12 +55,10 @@ defineProps({
                     <!-- Left Column: Content -->
                     <div class="space-y-6 xl:space-y-8 animate-fade-in-up">
                         <div class="space-y-3 lg:space-y-4">
-                            <!-- Badge -->
-                            <div
-                                class="inline-flex items-center gap-2 bg-[#54b0af]/10 text-[#54b0af] px-3 lg:px-4 py-2 rounded-full text-xs lg:text-sm font-medium">
+                            <!-- Badge - Tambah hover effect -->
+                            <div class="inline-flex items-center gap-2 bg-[#54b0af]/10 text-[#54b0af] px-3 lg:px-4 py-2 rounded-full text-xs lg:text-sm font-medium hover:bg-[#54b0af] hover:text-white transition-all duration-300 cursor-default">
                                 <svg class="w-4 lg:w-5 h-4 lg:h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                 </svg>
                                 {{ t("messages.Platform Pelestarian Budaya Belitung") }}
                             </div>
@@ -45,7 +66,7 @@ defineProps({
                             <!-- Heading -->
                             <h1 class="text-3xl md:text-4xl lg:text-6xl font-bold text-[#002b44] leading-tight">
                                 {{ t("messages.welcome_to") }}
-                                <span class="text-[#54b0af] block mt-2">Bilikbecakap</span>
+                                <span class="text-[#54b0af] block mt-2 hover:scale-105 transition-transform duration-300 inline-block cursor-default">Bilikbecakap</span>
                             </h1>
 
                             <!-- Description -->
@@ -76,16 +97,22 @@ defineProps({
 
                         <!-- Stats -->
                         <div class="grid grid-cols-3 gap-3 lg:gap-6 pt-6 lg:pt-8 border-t border-gray-200">
-                            <div class="text-center">
-                                <div class="text-2xl lg:text-3xl font-bold text-[#54b0af]">1300+</div>
+                            <div class="text-center group cursor-default hover:scale-110 transition-transform duration-300">
+                                <div class="text-2xl lg:text-3xl font-bold text-[#54b0af] group-hover:text-[#002b44] transition-colors">
+                                    {{ Math.floor(stat1) }}+
+                                </div>
                                 <div class="text-xs lg:text-sm text-gray-600 mt-1">{{ t("messages.words in the dictionary") }}</div>
                             </div>
-                            <div class="text-center">
-                                <div class="text-2xl lg:text-3xl font-bold text-[#54b0af]">10+</div>
+                            <div class="text-center group cursor-default hover:scale-110 transition-transform duration-300">
+                                <div class="text-2xl lg:text-3xl font-bold text-[#54b0af] group-hover:text-[#002b44] transition-colors">
+                                    {{ Math.floor(stat2) }}+
+                                </div>
                                 <div class="text-xs lg:text-sm text-gray-600 mt-1">{{ t("messages.Modul dan Kuis Pembelajaran") }}</div>
                             </div>
-                            <div class="text-center">
-                                <div class="text-2xl lg:text-3xl font-bold text-[#54b0af]">80%</div>
+                            <div class="text-center group cursor-default hover:scale-110 transition-transform duration-300">
+                                <div class="text-2xl lg:text-3xl font-bold text-[#54b0af] group-hover:text-[#002b44] transition-colors">
+                                    {{ Math.floor(stat3) }}%
+                                </div>
                                 <div class="text-xs lg:text-sm text-gray-600 mt-1">{{ t("messages.akurasi penerjemah") }}</div>
                             </div>
                         </div>

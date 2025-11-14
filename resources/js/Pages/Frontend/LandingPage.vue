@@ -255,7 +255,7 @@ const decorativeParallax = computed(() => `translateY(${scrollY.value * 0.3}px)`
                 <!-- Section Header -->
                 <div class="text-center mb-16 space-y-4" :class="{ 'animate-slide-up': isFeatureVisible }">
                     <div class="inline-flex items-center gap-2 bg-[#54b0af]/10 text-[#54b0af] px-4 py-2 rounded-full text-sm font-medium hover:scale-110 transition-transform duration-300">
-                        <svg class="w-5 h-5 animate-bounce-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                         </svg>

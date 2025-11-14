@@ -385,7 +385,7 @@ onUnmounted(() => {
 
                     <!-- Kolom 2: Fitur -->
                     <div>
-                        <h3 class="text-xl font-semibold mb-6">Fitur</h3>
+                        <h3 class="text-xl font-semibold mb-6">{{ t("messages.Fitur Utama") }}</h3>
                         <ul class="space-y-3">
                             <li>
                                 <a href="/kamus"
@@ -432,7 +432,7 @@ onUnmounted(() => {
 
                     <!-- Kolom 3: Get in Touch -->
                     <div>
-                        <h3 class="text-xl font-semibold mb-6">Get in Touch</h3>
+                        <h3 class="text-xl font-semibold mb-6">{{ t("messages.hubungi kami") }}</h3>
                         <ul class="space-y-4">
                             <li class="flex items-start gap-3">
                                 <svg class="w-5 h-5 text-[#54b0af] mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24"
@@ -462,7 +462,7 @@ onUnmounted(() => {
 
                     <!-- Kolom 4: Support By -->
                     <div>
-                        <h3 class="text-xl font-semibold mb-6">Support By</h3>
+                        <h3 class="text-xl font-semibold mb-6">{{ t("messages.support_by") }}</h3>
                         <div class="flex items-center gap-4">
                             <img src="/logo/kemendikbud.png" alt="Support A" class="h-16 w-auto object-contain">
                             <img src="/logo/kemahbudaya.png" alt="Support B" class="h-16 w-auto object-contain">
@@ -474,7 +474,7 @@ onUnmounted(() => {
                 <!-- Copyright -->
                 <div class="border-t border-gray-700 pt-6 mt-8">
                     <p class="text-center text-gray-400 text-sm">
-                        © {{ new Date().getFullYear() }} Bilik Bercakap. All rights reserved.
+                        © {{ new Date().getFullYear() }} Bilikbecakap. All rights reserved.
                     </p>
                 </div>
             </div>

@@ -206,5 +206,6 @@ return [
     'hubungi kami' => 'Hubungi Kamek',
     'hubungi kami deskripsi' => 'Kamek siap mendengarkan setiap masukan kan pertanyaen Tua',
     'jangan ragu' => 'Jan Ragu Idang Menghubungi Kamek',
-    'jangan ragu deskripsi' => 'Renyek tahu lebe banyak tentang Bilikbecakap? Atau memiliki pertanyaen? Kamek siap membantu! Hubungi kamek melalui formulir de bawah ini atau gunakan detel kuntak nok tesedie.'
+    'jangan ragu deskripsi' => 'Renyek tahu lebe banyak tentang Bilikbecakap? Atau memiliki pertanyaen? Kamek siap membantu! Hubungi kamek melalui formulir de bawah ini atau gunakan detel kuntak nok tesedie.',
+    'support_by' => 'Didukung oleh',
 ];

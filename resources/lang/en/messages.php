@@ -207,5 +207,6 @@ return [
     'hubungi kami' => 'Contact Us',
     'hubungi kami deskripsi' => 'We are ready to listen to any questions or feedback you may have',
     'jangan ragu' => 'Don\'t Hesitate to Contact Us',
-    'jangan ragu deskripsi' => 'Want to know more about Bilikbecakap? Or have any questions? We are ready to help! You can contact us through the form below or use the contact details provided.'
+    'jangan ragu deskripsi' => 'Want to know more about Bilikbecakap? Or have any questions? We are ready to help! You can contact us through the form below or use the contact details provided.',
+    'support_by' => 'Support by',
 ];

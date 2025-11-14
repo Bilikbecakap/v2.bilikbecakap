@@ -218,7 +218,7 @@ return [
     'hubungi kami' => 'Hubungi Kami',
     'hubungi kami deskripsi' => 'Kami siap mendengarkan setiap masukan kan pertanyaen Anda',
     'jangan ragu' => 'Jangan Ragu untuk Menghubungi Kami',
-    'jangan ragu deskripsi' => 'Ingin tahu lebih banyak tentang Bilikbecakap? atau memiliki pertanyaan? Kami siap membantu! Hubungi kami melalui formulir di bawah ini atau gunakan detail kontak yang tersedia.'
-
+    'jangan ragu deskripsi' => 'Ingin tahu lebih banyak tentang Bilikbecakap? atau memiliki pertanyaan? Kami siap membantu! Hubungi kami melalui formulir di bawah ini atau gunakan detail kontak yang tersedia.',
+    'support_by' => 'Didukung oleh',
 
 ];

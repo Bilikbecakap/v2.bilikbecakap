@@ -131,10 +131,10 @@ const decorativeParallax = computed(() => `translateY(${scrollY.value * 0.3}px)`
                                 {{ t("messages.Platform Pelestarian Budaya Belitung") }}
                             </div>
 
-                            <!-- Heading with animated gradient -->
+                            <!-- Heading -->
                             <h1 class="text-3xl md:text-4xl lg:text-6xl font-bold text-[#002b44] leading-tight">
                                 {{ t("messages.welcome_to") }}
-                                <span class="text-gradient block mt-2 hover:scale-105 transition-transform duration-300 inline-block cursor-default animate-gradient">Bilikbecakap</span>
+                                <span class="text-[#54b0af] block mt-2 hover:scale-105 transition-transform duration-300 inline-block cursor-default">Bilikbecakap</span>
                             </h1>
 
                             <!-- Description with typing effect -->
@@ -434,10 +434,10 @@ const decorativeParallax = computed(() => `translateY(${scrollY.value * 0.3}px)`
                             {{ t("messages.perjalanan kami") }}
                         </div>
 
-                        <!-- Heading with gradient animation -->
+                        <!-- Heading -->
                         <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-[#002b44] leading-tight">
                             {{ t("messages.perjalanan kami deskripsi 1") }},
-                            <span class="text-gradient block mt-2 animate-gradient">{{ t("messages.perjalanan kami deskripsi 2") }}</span>
+                            <span class="text-[#54b0af] block mt-2">{{ t("messages.perjalanan kami deskripsi 2") }}</span>
                         </h2>
 
                         <!-- Description with reveal animation -->

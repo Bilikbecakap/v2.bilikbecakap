@@ -89,7 +89,7 @@ return [
     'pembelajaran dan kuis' => 'Pembelajaran & Kuis',
     'pembelajaran dan kuis deskripsi' => 'Nikmatek pembelajaran Budaya Belitong serte lestarikan bahase kan budaya melalui kuis interaktif.',
     'perjalanan kami' => 'Perjalanan Kamek',
-    'perjalanan kami deskripsi 1' => 'Selangkah-selangkah.',
+    'perjalanan kami deskripsi 1' => 'Selangkah-selangkah',
     'perjalanan kami deskripsi 2' => 'Menjage Bahase Kan Budaye Besame',
 
     'our_journey_deskripsi_1' => 'Seiring dengan dukungan pengguna',

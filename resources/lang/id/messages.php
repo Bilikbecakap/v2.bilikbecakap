@@ -89,7 +89,7 @@ return [
     'pembelajaran dan kuis' => 'Pembelajaran & Kuis',
     'pembelajaran dan kuis deskripsi' => 'Nikmati pembelajaran Budaya Belitung serta lestarikan bahasa dan budaya melalui quiz interaktif.',
     'perjalanan kami' => 'Perjalanan Kami',
-    'perjalanan kami deskripsi 1' => 'Langkah Demi Langkah.',
+    'perjalanan kami deskripsi 1' => 'Langkah Demi Langkah',
     'perjalanan kami deskripsi 2' => 'Melestarikan Bahasa dan Budaya Bersama',
 
     'our_journey_deskripsi_1' => 'Seiring dengan dukungan pengguna',

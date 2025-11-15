@@ -173,7 +173,7 @@ return [
     'popular feeds' => 'Berite Populer',
     'kategori' => 'Kategori',
     'Ingin Bergabung' => 'Renyek Bergabung?',
-    'Ingin Bergabung Deskripsi' => 'Jadilah bagien dari komunitas Bilik Bercakap kan lestarikan bahase Melayu Belitong bersama kamek.',
+    'Ingin Bergabung Deskripsi' => 'Jadilah bagien dari komunitas Bilikbecakap kan lestarikan bahase Melayu Belitong bersama kamek.',
     'keywords' => 'Kata Kunci',
     'bagikan artikel' => 'Bagikan Artikel',
     'kembali ke artikel' => 'Kembali ke Artikel',

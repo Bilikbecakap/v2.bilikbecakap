@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { useTranslations } from '@/composables/useTranslations'
@@ -9,25 +9,71 @@ const props = defineProps({
 });
 
 const { t } = useTranslations();
+
+// Available languages
+const languages = [
+    { code: 'id', name: 'Indonesia', short: 'ID' },
+    { code: 'en', name: 'English', short: 'EN' },
+    { code: 'mb', name: 'Melayu Belitung', short: 'MB' }
+];
+
 // Form state
 const inputText = ref('');
 const outputText = ref('');
-const direction = ref('indonesia_to_belitung');
+const sourceLanguage = ref('id'); // default Indonesia
+const targetLanguage = ref('mb'); // default Melayu Belitung
 const isTranslating = ref(false);
+const showCopySuccess = ref({ input: false, output: false });
 
 // Character counter
 const charCount = computed(() => inputText.value.length);
 const maxChars = 10000;
 
-// Swap direction
-const swapDirection = () => {
-    const temp = inputText.value;
-    inputText.value = outputText.value;
-    outputText.value = temp;
+// Get direction string for API
+const direction = computed(() => {
+    const source = sourceLanguage.value;
+    const target = targetLanguage.value;
     
-    direction.value = direction.value === 'indonesia_to_belitung' 
-        ? 'belitung_to_indonesia' 
-        : 'indonesia_to_belitung';
+    if (source === 'id' && target === 'mb') return 'indonesia_to_belitung';
+    if (source === 'mb' && target === 'id') return 'belitung_to_indonesia';
+    if (source === 'id' && target === 'en') return 'indonesia_to_english';
+    if (source === 'en' && target === 'id') return 'english_to_indonesia';
+    if (source === 'mb' && target === 'en') return 'belitung_to_english';
+    if (source === 'en' && target === 'mb') return 'english_to_belitung';
+    
+    return 'indonesia_to_belitung';
+});
+
+// Filter available target languages (exclude source)
+const availableTargetLanguages = computed(() => {
+    return languages.filter(lang => lang.code !== sourceLanguage.value);
+});
+
+// Watch source language change - reset target if same
+watch(sourceLanguage, (newSource) => {
+    if (newSource === targetLanguage.value) {
+        const available = languages.find(lang => lang.code !== newSource);
+        if (available) {
+            targetLanguage.value = available.code;
+        }
+    }
+});
+
+// Get language name
+const getLanguageName = (code) => {
+    return languages.find(lang => lang.code === code)?.name || '';
+};
+
+// Swap languages
+const swapLanguages = () => {
+    const temp = sourceLanguage.value;
+    sourceLanguage.value = targetLanguage.value;
+    targetLanguage.value = temp;
+    
+    // Swap texts
+    const tempText = inputText.value;
+    inputText.value = outputText.value;
+    outputText.value = tempText;
 };
 
 // Clear all
@@ -37,9 +83,13 @@ const clearAll = () => {
 };
 
 // Copy to clipboard
-const copyToClipboard = async (text) => {
+const copyToClipboard = async (text, type) => {
     try {
         await navigator.clipboard.writeText(text);
+        showCopySuccess.value[type] = true;
+        setTimeout(() => {
+            showCopySuccess.value[type] = false;
+        }, 2000);
     } catch (err) {
         console.error('Gagal menyalin teks');
     }
@@ -49,6 +99,11 @@ const copyToClipboard = async (text) => {
 const translate = async () => {
     if (!inputText.value.trim()) {
         alert('Masukkan teks yang akan diterjemahkan');
+        return;
+    }
+
+    if (sourceLanguage.value === targetLanguage.value) {
+        alert('Bahasa sumber dan tujuan tidak boleh sama');
         return;
     }
 
@@ -85,7 +140,7 @@ const translate = async () => {
 </script>
 
 <template>
-    <Head title="Penerjemah - Bilik Bercakap" />
+    <Head title="Penerjemah - Bilikbecakap" />
 
     <FrontendLayout>
         <section class="py-12 pt-24 min-h-screen relative overflow-hidden">
@@ -113,24 +168,53 @@ const translate = async () => {
                 <!-- Translator -->
                 <div class="max-w-7xl mx-auto">
                     <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
-                        <!-- Language Direction Header -->
+                        <!-- Language Selector Header -->
                         <div class="p-6 bg-gradient-to-r from-[#54b0af] to-[#459a99]">
                             <div class="flex items-center justify-center gap-4">
-                                <span class="text-g font-semibold text-white w-64 text-right">
-                                    {{ direction === 'indonesia_to_belitung' ? 'Bahasa Indonesia' : 'Bahasa Melayu Belitung' }}
-                                </span>
+                                <!-- Source Language Dropdown -->
+                                <div class="relative w-[200px]">
+                                    <select 
+                                        v-model="sourceLanguage"
+                                        class="appearance-none bg-white text-gray-800 font-semibold px-6 py-3 pr-10 rounded-xl border-2 border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer w-full"
+                                    >
+                                        <option v-for="lang in languages" :key="lang.code" :value="lang.code">
+                                            {{ lang.name }}
+                                        </option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                        <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Swap Button -->
                                 <button
-                                    @click="swapDirection"
-                                    class="p-3 bg-[#e0a013] text-white hover:bg-[#FCB415] hover:shadow-100 rounded-full transition-all duration-200 shadow-md flex-shrink-0"
+                                    @click="swapLanguages"
+                                    class="p-3 bg-[#e0a013] text-white rounded-full transition-all duration-200 shadow-md flex-shrink-0 group"
                                     title="Tukar Bahasa"
                                 >
-                                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg class="w-6 h-6 group-hover:rotate-180 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                                     </svg>
                                 </button>
-                                <span class="text-g font-semibold text-white w-64 text-left">
-                                    {{ direction === 'indonesia_to_belitung' ? 'Bahasa Melayu Belitung' : 'Bahasa Indonesia' }}
-                                </span>
+
+                                <!-- Target Language Dropdown -->
+                                <div class="relative w-[200px]">
+                                    <select 
+                                        v-model="targetLanguage"
+                                        class="appearance-none bg-white text-gray-800 font-semibold px-6 py-3 pr-10 rounded-xl border-2 border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer w-full"
+                                    >
+                                        <option v-for="lang in availableTargetLanguages" :key="lang.code" :value="lang.code">
+                                            {{ lang.name }}
+                                        </option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                        <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -140,7 +224,7 @@ const translate = async () => {
                             <div class="p-6 border-r border-gray-200">
                                 <div class="flex items-center justify-between mb-3">
                                     <h3 class="text-base font-semibold text-[#54b0af]">
-                                        {{ direction === 'indonesia_to_belitung' ? 'Bahasa Indonesia' : 'Bahasa Melayu Belitung' }}
+                                        {{ getLanguageName(sourceLanguage) }}
                                     </h3>
                                     <span class="text-sm text-gray-500">
                                         {{ charCount }} / {{ maxChars }}
@@ -153,9 +237,14 @@ const translate = async () => {
                                     class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#54b0af] focus:border-transparent resize-none"
                                     placeholder="Masukkan teks yang ingin diterjemahkan..."
                                 ></textarea>
-                                <div class="mt-3 flex gap-2 justify-end">
+                                <div class="mt-3 flex gap-2 justify-end items-center">
+                                    <transition name="fade">
+                                        <span v-if="showCopySuccess.input" class="text-sm text-green-600 font-medium">
+                                            ✓ Berhasil disalin!
+                                        </span>
+                                    </transition>
                                     <button
-                                        @click="copyToClipboard(inputText)"
+                                        @click="copyToClipboard(inputText, 'input')"
                                         class="p-2 text-gray-600 hover:text-[#54b0af] transition-colors"
                                         title="Salin"
                                     >
@@ -170,7 +259,7 @@ const translate = async () => {
                             <div class="p-6 bg-gray-50">
                                 <div class="flex items-center justify-between mb-3">
                                     <h3 class="text-base font-semibold text-[#54b0af]">
-                                        {{ direction === 'indonesia_to_belitung' ? 'Bahasa Melayu Belitung' : 'Bahasa Indonesia' }}
+                                        {{ getLanguageName(targetLanguage) }}
                                     </h3>
                                 </div>
                                 <textarea
@@ -180,9 +269,14 @@ const translate = async () => {
                                     class="w-full p-4 border-2 border-gray-200 rounded-xl bg-white resize-none cursor-default focus:outline-none"
                                     placeholder="Hasil terjemahan..."
                                 ></textarea>
-                                <div class="mt-3 flex gap-2 justify-end">
+                                <div class="mt-3 flex gap-2 justify-end items-center">
+                                    <transition name="fade">
+                                        <span v-if="showCopySuccess.output" class="text-sm text-green-600 font-medium">
+                                            ✓ Berhasil disalin!
+                                        </span>
+                                    </transition>
                                     <button
-                                        @click="copyToClipboard(outputText)"
+                                        @click="copyToClipboard(outputText, 'output')"
                                         class="p-2 text-gray-600 hover:text-[#54b0af] transition-colors"
                                         title="Salin Hasil"
                                     >
@@ -249,5 +343,12 @@ const translate = async () => {
 
 .animate-spin {
     animation: spin 1s linear infinite;
+}
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
 }
 </style>

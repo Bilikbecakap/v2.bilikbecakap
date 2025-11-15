@@ -53,7 +53,7 @@ const getDifficultyBadge = (attemptCount) => {
 </script>
 
 <template>
-    <Head title="Kuis - Bilik Bercakap" />
+    <Head title="Kuis - Bilikbecakap" />
 
     <FrontendLayout>
         <section class="py-12 pt-24 min-h-screen relative overflow-hidden">

@@ -64,7 +64,7 @@ const getTitle = (artikel) => {
 </script>
 
 <template>
-    <Head title="Artikel & Blog - Bilik Bercakap" />
+    <Head title="Artikel & Blog - Bilikbecakap" />
 
     <FrontendLayout>
         <section class="py-12 pt-24 min-h-screen relative overflow-hidden">

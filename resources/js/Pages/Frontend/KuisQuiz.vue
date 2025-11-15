@@ -23,6 +23,9 @@ const audioPlayer = ref(null);
 const isMusicPlaying = ref(false);
 const isMusicMuted = ref(false);
 
+// Sound effect refs
+const choiceSoundEffect = ref(null);
+
 // Storage keys
 const answersKey = `quiz_answers_${props.attempt.id}`;
 const timerKey = `quiz_timer_${props.attempt.id}`;
@@ -67,6 +70,7 @@ onMounted(() => {
   // Delay sedikit untuk memastikan DOM ready
   setTimeout(() => {
     initAudio();
+    initSoundEffects();
   }, 100);
   window.addEventListener('beforeunload', handleBeforeUnload);
 });
@@ -162,6 +166,21 @@ const initAudio = () => {
   }
 };
 
+const initSoundEffects = () => {
+  if (choiceSoundEffect.value) {
+    choiceSoundEffect.value.volume = 0.5;
+  }
+};
+
+const playChoiceSound = () => {
+  if (choiceSoundEffect.value) {
+    choiceSoundEffect.value.currentTime = 0;
+    choiceSoundEffect.value.play().catch(e => {
+      console.error('Error playing choice sound:', e);
+    });
+  }
+};
+
 const stopAudio = () => {
   if (audioPlayer.value) {
     audioPlayer.value.pause();
@@ -251,6 +270,7 @@ const isAllAnswered = computed(() => {
 const selectOption = (optionId) => {
   if (form.answers && form.answers[currentQuestionIndex.value]) {
     form.answers[currentQuestionIndex.value].option_id = optionId;
+    playChoiceSound();
   }
 };
 
@@ -371,6 +391,9 @@ const isQuestionAnswered = (index) => {
     >
       Your browser does not support the audio element.
     </audio>
+
+    <!-- Choice Sound Effect -->
+    <audio ref="choiceSoundEffect" src="/background/choice-05-199276.mp3" preload="auto" class="hidden"></audio>
 
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 py-8">
       <!-- Timer Card - Sticky Header -->

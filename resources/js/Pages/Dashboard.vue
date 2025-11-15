@@ -125,9 +125,9 @@ const getTypeIcon = (type) => {
                     <!-- Content Section -->
                     <div class="lg:col-span-8 flex flex-col justify-center">
                         <div class="flex items-center gap-3 mb-4">
-                            <img src="/icon.png" alt="Bilik Bercakap Icon" class="w-12 h-12 object-contain">
+                            <img src="/icon.png" alt="Bilikbecakap Icon" class="w-12 h-12 object-contain">
                             <h2 class="text-3xl md:text-4xl font-bold text-slate-800 dark:text-white">
-                                Bilik Bercakap
+                                Bilikbecakap
                             </h2>
                         </div>
 
@@ -136,7 +136,7 @@ const getTypeIcon = (type) => {
                         </h3>
 
                         <p class="text-base md:text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-                            Bilik Bercakap merupakan platform belajar yang mewadahi komunikasi sebagai sarana belajar
+                            Bilikbecakap merupakan platform belajar yang mewadahi komunikasi sebagai sarana belajar
                             khususnya bagi masyarakat lokal serta pelestarian bahasa daerah Melayu Belitung Timur.
                         </p>
 
@@ -157,7 +157,7 @@ const getTypeIcon = (type) => {
                             <div class="absolute -bottom-4 -right-4 w-32 h-32 bg-cyan-200 dark:bg-cyan-900/30 rounded-full blur-2xl opacity-60"></div>
                             
                             <!-- Logo -->
-                            <img src="/images/kbkm2023.jpg" alt="Bilik Bercakap Logo" class="relative w-56 h-56 md:w-64 md:h-64 object-contain mx-auto">
+                            <img src="/images/kbkm2023.jpg" alt="Bilikbecakap Logo" class="relative w-56 h-56 md:w-64 md:h-64 object-contain mx-auto">
                         </div>
                     </div>
                 </div>

@@ -34,7 +34,7 @@ class PenerjemahController extends Controller
     {
         $request->validate([
             'text' => 'required|string|max:10000',
-            'direction' => 'required|in:belitung_to_indonesia,indonesia_to_belitung',
+            'direction' => 'required|in:belitung_to_indonesia,indonesia_to_belitung,indonesia_to_english,english_to_indonesia,belitung_to_english,english_to_belitung',
             'method' => 'required|in:hybrid,rule_based',
         ], [
             'text.required' => 'Teks yang akan diterjemahkan wajib diisi.',
@@ -48,14 +48,24 @@ class PenerjemahController extends Controller
         try {
             $startTime = microtime(true);
             
-            if ($request->method === 'hybrid') {
-                $result = $this->translateHybrid($request->text, $request->direction);
+            // Cek jika involve English
+            if (in_array($request->direction, ['indonesia_to_english', 'english_to_indonesia'])) {
+                // Direct AI Translation
+                $result = $this->translateDirectAI($request->text, $request->direction);
+            } elseif (in_array($request->direction, ['belitung_to_english', 'english_to_belitung'])) {
+                // Chain Translation
+                $result = $this->translateChain($request->text, $request->direction);
             } else {
-                $result = $this->translateRuleBased($request->text, $request->direction);
+                // Original Hybrid/Rule-based for Belitung <-> Indonesia
+                if ($request->method === 'hybrid') {
+                    $result = $this->translateHybrid($request->text, $request->direction);
+                } else {
+                    $result = $this->translateRuleBased($request->text, $request->direction);
+                }
             }
             
             $endTime = microtime(true);
-            $processingTime = round(($endTime - $startTime) * 10000, 2);
+            $processingTime = round(($endTime - $startTime) * 1000, 2);
 
             if ($result['success']) {
                 return response()->json([
@@ -72,6 +82,7 @@ class PenerjemahController extends Controller
                         'word_count' => str_word_count(trim($request->text)),
                         'translation_rate' => $result['translation_rate'] ?? null,
                         'ai_used' => $result['ai_used'] ?? false,
+                        'chain_steps' => $result['chain_steps'] ?? null,
                     ],
                     'message' => 'Terjemahan berhasil!'
                 ]);
@@ -97,41 +108,154 @@ class PenerjemahController extends Controller
         }
     }
 
-    /**
-     * Translate ke English
-     */
-    public function translateToEnglish(Request $request)
-    {
-        $request->validate([
-            'text' => 'required|string',
-        ]);
+    // ============= NEW METHODS FOR ENGLISH =============
 
+    /**
+     * Direct AI Translation (Indonesia <-> English)
+     */
+    private function translateDirectAI($text, $direction)
+    {
         try {
-            $result = $this->geminiService->translateToEnglish($request->text);
+            $cleanText = trim($text);
+            
+            if ($direction === 'indonesia_to_english') {
+                $result = $this->geminiService->translateToEnglish($cleanText);
+            } else { // english_to_indonesia
+                $result = $this->geminiService->translateToIndonesian($cleanText);
+            }
             
             if ($result['success']) {
-                return response()->json([
+                return [
                     'success' => true,
-                    'data' => [
-                        'translation' => $result['translation']
-                    ]
-                ]);
+                    'input' => $cleanText,
+                    'translation' => $result['translation'],
+                    'direction' => $direction,
+                    'method' => 'direct_ai',
+                    'confidence' => 'high',
+                    'ai_used' => true,
+                ];
             } else {
-                return response()->json([
+                return [
                     'success' => false,
-                    'message' => $result['error']
-                ], 422);
+                    'error' => $result['error'] ?? 'AI translation failed'
+                ];
             }
 
         } catch (\Exception $e) {
-            return response()->json([
+            return [
                 'success' => false,
-                'message' => 'Terjadi kesalahan sistem.'
-            ], 500);
+                'error' => 'Direct AI error: ' . $e->getMessage()
+            ];
         }
     }
 
-    // ============= PRIVATE HELPER METHODS =============
+    /**
+     * Chain Translation (Belitung <-> English via Indonesia)
+     */
+    private function translateChain($text, $direction)
+    {
+        try {
+            $cleanText = trim($text);
+            $chainSteps = [];
+            
+            if ($direction === 'belitung_to_english') {
+                // Step 1: Belitung -> Indonesia
+                $step1 = $this->translateHybrid($cleanText, 'belitung_to_indonesia');
+                
+                if (!$step1['success']) {
+                    return [
+                        'success' => false,
+                        'error' => 'Chain step 1 failed: ' . ($step1['error'] ?? 'Unknown')
+                    ];
+                }
+                
+                $chainSteps[] = [
+                    'from' => 'Melayu Belitung',
+                    'to' => 'Bahasa Indonesia',
+                    'result' => $step1['translation']
+                ];
+                
+                // Step 2: Indonesia -> English
+                $step2 = $this->geminiService->translateToEnglish($step1['translation']);
+                
+                if (!$step2['success']) {
+                    return [
+                        'success' => false,
+                        'error' => 'Chain step 2 failed: ' . ($step2['error'] ?? 'Unknown')
+                    ];
+                }
+                
+                $chainSteps[] = [
+                    'from' => 'Bahasa Indonesia',
+                    'to' => 'English',
+                    'result' => $step2['translation']
+                ];
+                
+                return [
+                    'success' => true,
+                    'input' => $cleanText,
+                    'translation' => $step2['translation'],
+                    'direction' => $direction,
+                    'method' => 'chain_translation',
+                    'confidence' => 'medium',
+                    'ai_used' => true,
+                    'chain_steps' => $chainSteps
+                ];
+                
+            } else { // english_to_belitung
+                // Step 1: English -> Indonesia
+                $step1 = $this->geminiService->translateToIndonesian($cleanText);
+                
+                if (!$step1['success']) {
+                    return [
+                        'success' => false,
+                        'error' => 'Chain step 1 failed: ' . ($step1['error'] ?? 'Unknown')
+                    ];
+                }
+                
+                $chainSteps[] = [
+                    'from' => 'English',
+                    'to' => 'Bahasa Indonesia',
+                    'result' => $step1['translation']
+                ];
+                
+                // Step 2: Indonesia -> Belitung
+                $step2 = $this->translateHybrid($step1['translation'], 'indonesia_to_belitung');
+                
+                if (!$step2['success']) {
+                    return [
+                        'success' => false,
+                        'error' => 'Chain step 2 failed: ' . ($step2['error'] ?? 'Unknown')
+                    ];
+                }
+                
+                $chainSteps[] = [
+                    'from' => 'Bahasa Indonesia',
+                    'to' => 'Melayu Belitung',
+                    'result' => $step2['translation']
+                ];
+                
+                return [
+                    'success' => true,
+                    'input' => $cleanText,
+                    'translation' => $step2['translation'],
+                    'direction' => $direction,
+                    'method' => 'chain_translation',
+                    'confidence' => 'medium',
+                    'ai_used' => true,
+                    'chain_steps' => $chainSteps
+                ];
+            }
+
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => 'Chain translation error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    // ============= ORIGINAL METHODS (Belitung <-> Indonesia) =============
 
     private function cleanText($text)
     {

@@ -66,7 +66,7 @@ watch(searchQuery, () => {
 </script>
 
 <template>
-    <Head title="Modul Pembelajaran - Bilik Bercakap" />
+    <Head title="Modul Pembelajaran - Bilikbecakap" />
 
     <FrontendLayout>
         <section class="py-12 pt-24 min-h-screen relative overflow-hidden">

@@ -644,4 +644,28 @@ class GeminiService
             ];
         }
     }
+
+    public function translateToIndonesian($text)
+    {
+        $prompt = "Translate this English text to Indonesian. Only return the translation, no explanation. Maintain proper capitalization: \"{$text}\"";
+        
+        $response = $this->makeRequest([
+            'contents' => [
+                [
+                    'parts' => [
+                        ['text' => $prompt]
+                    ]
+                ]
+            ]
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            $translation = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            $translation = $this->postProcessAIResult($translation, $text);
+            return ['success' => true, 'translation' => $translation];
+        }
+        return ['success' => false, 'error' => 'Translation failed'];
+    }
+
 }

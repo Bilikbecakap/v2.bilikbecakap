@@ -40,7 +40,7 @@ const playAudio = (kamusId, audioUrl) => {
 
 <template>
 
-    <Head title="Kamus Digital - Bilik Bercakap" />
+    <Head title="Kamus Digital - Bilikbecakap" />
 
     <FrontendLayout>
         <section class="py-12 pt-24 min-h-screen relative overflow-hidden">

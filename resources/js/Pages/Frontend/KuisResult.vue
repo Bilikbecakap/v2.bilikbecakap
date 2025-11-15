@@ -1,7 +1,7 @@
 <script setup>
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 const props = defineProps({
     quiz: Object,
@@ -10,6 +10,7 @@ const props = defineProps({
 });
 
 const expandedAnswers = ref([]);
+const resultSoundEffect = ref(null);
 
 const scorePercentage = computed(() => {
     return Math.round((props.attempt.correct_answers / props.attempt.total_questions) * 100);
@@ -23,6 +24,19 @@ const getScoreColor = computed(() => {
     if (score >= 60) return 'orange';
     return 'red';
 });
+
+onMounted(() => {
+    playResultSound();
+});
+
+const playResultSound = () => {
+    if (resultSoundEffect.value) {
+        resultSoundEffect.value.volume = 0.5;
+        resultSoundEffect.value.play().catch(e => {
+            console.error('Error playing result sound:', e);
+        });
+    }
+};
 
 const toggleAnswer = (index) => {
     if (expandedAnswers.value.includes(index)) {
@@ -64,6 +78,14 @@ const getDuration = () => {
     <Head :title="`Hasil Kuis - ${quiz.title}`" />
 
     <FrontendLayout>
+        <!-- Result Sound Effect -->
+        <audio 
+            ref="resultSoundEffect" 
+            :src="attempt.score < 50 ? '/background/fail-234710.mp3' : '/background/goodresult-82807.mp3'" 
+            preload="auto" 
+            class="hidden"
+        ></audio>
+
         <section class="py-12 pt-24 min-h-screen relative overflow-hidden">
             <!-- Background -->
             <div class="absolute inset-0 z-0">

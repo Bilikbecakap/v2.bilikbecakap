@@ -68,7 +68,7 @@ onUnmounted(() => {
                     <!-- Logo -->
                     <div class="flex items-center">
                         <Link href="/" class="flex items-center gap-3">
-                        <img src="/logo/bilikbecakap.png" alt="Bilik Bercakap"
+                        <img src="/logo/bilikbecakap.png" alt="Bilikbecakap"
                             class="h-10 sm:h-12 w-auto object-contain">
                         </Link>
                     </div>
@@ -270,7 +270,7 @@ onUnmounted(() => {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
-                        Masuk
+                        {{ t("messages.login") }}
                         </Link>
                         <Link v-else :href="route('dashboard')" @click="showMobileMenu = false"
                             class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99]">
@@ -283,43 +283,61 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Navigation Links -->
-                    <Link href="/" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                    <Link href="/" @click="showMobileMenu = false" :class="[
+                        'font-medium transition-colors duration-200 py-2 px-3 rounded-lg',
+                        isActive('/') ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-100'
+                    ]">
                     {{ t("messages.home") }}
                     </Link>
-                    <Link href="/kamus" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                    <Link href="/kamus" @click="showMobileMenu = false" :class="[
+                        'font-medium transition-colors duration-200 py-2 px-3 rounded-lg',
+                        isActive('/kamus') ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-100'
+                    ]">
                     {{ t("messages.kamus") }}
                     </Link>
-                    <Link href="/penerjemah" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                    <Link href="/penerjemah" @click="showMobileMenu = false" :class="[
+                        'font-medium transition-colors duration-200 py-2 px-3 rounded-lg',
+                        isActive('/penerjemah') ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-100'
+                    ]">
                     {{ t("messages.translator") }}
                     </Link>
-                    <Link href="/pembelajaran" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                    <Link href="/pembelajaran" @click="showMobileMenu = false" :class="[
+                        'font-medium transition-colors duration-200 py-2 px-3 rounded-lg',
+                        isActive('/pembelajaran') ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-100'
+                    ]">
                     {{ t("messages.learning") }}
                     </Link>
-                    <Link href="/artikel" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                    <Link href="/artikel" @click="showMobileMenu = false" :class="[
+                        'font-medium transition-colors duration-200 py-2 px-3 rounded-lg',
+                        isActive('/artikel') ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-100'
+                    ]">
                     {{ t("messages.articles") }}
                     </Link>
 
                     <div class="border-t border-gray-200 my-2"></div>
 
-                    <Link href="/kuis" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                    <Link href="/kuis" @click="showMobileMenu = false" :class="[
+                        'font-medium transition-colors duration-200 py-2 px-3 rounded-lg',
+                        isActive('/kuis') ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-100'
+                    ]">
                     {{ t("messages.quiz") }}
                     </Link>
-                    <Link href="/tentang" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                    <Link href="/tentang" @click="showMobileMenu = false" :class="[
+                        'font-medium transition-colors duration-200 py-2 px-3 rounded-lg',
+                        isActive('/tentang') ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-100'
+                    ]">
                     {{ t("messages.about") }}
                     </Link>
-                    <link href="/kontak" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                    <Link href="/kontak" @click="showMobileMenu = false" :class="[
+                        'font-medium transition-colors duration-200 py-2 px-3 rounded-lg',
+                        isActive('/kontak') ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-100'
+                    ]">
                     {{ t("messages.contact") }}
-                    </link>
-                    <Link href="/galeri" @click="showMobileMenu = false"
-                        class="text-gray-700 hover:text-[#54b0af] font-medium transition-colors duration-200">
+                    </Link>
+                    <Link href="/galeri" @click="showMobileMenu = false" :class="[
+                        'font-medium transition-colors duration-200 py-2 px-3 rounded-lg',
+                        isActive('/galeri') ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-100'
+                    ]">
                     {{ t("messages.gallery") }}
                     </Link>
                 </div>
@@ -345,7 +363,7 @@ onUnmounted(() => {
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
                     <!-- Kolom 1: Logo & Deskripsi -->
                     <div>
-                        <img src="/logo/bilikbecakap-putih.png" alt="Bilik Bercakap"
+                        <img src="/logo/bilikbecakap-putih.png" alt="Bilikbecakap"
                             class="h-16 w-auto object-contain mb-4">
                         <p class="text-gray-300 text-sm leading-relaxed mb-6">
                             {{ t("messages.footer description") }}

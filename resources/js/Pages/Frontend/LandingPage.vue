@@ -191,7 +191,7 @@ const decorativeParallax = computed(() => `translateY(${scrollY.value * 0.3}px)`
                     <div class="relative animate-fade-in hidden xl:block hero-image-container">
                         <!-- Main Hero Image -->
                         <div class="relative z-10 transform-gpu transition-transform duration-300 hero-image">
-                            <img src="/hero-bilikbecakap.png" alt="Bilik Bercakap Hero" class="w-full h-auto">
+                            <img src="/hero-bilikbecakap.png" alt="Bilikbecakap Hero" class="w-full h-auto">
                         </div>
 
                         <!-- Floating Animated Elements with enhanced animations -->

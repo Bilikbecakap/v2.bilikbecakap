@@ -173,7 +173,7 @@ return [
     'popular feeds' => 'Popular Feeds',
     'kategori' => 'Category',
     'Ingin Bergabung' => 'Join Us?',
-    'Ingin Bergabung Deskripsi' => 'Be part of the Bilik Bercakap community and preserve the Belitung Malay language with us.',
+    'Ingin Bergabung Deskripsi' => 'Be part of the Bilikbecakap community and preserve the Belitung Malay language with us.',
     'keywords' => 'Keywords',
     'bagikan artikel' => 'Share Article',
     'kembali ke artikel' => 'Back to Articles',

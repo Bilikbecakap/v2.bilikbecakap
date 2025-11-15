@@ -72,7 +72,7 @@ return [
     //konten landingpage
     'Platform Pelestarian Budaya Belitung' => 'Platform Pelestarian Budaya Belitung',
     'welcome_to' => 'Selamat Datang di',
-    'welcome_massage' => 'Jelajahi dan pelajari bahasa serta budaya Belitung Timur dengan Bilikbecakap. Kami hadir untuk menjaga warisan budaya Belitung melalui kamus digital, mesin penerjemah bahasa daerah, pembelajaran interaktif, dan modul budaya.',
+    'welcome_massage' => 'Jelajahi dan pelajari bahasa serta budaya Belitung dengan Bilikbecakap. Kami hadir untuk menjaga warisan budaya Belitung melalui kamus digital, mesin penerjemah bahasa daerah, pembelajaran interaktif, dan modul budaya.',
     'start_learning' => 'Mulai Belajar',
     'join' => 'Bergabung',
     'words in the dictionary' => 'Kata dalam Kamus',
@@ -93,7 +93,7 @@ return [
     'perjalanan kami deskripsi 2' => 'Melestarikan Bahasa dan Budaya Bersama',
 
     'our_journey_deskripsi_1' => 'Seiring dengan dukungan pengguna',
-    'our_journey_deskripsi_2' => 'terus berkembang dalam upaya pelestarian bahasa dan budaya Belitung Timur. Kami bangga bisa memberikan fitur-fitur yang semakin kaya dan bermanfaat bagi masyarakat.',
+    'our_journey_deskripsi_2' => 'terus berkembang dalam upaya pelestarian bahasa dan budaya Belitung. Kami bangga bisa memberikan fitur-fitur yang semakin kaya dan bermanfaat bagi masyarakat.',
     'our_journey_deskripsi_3' => 'Bilik Becakap hadir di dalam program <span class="font-semibold text-[#002b44]">Kemah Budaya Kaum Muda (KBKM) 2023</span> sebagai ruang inkubator yang mewadahi inisiatif kaum muda dalam menciptakan aplikasi dan prakarya serta menjadi jembatan yang mempertemukan antara gagasan dengan eksperimentasi di bidang <span
                                     class="font-semibold text-[#54b0af]">STEAM</span> (Science, Technology, Engineering, Art, Mathematics). KBKM mendorong para peserta agar karyanya dapat terus berlanjut dan
                                 berdampak luas sehingga mampu menjadi solusi untuk permasalahan sosial di tengah.',
@@ -106,12 +106,12 @@ return [
     'faq_4' => 'Bisakah Bilikbecakap menerjemahkan kalimat dari Bahasa Indonesia ke Bahasa Melayu Belitung?',
     'faq_5' => 'Bagaimana Bilikbecakap berkontribusi pada pelestarian dan keberlanjutan bahasa serta budaya daerah?',
     'faq_answer_1' => 'Bilikbecakap adalah platform digital yang didedikasikan untuk pelestarian bahasa dan
-                                budaya Belitung Timur, khususnya Bahasa Belitung.',
+                                budaya Belitung, khususnya Bahasa Belitung.',
     'faq_answer_2' => 'Anda dapat mencari kata atau istilah dalam Bahasa Belitung dengan mengetik kata yang
                                 ingin dicari pada kolom Kamus Digital. Sistem akan menampilkan arti dan contoh
                                 penggunaan kata tersebut, memudahkan Anda dalam memahami konteks dan makna yang tepat.',
     'faq_answer_3' => 'Modul pembelajaran kami mencakup dasar-dasar Bahasa Melayu Belitung, tata bahasa, serta wawasan
-                                budaya seperti adat istiadat dan sejarah Belitung Timur. Materi disusun secara
+                                budaya seperti adat istiadat dan sejarah Belitung. Materi disusun secara
                                 interaktif untuk mempermudah pemahaman dan menarik minat belajar.',
     'faq_answer_4' => 'Ya, Bilikbecakap memiliki fitur mesin penerjemah yang dapat menerjemahkan kata atau
                                 kalimat dari Bahasa Indonesia ke Bahasa Melayu Belitung secara cepat. Cukup masukkan teks yang
@@ -191,7 +191,7 @@ return [
 
     'tentang kami' => 'Tentang Kami',
     'tentang kami deskripsi' => 'Inisiatif digital untuk melestarikan bahasa dan budaya Melayu Belitung.',
-    'about_bilikbecakap_1' => 'Bilikbecakap lahir dari keresahan dan permasalahan yang muncul di Belitung Timur, yaitu belum adanya arsip atau pendataan bahasa daerah setempat. Kondisi ini menimbulkan kekhawatiran di kalangan masyarakat dan pemerintah desa akan kemungkinan hilangnya identitas bahasa daerah Melayu Belitung. Melalui Bilikbecakap, dihadirkan berbagai fitur seperti penerjemah bahasa, konten informasi, serta video dan modul pembelajaran bahasa Melayu Belitung. Inisiatif ini berupaya menjaga warisan bahasa daerah sekaligus memperkenalkan kekayaan budaya lokal melalui pendekatan digital.',
+    'about_bilikbecakap_1' => 'Bilikbecakap lahir dari keresahan dan permasalahan yang muncul di Belitung, yaitu belum adanya arsip atau pendataan bahasa daerah setempat. Kondisi ini menimbulkan kekhawatiran di kalangan masyarakat dan pemerintah desa akan kemungkinan hilangnya identitas bahasa daerah Melayu Belitung. Melalui Bilikbecakap, dihadirkan berbagai fitur seperti penerjemah bahasa, konten informasi, serta video dan modul pembelajaran bahasa Melayu Belitung. Inisiatif ini berupaya menjaga warisan bahasa daerah sekaligus memperkenalkan kekayaan budaya lokal melalui pendekatan digital.',
     'about_bilikbecakap_2' => 'Bilikbecakap pertama kali dikembangkan dalam program Kemah Budaya Kaum Muda (KBKM) 2023, sebagai ruang inkubasi yang mewadahi inisiatif kaum muda dalam menciptakan karya dan inovasi berbasis STEAM (Science, Technology, Engineering, Art, and Mathematics). Saat ini, Bilikbecakap dikelola dan terus dikembangkan oleh Yayasan Basamudera Indonesia, yang dibentuk dari tim Senyubuk KBKM 2023. Yayasan ini berkomitmen untuk melanjutkan semangat kolaborasi, inovasi, dan pelestarian bahasa daerah agar tetap hidup dan relevan di era digital.',
     'ajakan_1' => 'Mari Bersama Melestarikan Bahasa Daerah',
     'ajakan_2' => 'Bilikbecakap Terus Berkembang dan Tumbuh',

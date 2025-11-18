@@ -668,4 +668,103 @@ class GeminiService
         return ['success' => false, 'error' => 'Translation failed'];
     }
 
+    /**
+     * Extract text from image (OCR only, no translation)
+     */
+    public function extractTextFromImage($imagePath, $maxRetries = 3)
+    {
+        $attempt = 0;
+        
+        while ($attempt < $maxRetries) {
+            try {
+                Log::info('OCR Extract Attempt', ['attempt' => $attempt + 1]);
+                
+                $imageData = base64_encode(file_get_contents($imagePath));
+                $mimeType = mime_content_type($imagePath);
+                
+                Log::info('Image Info', [
+                    'mime' => $mimeType,
+                    'size_kb' => round(strlen($imageData) / 1024, 2)
+                ]);
+                
+                $prompt = "
+                    Extract ALL text from this image.
+                    Return ONLY the extracted text, nothing else.
+                    Preserve line breaks and formatting.
+                    Do not add explanations or labels.
+                ";
+
+                $response = $this->client->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $this->apiKey, [
+                    'json' => [
+                        'contents' => [
+                            [
+                                'parts' => [
+                                    ['text' => $prompt],
+                                    [
+                                        'inline_data' => [
+                                            'mime_type' => $mimeType,
+                                            'data' => $imageData
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    'timeout' => 120,
+                    'headers' => ['Content-Type' => 'application/json'],
+                    'verify' => false,
+                ]);
+
+                if ($response->getStatusCode() === 200) {
+                    $data = json_decode($response->getBody(), true);
+                    $extractedText = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+                    
+                    // Clean up text
+                    $extractedText = trim($extractedText);
+                    
+                    Log::info('OCR Extract Success', ['text_length' => strlen($extractedText)]);
+                    
+                    return [
+                        'success' => true,
+                        'text' => $extractedText
+                    ];
+                }
+                
+            } catch (\GuzzleHttp\Exception\ServerException $e) {
+                $attempt++;
+                
+                if ($e->getResponse()->getStatusCode() === 503) {
+                    Log::warning('Gemini Overloaded, retrying...', ['attempt' => $attempt]);
+                    
+                    if ($attempt >= $maxRetries) {
+                        return [
+                            'success' => false,
+                            'error' => 'Server sedang sibuk. Coba lagi dalam beberapa menit.'
+                        ];
+                    }
+                    
+                    sleep(pow(2, $attempt));
+                    continue;
+                }
+                
+                return [
+                    'success' => false,
+                    'error' => 'API Error: ' . $e->getMessage()
+                ];
+                
+            } catch (\Exception $e) {
+                Log::error('OCR Extract Exception', ['message' => $e->getMessage()]);
+                return [
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
+        
+        return [
+            'success' => false,
+            'error' => 'Max retries exceeded'
+        ];
+    }
+
 }

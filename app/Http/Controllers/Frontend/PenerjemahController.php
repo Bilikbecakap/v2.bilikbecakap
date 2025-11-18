@@ -726,4 +726,41 @@ class PenerjemahController extends Controller
             ];
         }
     }
+
+    /**
+     * Extract text from image (OCR)
+     */
+    public function extractText(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+        ]);
+
+        try {
+            Log::info('OCR Extract Started');
+            
+            $image = $request->file('image');
+            $path = $image->store('ocr-temp', 'public');
+            $fullPath = storage_path('app/public/' . $path);
+            
+            $result = $this->geminiService->extractTextFromImage($fullPath);
+
+            // Hapus file temporary
+            @unlink($fullPath);
+            
+            Log::info('OCR Extract Complete', ['success' => $result['success']]);
+
+            return response()->json($result);
+            
+        } catch (\Exception $e) {
+            Log::error('OCR Extract Error', [
+                'message' => $e->getMessage(),
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

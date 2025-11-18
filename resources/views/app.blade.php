@@ -8,7 +8,7 @@
         <title inertia>{{ config('app.name', 'Bilikbecakap') }}</title>
 
         <meta name="description" content="Bilikbecakap - Bersatu Memajukan Kebudayaan">
-        <meta name="keywords" content="bilikbecakap, pemajuan kebudayaan, pelestarian kebudayaan, Bilikbecakap adalah platform digital yang didedikasikan untuk pelestarian bahasa dan budaya Belitung, khususnya Bahasa Belitung.">
+        <meta name="keywords" content="bilikbecakap, pemajuan kebudayaan, pelestarian kebudayaan, Bilikbecakap adalah platform digital yang didedikasikan untuk pelestarian bahasa dan budaya Belitung Timur, khususnya Bahasa Belitung.">
         <meta name="author" content="Bilikbecakap">
         <meta name="robots" content="index, follow">
 

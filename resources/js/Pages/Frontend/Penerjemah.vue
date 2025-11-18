@@ -20,10 +20,16 @@ const languages = [
 // Form state
 const inputText = ref('');
 const outputText = ref('');
-const sourceLanguage = ref('id'); // default Indonesia
-const targetLanguage = ref('mb'); // default Melayu Belitung
+const sourceLanguage = ref('id');
+const targetLanguage = ref('mb');
 const isTranslating = ref(false);
 const showCopySuccess = ref({ input: false, output: false });
+
+// OCR Modal state
+const showOcrModal = ref(false);
+const imagePreview = ref(null);
+const selectedFile = ref(null);
+const isExtracting = ref(false);
 
 // Character counter
 const charCount = computed(() => inputText.value.length);
@@ -44,12 +50,12 @@ const direction = computed(() => {
     return 'indonesia_to_belitung';
 });
 
-// Filter available target languages (exclude source)
+// Filter available target languages
 const availableTargetLanguages = computed(() => {
     return languages.filter(lang => lang.code !== sourceLanguage.value);
 });
 
-// Watch source language change - reset target if same
+// Watch source language change
 watch(sourceLanguage, (newSource) => {
     if (newSource === targetLanguage.value) {
         const available = languages.find(lang => lang.code !== newSource);
@@ -70,7 +76,6 @@ const swapLanguages = () => {
     sourceLanguage.value = targetLanguage.value;
     targetLanguage.value = temp;
     
-    // Swap texts
     const tempText = inputText.value;
     inputText.value = outputText.value;
     outputText.value = tempText;
@@ -135,6 +140,61 @@ const translate = async () => {
         alert('Terjadi kesalahan sistem');
     } finally {
         isTranslating.value = false;
+    }
+};
+
+// ========== OCR FUNCTIONS ==========
+
+const openOcrModal = () => {
+    showOcrModal.value = true;
+};
+
+const closeOcrModal = () => {
+    showOcrModal.value = false;
+    imagePreview.value = null;
+    selectedFile.value = null;
+};
+
+const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        selectedFile.value = file;
+        imagePreview.value = URL.createObjectURL(file);
+    }
+};
+
+const extractTextFromImage = async () => {
+    if (!selectedFile.value) {
+        alert('Pilih gambar terlebih dahulu');
+        return;
+    }
+    
+    isExtracting.value = true;
+    const formData = new FormData();
+    formData.append('image', selectedFile.value);
+
+    try {
+        const response = await fetch(route('penerjemah.extractText'), {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: formData,
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            inputText.value = data.text;
+            closeOcrModal();
+        } else {
+            alert('Gagal mengekstrak teks: ' + data.error);
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Terjadi kesalahan sistem');
+    } finally {
+        isExtracting.value = false;
     }
 };
 </script>
@@ -237,21 +297,36 @@ const translate = async () => {
                                     class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#54b0af] focus:border-transparent resize-none"
                                     placeholder="Masukkan teks yang ingin diterjemahkan..."
                                 ></textarea>
-                                <div class="mt-3 flex gap-2 justify-end items-center">
-                                    <transition name="fade">
-                                        <span v-if="showCopySuccess.input" class="text-sm text-green-600 font-medium">
-                                            ✓ Berhasil disalin!
-                                        </span>
-                                    </transition>
+                                <div class="mt-3 flex gap-2 justify-between items-center">
+                                    <!-- OCR Button (LEFT) -->
                                     <button
-                                        @click="copyToClipboard(inputText, 'input')"
-                                        class="p-2 text-gray-600 hover:text-[#54b0af] transition-colors"
-                                        title="Salin"
+                                        @click="openOcrModal"
+                                        class="flex items-center gap-2 px-4 py-2 bg-[#e0a013] hover:bg-[#c78a10] text-white text-sm font-medium rounded-lg transition-colors shadow-md hover:shadow-lg"
+                                        title="Ekstrak teks dari gambar manuskrip atau dokumen"
                                     >
-                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
+                                        OCR Manuskrip
                                     </button>
+                                    
+                                    <!-- Copy Button (RIGHT) -->
+                                    <div class="flex gap-2 items-center">
+                                        <transition name="fade">
+                                            <span v-if="showCopySuccess.input" class="text-sm text-green-600 font-medium">
+                                                ✓ Berhasil disalin!
+                                            </span>
+                                        </transition>
+                                        <button
+                                            @click="copyToClipboard(inputText, 'input')"
+                                            class="p-2 text-gray-600 hover:text-[#54b0af] transition-colors"
+                                            title="Salin"
+                                        >
+                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -313,24 +388,86 @@ const translate = async () => {
                     </div>
                 </div>
 
-                <!-- Info Card -->
-                <div class="max-w-7xl mx-auto mt-8 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
-                    <div class="flex items-start gap-4">
-                        <div class="bg-[#54b0af]/10 p-3 rounded-xl">
-                            <svg class="w-6 h-6 text-[#54b0af]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="text-lg font-semibold text-[#002b44] mb-2">{{ t('messages.tentang penerjemah') }}</h4>
-                            <p class="text-gray-600 leading-relaxed">
-                               {{ t('messages.tentang penerjemah deskripsi') }}
-                            </p>
+                <!-- Info Cards -->
+                <div class="max-w-7xl mx-auto mt-8 space-y-4">
+                    <!-- Info Card Penerjemah -->
+                    <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+                        <div class="flex items-start gap-4">
+                            <div class="bg-[#54b0af]/10 p-3 rounded-xl flex-shrink-0">
+                                <svg class="w-6 h-6 text-[#54b0af]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-[#002b44] mb-2">{{ t('messages.tentang penerjemah') }}</h4>
+                                <p class="text-gray-600 leading-relaxed">
+                                {{ t('messages.tentang penerjemah deskripsi') }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- OCR Modal -->
+        <Transition name="modal">
+            <div v-if="showOcrModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" @click.stop>
+                    <!-- Modal Header -->
+                    <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                        <h3 class="text-2xl font-bold text-[#54b0af]">📷 Ekstrak Teks dari Gambar</h3>
+                        <button @click="closeOcrModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Modal Body -->
+                    <div class="p-6">
+                        <!-- Upload Area -->
+                        <div v-if="!imagePreview" class="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-[#54b0af] transition-colors">
+                            <input type="file" @change="handleFileSelect" accept="image/*" class="hidden" id="ocrFileInput">
+                            <label for="ocrFileInput" class="cursor-pointer">
+                                <div class="text-6xl mb-4">📸</div>
+                                <p class="text-lg font-semibold text-gray-700 mb-2">Pilih Gambar</p>
+                                <p class="text-sm text-gray-500">PNG, JPG, JPEG (Max 5MB)</p>
+                            </label>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div v-else class="space-y-4">
+                            <img :src="imagePreview" class="w-full rounded-xl shadow-lg border-2 border-gray-200">
+                            
+                            <div class="flex gap-3">
+                                <button
+                                    @click="extractTextFromImage"
+                                    :disabled="isExtracting"
+                                    class="flex-1 bg-[#54b0af] hover:bg-[#459a99] text-white py-3 px-6 rounded-xl font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    <svg v-if="isExtracting" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>{{ isExtracting ? '⏳ Memproses...' : '🔍 Ekstrak Teks' }}</span>
+                                </button>
+                                <label for="ocrFileInput" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-semibold cursor-pointer transition-colors flex items-center justify-center">
+                                    🔄 Ganti
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="mt-6 p-4 bg-blue-50 rounded-xl">
+                            <p class="text-sm text-blue-800">
+                                Memiliki manuskrip kuno, buku tua, atau dokumen tulisan tangan dalam Bahasa Indonesia atau Melayu Belitung? Gunakan fitur OCR (Optical Character Recognition) untuk mengekstrak teks dari gambar secara otomatis.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
     </FrontendLayout>
 </template>
 
@@ -344,11 +481,22 @@ const translate = async () => {
 .animate-spin {
     animation: spin 1s linear infinite;
 }
+
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.3s ease;
 }
 
 .fade-enter-from, .fade-leave-to {
     opacity: 0;
+}
+
+/* Modal Animation */
+.modal-enter-active, .modal-leave-active {
+    transition: all 0.3s ease;
+}
+
+.modal-enter-from, .modal-leave-to {
+    opacity: 0;
+    transform: scale(0.9);
 }
 </style>

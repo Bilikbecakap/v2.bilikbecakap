@@ -10,6 +10,7 @@ use App\Http\Controllers\Frontend\KuisController;
 use App\Http\Controllers\Frontend\KontakController;
 use App\Http\Controllers\Frontend\GaleriController;
 use App\Http\Controllers\Frontend\ChatbotController;
+use App\Http\Controllers\Frontend\OcrController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PageProjectController;
 use App\Http\Controllers\ProfileController;
@@ -68,6 +69,7 @@ Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store')
 Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri.public');
 
 //ai
+Route::post('/penerjemah/extract-text', [PenerjemahController::class, 'extractText'])->name('penerjemah.extractText');
 Route::post('/chatbot/send', [ChatbotController::class, 'sendMessage'])->name('chatbot.send');
 Route::get('/chatbot/context-options', [ChatbotController::class, 'getContextOptions'])->name('chatbot.context');
 

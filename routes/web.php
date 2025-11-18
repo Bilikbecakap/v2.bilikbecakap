@@ -58,12 +58,19 @@ Route::get('/tentang', function () {return Inertia::render('Frontend/Tentang');}
 Route::post('/komentar', [KomentarController::class, 'store'])->name('komentar.store');
 Route::get('/artikel', [BlogController::class, 'daftar'])->name('artikel.index');
 Route::get('/artikel/{slug}', [BlogController::class, 'baca'])->name('artikel.show');
+
 Route::get('/kuis', [KuisController::class, 'index'])->name('kuis.index');
 Route::get('/kuis/{slug}', [KuisController::class, 'show'])->name('kuis.show');
 Route::post('/kuis/{slug}/begin', [KuisController::class, 'begin'])->name('quiz-attempt.begin');
 Route::get('/kuis/{slug}/do', [KuisController::class, 'quiz'])->name('quiz-attempt.quiz');
 Route::post('/kuis/{slug}/do/submit', [KuisController::class, 'submit'])->name('quiz-attempt.submit');
 Route::get('/kuis/{slug}/result', [KuisController::class, 'result'])->name('quiz-attempt.result');
+
+Route::post('/kuis/{slug}/begin-duel', [KuisController::class, 'beginDuel'])->name('quiz-attempt.begin-duel');
+Route::get('/kuis/{slug}/duel', [KuisController::class, 'duel'])->name('quiz-attempt.duel');
+Route::post('/kuis/{slug}/submit-duel', [KuisController::class, 'submitDuel'])->name('quiz-attempt.submit-duel');
+Route::get('/kuis/{slug}/duel-result', [KuisController::class, 'duelResult'])->name('quiz-attempt.duel-result');
+
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak.index');
 Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
 Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri.public');
@@ -225,6 +232,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Quiz History & Detail (untuk admin review)
         Route::get('/quiz/{quiz}/attempts', [QuizAttemptController::class, 'history'])->name('quiz.attempts.history');
         Route::get('/quiz/{quiz}/attempts/{attempt}', [QuizAttemptController::class, 'show'])->name('quiz.attempts.show');
+        Route::delete('quiz/{quiz}/attempts/{attempt}', [QuizAttemptController::class, 'destroy'])->name('quiz.attempts.destroy');
 
         // Gambar Galeri
         Route::get('/galeri', [GambarGaleriController::class, 'index'])->name('galeri.index');

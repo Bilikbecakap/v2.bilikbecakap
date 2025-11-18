@@ -15,6 +15,8 @@ class QuizAnswer extends Model
         'quiz_attempt_id',
         'quiz_question_id',
         'quiz_option_id',
+        'text_answer',     
+        'answer_type', 
         'is_correct',
     ];
 
@@ -43,5 +45,15 @@ class QuizAnswer extends Model
     public function isAnswered()
     {
         return !is_null($this->quiz_option_id);
+    }
+    
+    public function isOptionAnswer()
+    {
+        return $this->answer_type === 'option';
+    }
+
+    public function isTextAnswer()
+    {
+        return $this->answer_type === 'text';
     }
 }

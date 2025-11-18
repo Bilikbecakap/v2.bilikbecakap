@@ -47,6 +47,11 @@ class QuizController extends Controller implements HasMiddleware
             $query->where('status', $request->status);
         }
 
+        // Filter berdasarkan duel enabled
+        if ($request->filled('is_duel_enabled')) {
+            $query->where('is_duel_enabled', $request->is_duel_enabled);
+        }
+
         // Sorting
         if ($request->has('sort') && $request->sort === 'created_at') {
             $direction = $request->direction === 'asc' ? 'asc' : 'desc';
@@ -68,6 +73,7 @@ class QuizController extends Controller implements HasMiddleware
             'search' => $request->search,
             'type' => $request->type,
             'status' => $request->status,
+            'is_duel_enabled' => $request->is_duel_enabled,
             'sort' => $request->sort,
             'direction' => $request->direction,
         ]);
@@ -108,6 +114,7 @@ class QuizController extends Controller implements HasMiddleware
             'duration' => 'required|integer|min:1',
             'type' => 'required|in:umum,modul',
             'modul_pembelajaran_id' => 'required_if:type,modul|nullable|exists:modul_pembelajaran,id',
+            'is_duel_enabled' => 'nullable|boolean',
             'status' => 'required|in:active,inactive',
         ], [
             'title.required' => 'Judul quiz wajib diisi.',
@@ -131,6 +138,9 @@ class QuizController extends Controller implements HasMiddleware
                 $data['modul_pembelajaran_id'] = null;
             }
 
+            // Set default is_duel_enabled
+            $data['is_duel_enabled'] = $request->boolean('is_duel_enabled', false);
+
             // Auto-generate slug dari title
             $data['slug'] = \Illuminate\Support\Str::slug($data['title']);
 
@@ -147,6 +157,7 @@ class QuizController extends Controller implements HasMiddleware
                 ->withProperties([
                     'type' => $data['type'],
                     'status' => $data['status'],
+                    'is_duel_enabled' => $data['is_duel_enabled'],
                     'has_thumbnail' => isset($data['thumbnail']),
                     'has_music' => isset($data['master_media_music_quiz_id']),
                 ])
@@ -178,10 +189,16 @@ class QuizController extends Controller implements HasMiddleware
         $totalAttempts = $quiz->attempts()->count();
         $averageScore = $quiz->attempts()->avg('score');
 
+        // Stats untuk single dan duel mode
+        $singleAttempts = $quiz->attempts()->where('game_mode', 'single')->count();
+        $duelAttempts = $quiz->attempts()->where('game_mode', 'duel')->count();
+
         return Inertia::render('Quiz/Show', [
             'quiz' => $quiz,
             'totalAttempts' => $totalAttempts,
             'averageScore' => round($averageScore, 2) ?? 0,
+            'singleAttempts' => $singleAttempts,
+            'duelAttempts' => $duelAttempts,
         ]);
     }
 
@@ -215,6 +232,7 @@ class QuizController extends Controller implements HasMiddleware
             'duration' => 'required|integer|min:1',
             'type' => 'required|in:umum,modul',
             'modul_pembelajaran_id' => 'required_if:type,modul|nullable|exists:modul_pembelajaran,id',
+            'is_duel_enabled' => 'nullable|boolean',
             'status' => 'required|in:active,inactive',
         ], [
             'title.required' => 'Judul quiz wajib diisi.',
@@ -237,6 +255,9 @@ class QuizController extends Controller implements HasMiddleware
             if ($data['type'] === 'umum') {
                 $data['modul_pembelajaran_id'] = null;
             }
+
+            // Set is_duel_enabled
+            $data['is_duel_enabled'] = $request->boolean('is_duel_enabled', false);
 
             // Auto-generate slug dari title
             $data['slug'] = \Illuminate\Support\Str::slug($data['title']);
@@ -265,6 +286,8 @@ class QuizController extends Controller implements HasMiddleware
                     'new_type' => $data['type'],
                     'old_status' => $quiz->getOriginal('status'),
                     'new_status' => $data['status'],
+                    'old_is_duel_enabled' => $quiz->getOriginal('is_duel_enabled'),
+                    'new_is_duel_enabled' => $data['is_duel_enabled'],
                     'thumbnail_updated' => $request->hasFile('thumbnail'),
                     'music_updated' => isset($data['master_media_music_quiz_id']),
                 ])

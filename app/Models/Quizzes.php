@@ -21,14 +21,16 @@ class Quizzes extends Model
         'master_media_music_quiz_id',
         'duration',
         'type',
+        'is_duel_enabled',
         'status',
     ];
 
     protected $casts = [
         'duration' => 'integer',
+        'is_duel_enabled' => 'boolean',
     ];
 
-    protected $appends = ['thumbnail_url', 'music_url'];
+    protected $appends = ['thumbnail_url', 'music_url', 'total_questions'];
 
     // Relasi ke Modul Pembelajaran
     public function modulPembelajaran()
@@ -94,5 +96,10 @@ class Quizzes extends Model
         if ($this->thumbnail && Storage::disk('public')->exists($this->thumbnail)) {
             Storage::disk('public')->delete($this->thumbnail);
         }
+    }
+
+    public function isDuelEnabled()
+    {
+        return $this->is_duel_enabled === true;
     }
 }

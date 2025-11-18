@@ -14,6 +14,8 @@ class QuizQuestion extends Model
     protected $fillable = [
         'quiz_id',
         'question',
+        'question_type',
+        'correct_answer',
         'order',
     ];
 
@@ -43,5 +45,15 @@ class QuizQuestion extends Model
     public function correctOption()
     {
         return $this->hasOne(QuizOption::class)->where('is_correct', true);
+    }
+    
+    public function isFillBlank()
+    {
+        return $this->question_type === 'fill_blank';
+    }
+
+    public function isMultipleChoice()
+    {
+        return $this->question_type === 'multiple_choice';
     }
 }

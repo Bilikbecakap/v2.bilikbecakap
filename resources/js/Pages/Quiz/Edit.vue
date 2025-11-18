@@ -6,7 +6,7 @@ import { ref, watch, computed } from "vue";
 const props = defineProps({
   quiz: Object,
   moduls: Array,
-  musicQuizzes: Array, // TAMBAH
+  musicQuizzes: Array,
 });
 
 // DEBUG
@@ -18,17 +18,18 @@ const form = useForm({
   title: props.quiz.title,
   description: props.quiz.description,
   thumbnail: null,
-  master_media_music_quiz_id: props.quiz.master_media_music_quiz_id, // UBAH
+  master_media_music_quiz_id: props.quiz.master_media_music_quiz_id, 
   remove_thumbnail: false,
   duration: props.quiz.duration,
   type: props.quiz.type,
   modul_pembelajaran_id: props.quiz.modul_pembelajaran_id,
+  is_duel_enabled: props.quiz.is_duel_enabled || false, // TAMBAH
   status: props.quiz.status,
 });
 
 // Preview states
 const thumbnailPreview = ref(props.quiz.thumbnail_url);
-const selectedMusic = ref(null); // UBAH: untuk preview audio yang dipilih
+const selectedMusic = ref(null);
 
 // Initialize selected music jika ada
 if (props.quiz.master_media_music_quiz_id) {
@@ -45,7 +46,7 @@ watch(
   }
 );
 
-// TAMBAH: Watch music selection changes
+// Watch music selection changes
 watch(
   () => form.master_media_music_quiz_id,
   (newMusicId) => {
@@ -88,11 +89,12 @@ const submit = () => {
     title: form.title,
     description: form.description,
     thumbnail: form.thumbnail,
-    master_media_music_quiz_id: form.master_media_music_quiz_id, // UBAH
+    master_media_music_quiz_id: form.master_media_music_quiz_id,
     remove_thumbnail: form.remove_thumbnail ? '1' : '0',
     duration: form.duration,
     type: form.type,
     modul_pembelajaran_id: form.modul_pembelajaran_id,
+    is_duel_enabled: form.is_duel_enabled ? '1' : '0', // TAMBAH
     status: form.status,
   }, {
     preserveScroll: true,
@@ -283,7 +285,7 @@ const submit = () => {
             </p>
           </div>
 
-          <!-- UBAH: Music Selector (bukan upload) -->
+          <!-- Music Selector -->
           <div>
             <label
               for="master_media_music_quiz_id"
@@ -389,13 +391,7 @@ const submit = () => {
             </div>
 
             <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Pilih music baru untuk mengganti, atau pilih "Tidak Ada Music" untuk menghapus. Kelola music di 
-              <Link 
-                :href="route('data-master.quiz-music.index')" 
-                class="text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                Master Data Music Quiz
-              </Link>
+              Pilih music baru untuk mengganti, atau pilih "Tidak Ada Music" untuk menghapus
             </p>
             <p v-if="form.errors.master_media_music_quiz_id" class="mt-1 text-sm text-red-600 dark:text-red-400">
               {{ form.errors.master_media_music_quiz_id }}
@@ -483,6 +479,34 @@ const submit = () => {
             >
               {{ form.errors.modul_pembelajaran_id }}
             </p>
+          </div>
+
+          <!-- TAMBAH: Duel Mode Enabled -->
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-4 border-2 border-purple-200 dark:border-purple-700">
+            <div class="flex items-start gap-4">
+              <div class="flex items-center h-5 mt-1">
+                <input
+                  id="is_duel_enabled"
+                  v-model="form.is_duel_enabled"
+                  type="checkbox"
+                  class="w-5 h-5 text-purple-600 bg-white border-purple-300 rounded focus:ring-purple-500 focus:ring-2 dark:bg-slate-700 dark:border-purple-600 cursor-pointer"
+                />
+              </div>
+              <div class="flex-1">
+                <label
+                  for="is_duel_enabled"
+                  class="text-sm font-semibold text-purple-900 dark:text-purple-100 cursor-pointer flex items-center gap-2"
+                >
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Aktifkan Mode Duel (Tarik Tambang)
+                </label>
+                <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">
+                  Mode duel memungkinkan 2 player bermain bersama dalam format tarik tambang. Player yang pertama menjawab 5 soal dengan benar akan menang!
+                </p>
+              </div>
+            </div>
           </div>
 
           <!-- Status -->

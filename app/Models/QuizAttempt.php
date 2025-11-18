@@ -13,7 +13,13 @@ class QuizAttempt extends Model
 
     protected $fillable = [
         'quiz_id',
+        'game_mode',
         'participant_name',
+        'player1_name',     
+        'player2_name',     
+        'player1_score',    
+        'player2_score',    
+        'winner',           
         'score',
         'correct_answers',
         'total_questions',
@@ -25,6 +31,8 @@ class QuizAttempt extends Model
         'score' => 'integer',
         'correct_answers' => 'integer',
         'total_questions' => 'integer',
+        'player1_score' => 'integer',  
+        'player2_score' => 'integer', 
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
@@ -57,5 +65,29 @@ class QuizAttempt extends Model
             return $this->started_at->diffInMinutes($this->completed_at);
         }
         return 0;
+    }
+
+    public function isDuelMode()
+    {
+        return $this->game_mode === 'duel';
+    }
+
+    public function isSingleMode()
+    {
+        return $this->game_mode === 'single';
+    }
+
+    public function getWinnerNameAttribute()
+    {
+        if (!$this->winner) return null;
+        
+        return $this->winner === 'player1' 
+            ? $this->player1_name 
+            : $this->player2_name;
+    }
+
+    public function hasWinner()
+    {
+        return !is_null($this->winner);
     }
 }

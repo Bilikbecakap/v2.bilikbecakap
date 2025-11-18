@@ -115,7 +115,7 @@ const getTypeText = (type) => {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Left Column - Quiz Details -->
       <div class="lg:col-span-2 space-y-6">
-        <!-- UBAH: Thumbnail & Media Section -->
+        <!-- Thumbnail & Media Section -->
         <div
           v-if="quiz.thumbnail_url || quiz.master_media_music_quiz"
           class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
@@ -141,7 +141,7 @@ const getTypeText = (type) => {
               </div>
             </div>
 
-            <!-- UBAH: Background Music dari Master Media Music Quiz -->
+            <!-- Background Music -->
             <div v-if="quiz.master_media_music_quiz">
               <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
                 Background Music
@@ -178,7 +178,7 @@ const getTypeText = (type) => {
                   </div>
                 </div>
 
-                <!-- Audio Player dengan URL yang benar -->
+                <!-- Audio Player -->
                 <audio
                   v-if="quiz.master_media_music_quiz.audio_url"
                   controls
@@ -244,8 +244,8 @@ const getTypeText = (type) => {
               </p>
             </div>
 
-            <!-- Type & Status -->
-            <div class="grid grid-cols-2 gap-4">
+            <!-- Type, Status & Duel Mode -->
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
                   Tipe Quiz
@@ -271,6 +271,28 @@ const getTypeText = (type) => {
                   ]"
                 >
                   {{ getStatusText(quiz.status) }}
+                </span>
+              </div>
+
+              <!-- TAMBAH: Duel Mode Badge -->
+              <div>
+                <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
+                  Mode Duel
+                </label>
+                <span
+                  v-if="quiz.is_duel_enabled"
+                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700"
+                >
+                  <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Aktif
+                </span>
+                <span
+                  v-else
+                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+                >
+                  Tidak Aktif
                 </span>
               </div>
             </div>
@@ -382,12 +404,39 @@ const getTypeText = (type) => {
                     {{ index + 1 }}
                   </span>
                   <div class="flex-1">
+                    <!-- Question Type Badge -->
+                    <div class="flex items-center gap-2 mb-2">
+                      <span
+                        v-if="question.question_type === 'multiple_choice'"
+                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                      >
+                        <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        Pilihan Ganda
+                      </span>
+                      <span
+                        v-else-if="question.question_type === 'fill_blank'"
+                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                      >
+                        <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Isian Singkat
+                      </span>
+                    </div>
+
                     <div 
                       class="text-sm font-medium text-slate-800 dark:text-white prose prose-sm dark:prose-invert max-w-none"
                       v-html="question.question"
                     ></div>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      {{ question.options?.length || 0 }} pilihan jawaban
+                      <span v-if="question.question_type === 'multiple_choice'">
+                        {{ question.options?.length || 0 }} pilihan jawaban
+                      </span>
+                      <span v-else-if="question.question_type === 'fill_blank'">
+                        Isian singkat
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -435,7 +484,7 @@ const getTypeText = (type) => {
         </div>
       </div>
 
-      <!-- Right Column - Statistics & Actions (tetap sama) -->
+      <!-- Right Column - Statistics & Actions -->
       <div class="space-y-6">
         <!-- Statistics -->
         <div
@@ -630,7 +679,7 @@ const getTypeText = (type) => {
       </div>
     </div>
 
-    <!-- Delete Modal (tetap sama) -->
+    <!-- Delete Modal -->
     <div
       v-if="showDeleteModal"
       class="fixed inset-0 z-50 overflow-y-auto"

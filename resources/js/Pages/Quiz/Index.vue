@@ -13,6 +13,7 @@ const props = defineProps({
   search: String,
   type: String,
   status: String,
+  is_duel_enabled: String, // TAMBAH
   sort: String,
   direction: String,
 });
@@ -32,6 +33,7 @@ const filters = ref({
   search: props.search || "",
   type: props.type || "",
   status: props.status || "",
+  is_duel_enabled: props.is_duel_enabled || "", // TAMBAH
 });
 
 // Methods
@@ -63,6 +65,7 @@ const resetFilters = () => {
     search: "",
     type: "",
     status: "",
+    is_duel_enabled: "", // TAMBAH
   };
   applyFilters();
 };
@@ -151,7 +154,7 @@ const getTypeText = (type) => {
     <!-- Filters -->
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
       <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <!-- Search -->
           <div class="lg:col-span-2">
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pencarian</label>
@@ -168,6 +171,17 @@ const getTypeText = (type) => {
               <option value="">Semua Tipe</option>
               <option value="umum">Quiz Umum</option>
               <option value="modul">Quiz Modul</option>
+            </select>
+          </div>
+
+          <!-- TAMBAH: Duel Filter -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mode Duel</label>
+            <select v-model="filters.is_duel_enabled"
+              class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white">
+              <option value="">Semua Mode</option>
+              <option value="1">Duel Aktif</option>
+              <option value="0">Duel Tidak Aktif</option>
             </select>
           </div>
 
@@ -277,6 +291,15 @@ const getTypeText = (type) => {
                   <p v-if="quiz.modul_pembelajaran" class="text-xs text-blue-600 dark:text-blue-400 mt-1">
                     📚 {{ quiz.modul_pembelajaran.title }}
                   </p>
+                  <!-- TAMBAH: Duel Badge -->
+                  <div v-if="quiz.is_duel_enabled" class="flex items-center gap-1 mt-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700">
+                      <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      Mode Duel
+                    </span>
+                  </div>
                 </div>
               </td>
 
@@ -377,7 +400,7 @@ const getTypeText = (type) => {
         </table>
       </div>
 
-      <!-- Pagination -->
+      <!-- Pagination (sama seperti sebelumnya) -->
       <div v-if="quizzes.data && quizzes.data.length > 0"
         class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <div class="flex items-center justify-between">
@@ -427,7 +450,7 @@ const getTypeText = (type) => {
       </div>
     </div>
 
-    <!-- Delete Modal -->
+    <!-- Delete Modal (sama seperti sebelumnya) -->
     <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
       aria-modal="true">
       <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">

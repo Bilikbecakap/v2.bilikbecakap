@@ -1,7 +1,7 @@
 <script setup>
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { ref, watch, computed } from "vue";
 import QuillEditor from "@/Components/QuillEditor.vue";
 
 const props = defineProps({
@@ -11,6 +11,7 @@ const props = defineProps({
 
 const form = useForm({
   question: "",
+  question_type: "multiple_choice",
   order: props.nextOrder,
   options: [
     { option_text: "", is_correct: false, order: 0 },
@@ -18,6 +19,23 @@ const form = useForm({
     { option_text: "", is_correct: false, order: 2 },
     { option_text: "", is_correct: false, order: 3 },
   ],
+  correct_answer: "",
+});
+
+// Watch question type changes
+watch(() => form.question_type, (newType) => {
+  if (newType === 'fill_blank') {
+    form.options = [];
+    form.correct_answer = ""; // Reset
+  } else if (newType === 'multiple_choice' && form.options.length === 0) {
+    form.options = [
+      { option_text: "", is_correct: false, order: 0 },
+      { option_text: "", is_correct: false, order: 1 },
+      { option_text: "", is_correct: false, order: 2 },
+      { option_text: "", is_correct: false, order: 3 },
+    ];
+    form.correct_answer = ""; // Reset
+  }
 });
 
 const addOption = () => {
@@ -33,7 +51,6 @@ const addOption = () => {
 const removeOption = (index) => {
   if (form.options.length > 2) {
     form.options.splice(index, 1);
-    // Re-order
     form.options.forEach((opt, idx) => {
       opt.order = idx;
     });
@@ -46,7 +63,46 @@ const setCorrectAnswer = (index) => {
   });
 };
 
+// ✅ CLIENT-SIDE VALIDATION
+const canSubmit = computed(() => {
+  // Cek pertanyaan tidak kosong
+  if (!form.question || !form.question.trim()) return false;
+  
+  if (form.question_type === 'multiple_choice') {
+    // Minimal 2 options
+    if (form.options.length < 2) return false;
+    
+    // Semua option harus terisi
+    const allFilled = form.options.every(opt => opt.option_text && opt.option_text.trim());
+    if (!allFilled) return false;
+    
+    // Minimal 1 jawaban benar
+    const hasCorrect = form.options.some(opt => opt.is_correct);
+    if (!hasCorrect) return false;
+    
+    return true;
+  } else if (form.question_type === 'fill_blank') {
+    // Correct answer harus terisi
+    return form.correct_answer && form.correct_answer.trim();
+  }
+  
+  return false;
+});
+
 const submit = () => {
+  // ✅ CLEAN DATA sebelum submit
+  const submitData = {
+    question: form.question,
+    question_type: form.question_type,
+    order: form.order,
+  };
+
+  if (form.question_type === 'multiple_choice') {
+    submitData.options = form.options;
+  } else if (form.question_type === 'fill_blank') {
+    submitData.correct_answer = form.correct_answer.trim();
+  }
+
   form.post(route("quiz.questions.store", props.quiz.id), {
     preserveScroll: true,
     onSuccess: () => {
@@ -56,7 +112,7 @@ const submit = () => {
 };
 
 const getOptionLabel = (index) => {
-  return String.fromCharCode(65 + index); // A, B, C, D, ...
+  return String.fromCharCode(65 + index);
 };
 </script>
 
@@ -117,6 +173,69 @@ const getOptionLabel = (index) => {
             </div>
 
             <div class="p-6 space-y-6">
+              <!-- Tipe Soal -->
+              <div class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg p-4 border-2 border-blue-200 dark:border-blue-700">
+                <label class="block text-sm font-semibold text-blue-900 dark:text-blue-100 mb-3">
+                  Tipe Soal <span class="text-red-500">*</span>
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <!-- Multiple Choice -->
+                  <label
+                    :class="[
+                      'flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all',
+                      form.question_type === 'multiple_choice'
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600'
+                    ]"
+                  >
+                    <input
+                      v-model="form.question_type"
+                      type="radio"
+                      value="multiple_choice"
+                      class="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                    />
+                    <div class="ml-3">
+                      <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        <span class="text-sm font-medium text-slate-900 dark:text-white">Pilihan Ganda</span>
+                      </div>
+                      <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">A, B, C, D (max 6)</p>
+                    </div>
+                  </label>
+
+                  <!-- Fill Blank -->
+                  <label
+                    :class="[
+                      'flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all',
+                      form.question_type === 'fill_blank'
+                        ? 'border-green-500 bg-green-50 dark:bg-green-900/30'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-green-300 dark:hover:border-green-600'
+                    ]"
+                  >
+                    <input
+                      v-model="form.question_type"
+                      type="radio"
+                      value="fill_blank"
+                      class="w-4 h-4 text-green-600 focus:ring-green-500"
+                    />
+                    <div class="ml-3">
+                      <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span class="text-sm font-medium text-slate-900 dark:text-white">Isian Singkat</span>
+                      </div>
+                      <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Jawaban teks bebas</p>
+                    </div>
+                  </label>
+                </div>
+                <p v-if="form.errors.question_type" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {{ form.errors.question_type }}
+                </p>
+              </div>
+
               <!-- Pertanyaan dengan Rich Text Editor -->
               <div>
                 <label
@@ -163,8 +282,8 @@ const getOptionLabel = (index) => {
                 </p>
               </div>
 
-              <!-- Pilihan Jawaban -->
-              <div>
+              <!-- CONDITIONAL: Multiple Choice Options -->
+              <div v-if="form.question_type === 'multiple_choice'">
                 <div class="flex items-center justify-between mb-3">
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     Pilihan Jawaban <span class="text-red-500">*</span>
@@ -204,7 +323,6 @@ const getOptionLabel = (index) => {
                     ]"
                   >
                     <div class="flex items-start gap-3">
-                      <!-- Label -->
                       <div
                         :class="[
                           'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold',
@@ -216,7 +334,6 @@ const getOptionLabel = (index) => {
                         {{ getOptionLabel(index) }}
                       </div>
 
-                      <!-- Input -->
                       <div class="flex-1">
                         <input
                           v-model="option.option_text"
@@ -236,9 +353,7 @@ const getOptionLabel = (index) => {
                         </p>
                       </div>
 
-                      <!-- Actions -->
                       <div class="flex-shrink-0 flex items-center gap-2">
-                        <!-- Set Correct -->
                         <button
                           @click="setCorrectAnswer(index)"
                           type="button"
@@ -265,7 +380,6 @@ const getOptionLabel = (index) => {
                           </svg>
                         </button>
 
-                        <!-- Remove -->
                         <button
                           v-if="form.options.length > 2"
                           @click="removeOption(index)"
@@ -301,6 +415,32 @@ const getOptionLabel = (index) => {
                 <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
                   Klik icon centang untuk menandai jawaban yang benar. Minimal 2 pilihan,
                   maksimal 6 pilihan.
+                </p>
+              </div>
+
+              <!-- CONDITIONAL: Fill Blank Answer -->
+              <div v-else-if="form.question_type === 'fill_blank'" class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border-2 border-green-200 dark:border-green-700">
+                <label
+                  for="correct_answer"
+                  class="block text-sm font-medium text-green-900 dark:text-green-100 mb-2"
+                >
+                  Jawaban yang Benar <span class="text-red-500">*</span>
+                </label>
+                <input
+                  id="correct_answer"
+                  v-model="form.correct_answer"
+                  type="text"
+                  placeholder="Masukkan jawaban yang benar (case-insensitive)"
+                  class="w-full px-4 py-2 border border-green-300 dark:border-green-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-slate-700 dark:text-white"
+                  :class="{
+                    'border-red-500 dark:border-red-500': form.errors.correct_answer,
+                  }"
+                />
+                <p class="mt-2 text-xs text-green-700 dark:text-green-300">
+                  💡 Jawaban akan dicocokkan tanpa memperhatikan huruf besar/kecil. Contoh: "Sedang" = "sedang" = "SEDANG"
+                </p>
+                <p v-if="form.errors.correct_answer" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {{ form.errors.correct_answer }}
                 </p>
               </div>
 
@@ -343,7 +483,7 @@ const getOptionLabel = (index) => {
               </Link>
               <button
                 type="submit"
-                :disabled="form.processing"
+                :disabled="form.processing || !canSubmit"
                 class="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span v-if="form.processing">Menyimpan...</span>
@@ -385,10 +525,10 @@ const getOptionLabel = (index) => {
                 </div>
                 <div>
                   <p class="text-sm font-medium text-slate-800 dark:text-white mb-1">
-                    Format Kaya
+                    Pilih Tipe Soal
                   </p>
                   <p class="text-xs text-slate-600 dark:text-slate-400">
-                    Gunakan bold, italic, warna untuk membuat soal lebih menarik
+                    Pilihan ganda untuk opsi A-D, atau isian untuk jawaban bebas
                   </p>
                 </div>
               </div>
@@ -444,7 +584,7 @@ const getOptionLabel = (index) => {
                     Jawaban Benar
                   </p>
                   <p class="text-xs text-slate-600 dark:text-slate-400">
-                    Tandai minimal 1 jawaban benar dengan klik icon centang
+                    Tandai jawaban benar dengan icon centang atau isi jawaban isian
                   </p>
                 </div>
               </div>

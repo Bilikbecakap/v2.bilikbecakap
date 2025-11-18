@@ -229,4 +229,27 @@ class QuizAttemptController extends Controller implements HasMiddleware
             'attempt' => $attempt,
         ]);
     }
+
+    /**
+     * Delete attempt record.
+     */
+    public function destroy(Quizzes $quiz, QuizAttempt $attempt)
+    {
+        DB::beginTransaction();
+        try {
+            // Delete related answers first
+            $attempt->answers()->delete();
+            
+            // Delete attempt
+            $attempt->delete();
+            
+            DB::commit();
+            
+            return redirect()->back()->with('success', 'Data pengerjaan berhasil dihapus.');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal menghapus data: ' . $e->getMessage()]);
+        }
+    }
 }

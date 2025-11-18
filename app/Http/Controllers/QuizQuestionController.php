@@ -23,9 +23,6 @@ class QuizQuestionController extends Controller implements HasMiddleware
         ];
     }
 
-    /**
-     * Display a listing of questions for a specific quiz.
-     */
     public function index(Quizzes $quiz)
     {
         $questions = $quiz->questions()
@@ -33,18 +30,19 @@ class QuizQuestionController extends Controller implements HasMiddleware
             ->orderBy('order')
             ->get();
 
+        $questions->transform(function ($question) {
+            $question->type_label = $question->isMultipleChoice() ? 'Pilihan Ganda' : 'Isian';
+            return $question;
+        });
+
         return Inertia::render('Quiz/Questions/Index', [
             'quiz' => $quiz,
             'questions' => $questions
         ]);
     }
 
-    /**
-     * Show the form for creating a new question.
-     */
     public function create(Quizzes $quiz)
     {
-        // Get next order number
         $nextOrder = $quiz->questions()->max('order') + 1;
 
         return Inertia::render('Quiz/Questions/Create', [
@@ -53,49 +51,80 @@ class QuizQuestionController extends Controller implements HasMiddleware
         ]);
     }
 
-    /**
-     * Store a newly created question in storage.
-     */
     public function store(Request $request, Quizzes $quiz)
     {
         $request->validate([
             'question' => 'required|string',
+            'question_type' => 'required|in:multiple_choice,fill_blank',
             'order' => 'required|integer|min:0',
-            'options' => 'required|array|min:2|max:6',
-            'options.*.option_text' => 'required|string',
-            'options.*.is_correct' => 'required|boolean',
-            'options.*.order' => 'required|integer|min:0',
         ], [
             'question.required' => 'Pertanyaan wajib diisi.',
-            'options.required' => 'Minimal harus ada 2 pilihan jawaban.',
-            'options.min' => 'Minimal harus ada 2 pilihan jawaban.',
-            'options.max' => 'Maksimal 6 pilihan jawaban.',
-            'options.*.option_text.required' => 'Teks pilihan jawaban wajib diisi.',
-            'options.*.is_correct.required' => 'Status jawaban benar/salah wajib ditentukan.',
+            'question_type.required' => 'Tipe soal wajib dipilih.',
+            'question_type.in' => 'Tipe soal tidak valid.',
+            'order.required' => 'Urutan soal wajib diisi.',
         ]);
 
-        // Validasi: minimal 1 jawaban benar
-        $hasCorrectAnswer = collect($request->options)->contains('is_correct', true);
-        if (!$hasCorrectAnswer) {
-            return back()->withInput()->withErrors(['options' => 'Minimal harus ada 1 jawaban yang benar.']);
+        if ($request->question_type === 'multiple_choice') {
+            $request->validate([
+                'options' => 'required|array|min:2|max:6',
+                'options.*.option_text' => 'required|string',
+                'options.*.is_correct' => 'required|boolean',
+                'options.*.order' => 'required|integer|min:0',
+            ], [
+                'options.required' => 'Pilihan jawaban wajib diisi untuk soal pilihan ganda.',
+                'options.min' => 'Minimal harus ada 2 pilihan jawaban.',
+                'options.max' => 'Maksimal 6 pilihan jawaban.',
+                'options.*.option_text.required' => 'Teks pilihan jawaban wajib diisi.',
+                'options.*.is_correct.required' => 'Status jawaban benar/salah wajib ditentukan.',
+            ]);
+
+            $hasCorrectAnswer = collect($request->options)->contains('is_correct', true);
+            if (!$hasCorrectAnswer) {
+                return back()->withInput()->withErrors(['options' => 'Minimal harus ada 1 jawaban yang benar.']);
+            }
+
+            $correctCount = collect($request->options)->where('is_correct', true)->count();
+            if ($correctCount > 1) {
+                return back()->withInput()->withErrors(['options' => 'Hanya boleh ada 1 jawaban yang benar.']);
+            }
+
+        } elseif ($request->question_type === 'fill_blank') {
+            $request->validate([
+                'correct_answer' => 'required|string|max:255',
+            ], [
+                'correct_answer.required' => 'Jawaban yang benar wajib diisi untuk soal isian.',
+                'correct_answer.max' => 'Jawaban maksimal 255 karakter.',
+            ]);
         }
 
         DB::beginTransaction();
         try {
-            // Create question
-            $question = $quiz->questions()->create([
+            // ✅ CREATE QUESTION dengan correct_answer
+            $questionData = [
                 'question' => $request->question,
+                'question_type' => $request->question_type,
                 'order' => $request->order,
-            ]);
+            ];
+
+            // ✅ TAMBAH correct_answer untuk fill_blank
+            if ($request->question_type === 'fill_blank') {
+                $questionData['correct_answer'] = trim($request->correct_answer);
+            }
+
+            $question = $quiz->questions()->create($questionData);
 
             // Create options
-            foreach ($request->options as $optionData) {
-                $question->options()->create([
-                    'option_text' => $optionData['option_text'],
-                    'is_correct' => $optionData['is_correct'],
-                    'order' => $optionData['order'],
-                ]);
+            if ($request->question_type === 'multiple_choice') {
+                foreach ($request->options as $optionData) {
+                    $question->options()->create([
+                        'option_text' => $optionData['option_text'],
+                        'is_correct' => $optionData['is_correct'],
+                        'order' => $optionData['order'],
+                    ]);
+                }
             }
+            // ✅ Untuk fill_blank, TIDAK perlu buat option lagi
+            // Karena correct_answer sudah disimpan di quiz_questions.correct_answer
 
             activity()
                 ->causedBy(auth()->user())
@@ -103,7 +132,10 @@ class QuizQuestionController extends Controller implements HasMiddleware
                 ->withProperties([
                     'quiz_id' => $quiz->id,
                     'quiz_title' => $quiz->title,
-                    'options_count' => count($request->options)
+                    'question_type' => $request->question_type,
+                    'options_count' => $request->question_type === 'multiple_choice' 
+                        ? count($request->options) 
+                        : 0
                 ])
                 ->log('Created new quiz question');
 
@@ -114,16 +146,20 @@ class QuizQuestionController extends Controller implements HasMiddleware
 
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Error creating quiz question: ' . $e->getMessage());
             return back()->withInput()->withErrors(['error' => 'Gagal menambahkan soal: ' . $e->getMessage()]);
         }
     }
 
-    /**
-     * Show the form for editing the specified question.
-     */
     public function edit(Quizzes $quiz, QuizQuestion $question)
     {
         $question->load('options');
+
+        // ✅ Untuk fill_blank, ambil dari kolom correct_answer
+        if ($question->isFillBlank()) {
+            // Tidak perlu ambil dari options, langsung dari kolom
+            // $question->correct_answer sudah ada di model
+        }
 
         return Inertia::render('Quiz/Questions/Edit', [
             'quiz' => $quiz,
@@ -131,63 +167,76 @@ class QuizQuestionController extends Controller implements HasMiddleware
         ]);
     }
 
-    /**
-     * Update the specified question in storage.
-     */
     public function update(Request $request, Quizzes $quiz, QuizQuestion $question)
     {
         $request->validate([
             'question' => 'required|string',
+            'question_type' => 'required|in:multiple_choice,fill_blank',
             'order' => 'required|integer|min:0',
-            'options' => 'required|array|min:2|max:6',
-            'options.*.id' => 'nullable|integer|exists:quiz_options,id',
-            'options.*.option_text' => 'required|string',
-            'options.*.is_correct' => 'required|boolean',
-            'options.*.order' => 'required|integer|min:0',
         ], [
             'question.required' => 'Pertanyaan wajib diisi.',
-            'options.required' => 'Minimal harus ada 2 pilihan jawaban.',
-            'options.min' => 'Minimal harus ada 2 pilihan jawaban.',
-            'options.max' => 'Maksimal 6 pilihan jawaban.',
-            'options.*.option_text.required' => 'Teks pilihan jawaban wajib diisi.',
-            'options.*.is_correct.required' => 'Status jawaban benar/salah wajib ditentukan.',
+            'question_type.required' => 'Tipe soal wajib dipilih.',
+            'order.required' => 'Urutan soal wajib diisi.',
         ]);
 
-        // Validasi: minimal 1 jawaban benar
-        $hasCorrectAnswer = collect($request->options)->contains('is_correct', true);
-        if (!$hasCorrectAnswer) {
-            return back()->withInput()->withErrors(['options' => 'Minimal harus ada 1 jawaban yang benar.']);
+        if ($request->question_type === 'multiple_choice') {
+            $request->validate([
+                'options' => 'required|array|min:2|max:6',
+                'options.*.id' => 'nullable|integer|exists:quiz_options,id',
+                'options.*.option_text' => 'required|string',
+                'options.*.is_correct' => 'required|boolean',
+                'options.*.order' => 'required|integer|min:0',
+            ], [
+                'options.required' => 'Pilihan jawaban wajib diisi untuk soal pilihan ganda.',
+                'options.min' => 'Minimal harus ada 2 pilihan jawaban.',
+                'options.max' => 'Maksimal 6 pilihan jawaban.',
+                'options.*.option_text.required' => 'Teks pilihan jawaban wajib diisi.',
+            ]);
+
+            $hasCorrectAnswer = collect($request->options)->contains('is_correct', true);
+            if (!$hasCorrectAnswer) {
+                return back()->withInput()->withErrors(['options' => 'Minimal harus ada 1 jawaban yang benar.']);
+            }
+
+            $correctCount = collect($request->options)->where('is_correct', true)->count();
+            if ($correctCount > 1) {
+                return back()->withInput()->withErrors(['options' => 'Hanya boleh ada 1 jawaban yang benar.']);
+            }
+
+        } elseif ($request->question_type === 'fill_blank') {
+            $request->validate([
+                'correct_answer' => 'required|string|max:255',
+            ], [
+                'correct_answer.required' => 'Jawaban yang benar wajib diisi untuk soal isian.',
+                'correct_answer.max' => 'Jawaban maksimal 255 karakter.',
+            ]);
         }
 
         DB::beginTransaction();
         try {
-            // Update question
-            $question->update([
+            // ✅ UPDATE QUESTION dengan correct_answer
+            $questionData = [
                 'question' => $request->question,
+                'question_type' => $request->question_type,
                 'order' => $request->order,
-            ]);
+            ];
 
-            // Get existing option IDs
-            $existingOptionIds = $question->options->pluck('id')->toArray();
-            $submittedOptionIds = collect($request->options)->pluck('id')->filter()->toArray();
-
-            // Delete options that are not in the submitted data
-            $optionsToDelete = array_diff($existingOptionIds, $submittedOptionIds);
-            if (!empty($optionsToDelete)) {
-                QuizOption::whereIn('id', $optionsToDelete)->delete();
+            // ✅ UPDATE correct_answer untuk fill_blank
+            if ($request->question_type === 'fill_blank') {
+                $questionData['correct_answer'] = trim($request->correct_answer);
+            } else {
+                // Reset correct_answer jika diubah ke multiple_choice
+                $questionData['correct_answer'] = null;
             }
 
-            // Update or create options
-            foreach ($request->options as $optionData) {
-                if (isset($optionData['id'])) {
-                    // Update existing option
-                    QuizOption::where('id', $optionData['id'])->update([
-                        'option_text' => $optionData['option_text'],
-                        'is_correct' => $optionData['is_correct'],
-                        'order' => $optionData['order'],
-                    ]);
-                } else {
-                    // Create new option
+            $question->update($questionData);
+
+            // Hapus semua options lama
+            $question->options()->delete();
+
+            // Buat options baru HANYA untuk multiple_choice
+            if ($request->question_type === 'multiple_choice') {
+                foreach ($request->options as $optionData) {
                     $question->options()->create([
                         'option_text' => $optionData['option_text'],
                         'is_correct' => $optionData['is_correct'],
@@ -202,7 +251,10 @@ class QuizQuestionController extends Controller implements HasMiddleware
                 ->withProperties([
                     'quiz_id' => $quiz->id,
                     'quiz_title' => $quiz->title,
-                    'options_count' => count($request->options)
+                    'question_type' => $request->question_type,
+                    'options_count' => $request->question_type === 'multiple_choice' 
+                        ? count($request->options) 
+                        : 0
                 ])
                 ->log('Updated quiz question');
 
@@ -213,13 +265,11 @@ class QuizQuestionController extends Controller implements HasMiddleware
 
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Error updating quiz question: ' . $e->getMessage());
             return back()->withInput()->withErrors(['error' => 'Gagal mengupdate soal: ' . $e->getMessage()]);
         }
     }
 
-    /**
-     * Remove the specified question from storage.
-     */
     public function destroy(Quizzes $quiz, QuizQuestion $question)
     {
         DB::beginTransaction();
@@ -230,6 +280,7 @@ class QuizQuestionController extends Controller implements HasMiddleware
                 ->withProperties([
                     'quiz_id' => $quiz->id,
                     'quiz_title' => $quiz->title,
+                    'question_type' => $question->question_type,
                     'deleted_question' => $question->toArray()
                 ])
                 ->log('Deleted quiz question');
@@ -243,6 +294,7 @@ class QuizQuestionController extends Controller implements HasMiddleware
 
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Error deleting quiz question: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Gagal menghapus soal: ' . $e->getMessage()]);
         }
     }

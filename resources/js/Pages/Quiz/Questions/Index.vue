@@ -36,6 +36,11 @@ const confirmDelete = () => {
 const getCorrectOption = (options) => {
   return options.find((opt) => opt.is_correct);
 };
+
+// ✅ TAMBAH: Helper untuk mendapatkan tipe label
+const getQuestionTypeLabel = (questionType) => {
+  return questionType === 'multiple_choice' ? 'Pilihan Ganda' : 'Isian Singkat';
+};
 </script>
 
 <template>
@@ -141,6 +146,23 @@ const getCorrectOption = (options) => {
               </svg>
               {{ questions.length }} soal
             </div>
+            <!-- Badge Duel -->
+            <div v-if="quiz.is_duel_enabled" class="flex items-center">
+              <svg
+                class="w-4 h-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              Mode Duel
+            </div>
           </div>
         </div>
         <div class="text-right">
@@ -229,14 +251,36 @@ const getCorrectOption = (options) => {
 
             <!-- Question Content -->
             <div class="flex-1 min-w-0">
-              <!-- Gunakan v-html untuk render HTML dari Quill Editor -->
+              <!-- Question Type Badge -->
+              <div class="flex items-center gap-2 mb-2">
+                <span
+                  v-if="question.question_type === 'multiple_choice'"
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                >
+                  <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  Pilihan Ganda
+                </span>
+                <span
+                  v-else-if="question.question_type === 'fill_blank'"
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                >
+                  <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Isian Singkat
+                </span>
+              </div>
+
+              <!-- Question Text -->
               <div 
                 class="text-base font-medium text-slate-900 dark:text-slate-100 mb-3 prose prose-sm dark:prose-invert max-w-none"
                 v-html="question.question"
               ></div>
 
-              <!-- Options -->
-              <div class="space-y-2 mb-3">
+              <!-- CONDITIONAL: Multiple Choice Options -->
+              <div v-if="question.question_type === 'multiple_choice'" class="space-y-2 mb-3">
                 <div
                   v-for="(option, optIndex) in question.options"
                   :key="option.id"
@@ -284,17 +328,36 @@ const getCorrectOption = (options) => {
                 </div>
               </div>
 
+              <!-- CONDITIONAL: Fill Blank Answer -->
+              <div v-else-if="question.question_type === 'fill_blank'" class="mb-3">
+                <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-300 dark:border-green-700">
+                  <div class="flex items-start gap-2">
+                    <svg class="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="flex-1">
+                      <p class="text-xs font-medium text-green-700 dark:text-green-300 mb-1">Jawaban yang Benar:</p>
+                      <p class="text-sm font-semibold text-green-800 dark:text-green-200">{{ question.correct_answer || 'Belum diisi' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <!-- Meta Info -->
               <div class="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
                 <span>Urutan: {{ question.order }}</span>
                 <span>•</span>
-                <span>{{ question.options?.length || 0 }} pilihan</span>
+                <span v-if="question.question_type === 'multiple_choice'">
+                  {{ question.options?.length || 0 }} pilihan
+                </span>
+                <span v-else-if="question.question_type === 'fill_blank'">
+                  Isian singkat (case-insensitive)
+                </span>
               </div>
             </div>
 
             <!-- Actions -->
             <div class="flex-shrink-0 flex items-center gap-2">
-
               <!-- Edit -->
               <Link
                 v-if="can('edit quiz')"
@@ -393,8 +456,14 @@ const getCorrectOption = (options) => {
               </h3>
               <div class="mt-2">
                 <p class="text-sm text-slate-500 dark:text-slate-400">
-                  Apakah Anda yakin ingin menghapus soal ini? Semua pilihan jawaban akan
-                  ikut terhapus. Tindakan ini tidak dapat dibatalkan.
+                  Apakah Anda yakin ingin menghapus soal ini? 
+                  <span v-if="selectedQuestion?.question_type === 'multiple_choice'">
+                    Semua pilihan jawaban akan ikut terhapus.
+                  </span>
+                  <span v-else-if="selectedQuestion?.question_type === 'fill_blank'">
+                    Jawaban benar yang tersimpan akan ikut terhapus.
+                  </span>
+                  Tindakan ini tidak dapat dibatalkan.
                 </p>
               </div>
             </div>

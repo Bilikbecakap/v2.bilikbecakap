@@ -1,7 +1,7 @@
 <script setup>
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { ref, watch, computed } from "vue";
 import QuillEditor from "@/Components/QuillEditor.vue";
 
 const props = defineProps({
@@ -11,13 +11,15 @@ const props = defineProps({
 
 const form = useForm({
   question: props.question.question,
+  question_type: props.question.question_type || 'multiple_choice',
   order: props.question.order,
-  options: props.question.options.map((opt) => ({
+  options: props.question.options?.map((opt) => ({
     id: opt.id,
     option_text: opt.option_text,
     is_correct: opt.is_correct,
     order: opt.order,
-  })),
+  })) || [],
+  correct_answer: props.question.correct_answer || "",
 });
 
 const addOption = () => {
@@ -34,7 +36,6 @@ const addOption = () => {
 const removeOption = (index) => {
   if (form.options.length > 2) {
     form.options.splice(index, 1);
-    // Re-order
     form.options.forEach((opt, idx) => {
       opt.order = idx;
     });
@@ -47,6 +48,27 @@ const setCorrectAnswer = (index) => {
   });
 };
 
+// ✅ CLIENT-SIDE VALIDATION
+const canSubmit = computed(() => {
+  if (!form.question || !form.question.trim()) return false;
+  
+  if (form.question_type === 'multiple_choice') {
+    if (form.options.length < 2) return false;
+    
+    const allFilled = form.options.every(opt => opt.option_text && opt.option_text.trim());
+    if (!allFilled) return false;
+    
+    const hasCorrect = form.options.some(opt => opt.is_correct);
+    if (!hasCorrect) return false;
+    
+    return true;
+  } else if (form.question_type === 'fill_blank') {
+    return form.correct_answer && form.correct_answer.trim();
+  }
+  
+  return false;
+});
+
 const submit = () => {
   form.put(route("quiz.questions.update", [props.quiz.id, props.question.id]), {
     preserveScroll: true,
@@ -57,7 +79,7 @@ const submit = () => {
 };
 
 const getOptionLabel = (index) => {
-  return String.fromCharCode(65 + index); // A, B, C, D, ...
+  return String.fromCharCode(65 + index);
 };
 </script>
 
@@ -118,6 +140,36 @@ const getOptionLabel = (index) => {
             </div>
 
             <div class="p-6 space-y-6">
+              <!-- Tipe Soal (Read-only) -->
+              <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Tipe Soal
+                </label>
+                <div class="flex items-center gap-2">
+                  <div
+                    v-if="form.question_type === 'multiple_choice'"
+                    class="inline-flex items-center px-3 py-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                  >
+                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <span class="text-sm font-medium">Pilihan Ganda</span>
+                  </div>
+                  <div
+                    v-else-if="form.question_type === 'fill_blank'"
+                    class="inline-flex items-center px-3 py-2 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                  >
+                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span class="text-sm font-medium">Isian Singkat</span>
+                  </div>
+                </div>
+                <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                  Tipe soal tidak dapat diubah setelah dibuat
+                </p>
+              </div>
+
               <!-- Pertanyaan dengan Rich Text Editor -->
               <div>
                 <label
@@ -164,8 +216,8 @@ const getOptionLabel = (index) => {
                 </p>
               </div>
 
-              <!-- Pilihan Jawaban -->
-              <div>
+              <!-- CONDITIONAL: Multiple Choice Options -->
+              <div v-if="form.question_type === 'multiple_choice'">
                 <div class="flex items-center justify-between mb-3">
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     Pilihan Jawaban <span class="text-red-500">*</span>
@@ -205,7 +257,6 @@ const getOptionLabel = (index) => {
                     ]"
                   >
                     <div class="flex items-start gap-3">
-                      <!-- Label -->
                       <div
                         :class="[
                           'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold',
@@ -217,7 +268,6 @@ const getOptionLabel = (index) => {
                         {{ getOptionLabel(index) }}
                       </div>
 
-                      <!-- Input -->
                       <div class="flex-1">
                         <input
                           v-model="option.option_text"
@@ -237,9 +287,7 @@ const getOptionLabel = (index) => {
                         </p>
                       </div>
 
-                      <!-- Actions -->
                       <div class="flex-shrink-0 flex items-center gap-2">
-                        <!-- Set Correct -->
                         <button
                           @click="setCorrectAnswer(index)"
                           type="button"
@@ -266,7 +314,6 @@ const getOptionLabel = (index) => {
                           </svg>
                         </button>
 
-                        <!-- Remove -->
                         <button
                           v-if="form.options.length > 2"
                           @click="removeOption(index)"
@@ -302,6 +349,32 @@ const getOptionLabel = (index) => {
                 <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
                   Klik icon centang untuk menandai jawaban yang benar. Minimal 2 pilihan,
                   maksimal 6 pilihan.
+                </p>
+              </div>
+
+              <!-- CONDITIONAL: Fill Blank Answer -->
+              <div v-else-if="form.question_type === 'fill_blank'" class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border-2 border-green-200 dark:border-green-700">
+                <label
+                  for="correct_answer"
+                  class="block text-sm font-medium text-green-900 dark:text-green-100 mb-2"
+                >
+                  Jawaban yang Benar <span class="text-red-500">*</span>
+                </label>
+                <input
+                  id="correct_answer"
+                  v-model="form.correct_answer"
+                  type="text"
+                  placeholder="Masukkan jawaban yang benar (case-insensitive)"
+                  class="w-full px-4 py-2 border border-green-300 dark:border-green-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-slate-700 dark:text-white"
+                  :class="{
+                    'border-red-500 dark:border-red-500': form.errors.correct_answer,
+                  }"
+                />
+                <p class="mt-2 text-xs text-green-700 dark:text-green-300">
+                  💡 Jawaban akan dicocokkan tanpa memperhatikan huruf besar/kecil. Contoh: "Sedang" = "sedang" = "SEDANG"
+                </p>
+                <p v-if="form.errors.correct_answer" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {{ form.errors.correct_answer }}
                 </p>
               </div>
 
@@ -372,7 +445,7 @@ const getOptionLabel = (index) => {
               </Link>
               <button
                 type="submit"
-                :disabled="form.processing"
+                :disabled="form.processing || !canSubmit"
                 class="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span v-if="form.processing">Menyimpan...</span>
@@ -442,10 +515,10 @@ const getOptionLabel = (index) => {
                 </div>
                 <div>
                   <p class="text-sm font-medium text-slate-800 dark:text-white mb-1">
-                    Format Kaya
+                    Tipe Tidak Bisa Diubah
                   </p>
                   <p class="text-xs text-slate-600 dark:text-slate-400">
-                    Gunakan bold, italic, warna untuk memperjelas soal
+                    Tipe soal (Pilihan Ganda/Isian) tidak dapat diubah
                   </p>
                 </div>
               </div>

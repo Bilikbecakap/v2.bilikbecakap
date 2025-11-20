@@ -92,9 +92,6 @@ const animateCounter = (refValue, target, duration) => {
     }, 16);
 };
 
-// Computed parallax values
-const heroParallax = computed(() => `translateY(${scrollY.value * 0.5}px)`);
-const decorativeParallax = computed(() => `translateY(${scrollY.value * 0.3}px)`);
 </script>
 
 <template>
@@ -1105,16 +1102,4 @@ const decorativeParallax = computed(() => `translateY(${scrollY.value * 0.3}px)`
     animation: bounce-slow 0.6s ease-in-out;
 }
 
-/* 3D Hover effect for hero image */
-.hero-image-container {
-    perspective: 1000px;
-}
-
-.hero-image {
-    transition: transform 0.5s ease;
-}
-
-.hero-image-container:hover .hero-image {
-    transform: rotateY(5deg) rotateX(5deg);
-}
 </style>

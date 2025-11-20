@@ -111,6 +111,11 @@ Route::get('/serve-media/{folder}/{filename}', function ($folder, $filename) {
     ]);
 })->where(['folder' => '.*', 'filename' => '.*']);
 
+Route::fallback(function () {
+    return inertia('Errors/404')->toResponse(request())->setStatusCode(404);
+});
+
+
 /*
 |--------------------------------------------------------------------------
 | Admin Panel Routes

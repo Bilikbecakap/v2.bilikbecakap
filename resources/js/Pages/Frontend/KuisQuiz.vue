@@ -395,7 +395,17 @@ const isQuestionAnswered = (index) => {
     <!-- Choice Sound Effect -->
     <audio ref="choiceSoundEffect" src="/background/choice-05-199276.mp3" preload="auto" class="hidden"></audio>
 
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 py-8">
+    <div class="min-h-screen py-8 relative overflow-hidden">
+      <!-- Background -->
+      <div class="absolute inset-0 z-0">
+        <img src="/background/laut-pantai.png" alt="Background" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-[rgba(252,228,179,0.2)]"></div>
+      </div>
+
+      <!-- Decorative -->
+      <div class="absolute top-0 right-0 w-96 h-96 bg-[#54b0af]/20 rounded-full blur-3xl z-10"></div>
+      <div class="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl z-10"></div>
+
       <!-- Timer Card - Sticky Header -->
       <div class="sticky top-0 z-40 bg-white/95 backdrop-blur-sm shadow-lg border-b border-slate-200">
         <div class="container mx-auto px-6 py-4">
@@ -505,12 +515,12 @@ const isQuestionAnswered = (index) => {
         </div>
       </div>
 
-      <div class="container mx-auto px-6 py-8" v-if="form.answers && form.answers.length > 0">
+      <div class="container mx-auto px-6 py-8 relative z-20" v-if="form.answers && form.answers.length > 0">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <!-- Question -->
           <div class="lg:col-span-3">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200">
-              <div class="px-4 sm:px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-t-xl">
+            <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl border border-white/20">
+              <div class="px-4 sm:px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-[#54b0af] to-[#459a99] text-white rounded-t-xl">
                 <div class="flex items-center justify-between">
                   <h3 class="text-base sm:text-lg font-semibold">
                     Soal {{ currentQuestionIndex + 1 }} dari {{ questions.length }}
@@ -542,15 +552,15 @@ const isQuestionAnswered = (index) => {
                     :class="[
                       'w-full flex items-start p-3 sm:p-4 rounded-lg border-2 text-left transition-all duration-150',
                       isOptionSelected(option.id)
-                        ? 'border-blue-500 bg-blue-50 shadow-md'
-                        : 'border-slate-200 bg-slate-50 hover:border-blue-300 hover:bg-blue-50/50',
+                        ? 'border-[#54b0af] bg-[#54b0af]/10 shadow-md'
+                        : 'border-slate-200 bg-slate-50 hover:border-[#54b0af]/50 hover:bg-[#54b0af]/5',
                     ]"
                   >
                     <span
                       :class="[
                         'flex-shrink-0 inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full text-xs sm:text-sm font-bold mr-3 sm:mr-4',
                         isOptionSelected(option.id)
-                          ? 'bg-blue-500 text-white'
+                          ? 'bg-[#54b0af] text-white'
                           : 'bg-slate-200 text-slate-600',
                       ]"
                     >
@@ -568,7 +578,7 @@ const isQuestionAnswered = (index) => {
                     </span>
                     <svg
                       v-if="isOptionSelected(option.id)"
-                      class="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 text-blue-500 ml-2"
+                      class="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 text-[#54b0af] ml-2"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -596,7 +606,7 @@ const isQuestionAnswered = (index) => {
                       <button
                         v-if="currentQuestionIndex < questions.length - 1"
                         @click="nextQuestion"
-                        class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors duration-150"
+                        class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-[#54b0af] text-white text-sm font-medium rounded-lg hover:bg-[#459a99] transition-colors duration-150"
                       >
                         Selanjutnya
                         <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -633,7 +643,7 @@ const isQuestionAnswered = (index) => {
                       <button
                         v-if="currentQuestionIndex < questions.length - 1"
                         @click="nextQuestion"
-                        class="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors duration-150"
+                        class="inline-flex items-center px-4 py-2 bg-[#54b0af] text-white text-sm font-medium rounded-lg hover:bg-[#459a99] transition-colors duration-150"
                       >
                         Selanjutnya
                         <svg class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -659,7 +669,7 @@ const isQuestionAnswered = (index) => {
 
           <!-- Navigator Sidebar -->
           <div class="lg:col-span-1">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 lg:sticky lg:top-28">
+            <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl border border-white/20 lg:sticky lg:top-28">
               <div class="px-4 sm:px-6 py-4 border-b border-slate-200">
                 <h3 class="text-base sm:text-lg font-semibold text-slate-800">
                   Navigasi Soal
@@ -685,7 +695,7 @@ const isQuestionAnswered = (index) => {
                     :class="[
                       'aspect-square rounded-lg text-sm font-semibold transition-all duration-150',
                       currentQuestionIndex === index
-                        ? 'bg-blue-500 text-white ring-2 ring-blue-300'
+                        ? 'bg-[#54b0af] text-white ring-2 ring-[#54b0af]/30'
                         : isQuestionAnswered(index)
                         ? 'bg-green-100 text-green-700 hover:bg-green-200'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
@@ -698,7 +708,7 @@ const isQuestionAnswered = (index) => {
 
               <div class="px-4 sm:px-6 py-4 border-t border-slate-200 space-y-2">
                 <div class="flex items-center text-xs text-slate-600">
-                  <div class="w-6 h-6 rounded bg-blue-500 mr-2"></div>
+                  <div class="w-6 h-6 rounded bg-[#54b0af] mr-2"></div>
                   <span>Soal Aktif</span>
                 </div>
                 <div class="flex items-center text-xs text-slate-600">

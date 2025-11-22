@@ -14,6 +14,52 @@ const searchQuery = ref(props.search || '');
 const selectedType = ref(props.type || '');
 const selectedDuelMode = ref(props.is_duel_enabled || '');
 
+// Data Kuis Inovatif (Statis)
+const innovativeQuizzes = ref([
+    {
+        id: 'pelafalan-kata',
+        title: 'Kuis Pelafalan Kata',
+        description: 'Uji kemampuan pelafalan Anda dengan teknologi speech recognition. Ucapkan kata dalam Bahasa Melayu Belitung dengan benar!',
+        slug: 'pelafalan-kata',
+        route: 'kuis-inovatif.pelafalan-kata',
+        icon: '🎤',
+        gradient: 'from-red-500 to-pink-500',
+        borderColor: 'border-red-200',
+        bgGradient: 'from-red-50 to-pink-50',
+        questions: 10,
+        duration: 15,
+        type: 'inovatif'
+    },
+    {
+        id: 'dengar-jawab',
+        title: 'Kuis Dengar & Jawab',
+        description: 'Dengarkan audio dalam Bahasa Melayu Belitung dan pilih jawaban yang tepat. Latih kemampuan mendengar Anda!',
+        slug: 'dengar-jawab',
+        route: 'kuis-inovatif.dengar-jawab',
+        icon: '🎧',
+        gradient: 'from-purple-500 to-pink-500',
+        borderColor: 'border-purple-200',
+        bgGradient: 'from-purple-50 to-pink-50',
+        questions: 10,
+        duration: 10,
+        type: 'inovatif'
+    },
+    {
+        id: 'cocokkan-kata',
+        title: 'Kuis Cocokkan Kata',
+        description: 'Cocokkan kata Bahasa Melayu Belitung dengan artinya dalam Bahasa Indonesia. Interaktif dengan drag & drop!',
+        slug: 'cocokkan-kata',
+        route: 'kuis-inovatif.cocokkan-kata',
+        icon: '🎯',
+        gradient: 'from-blue-500 to-cyan-500',
+        borderColor: 'border-blue-200',
+        bgGradient: 'from-blue-50 to-cyan-50',
+        questions: 8,
+        duration: 12,
+        type: 'inovatif'
+    }
+]);
+
 const handleSearch = () => {
     applyFilters();
 };
@@ -132,8 +178,9 @@ watch(searchQuery, () => {
                     </div>
                 </div>
 
-                <!-- Grid Kuis -->
+                <!-- Grid Kuis (Gabungan Database + Inovatif) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
+                    <!-- Kuis dari Database -->
                     <div v-for="quiz in quizzes.data" :key="quiz.id"
                         class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
                         
@@ -227,6 +274,85 @@ watch(searchQuery, () => {
                             </a>
                         </div>
                     </div>
+
+                    <!-- Kuis Inovatif (Statis) -->
+                    <div 
+                        v-for="innovativeQuiz in innovativeQuizzes" 
+                        :key="innovativeQuiz.id"
+                        class="relative bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border-2 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group"
+                        :class="innovativeQuiz.borderColor"
+                    >
+                        <!-- Quiz Header dengan Gradient -->
+                        <div :class="`relative h-48 bg-gradient-to-br ${innovativeQuiz.bgGradient} overflow-hidden`">
+                            <!-- Icon Besar (TANPA ANIMASI) -->
+                            <div class="flex items-center justify-center h-full">
+                                <div class="text-8xl group-hover:scale-110 transition-transform duration-300">
+                                    {{ innovativeQuiz.icon }}
+                                </div>
+                            </div>
+
+                            <!-- Badge DALAM PENGEMBANGAN -->
+                            <div class="absolute top-4 right-4">
+                                <span class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    DALAM PENGEMBANGAN
+                                </span>
+                            </div>
+
+                            <!-- Questions Count Badge -->
+                            <div class="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm text-[#002b44] text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ innovativeQuiz.questions }} soal
+                            </div>
+                        </div>
+
+                        <!-- Quiz Content -->
+                        <div class="p-5 space-y-4">
+                            <!-- Title -->
+                            <h3 class="font-bold text-[#002b44] text-lg group-hover:text-[#54b0af] transition-colors">
+                                {{ innovativeQuiz.title }}
+                            </h3>
+
+                            <!-- Description -->
+                            <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                                {{ innovativeQuiz.description }}
+                            </p>
+
+                            <!-- Quiz Info Row -->
+                            <div class="flex items-center justify-between text-xs text-[#002b44]/60 border-t border-gray-200 pt-3">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>{{ innovativeQuiz.duration }} menit</span>
+                                </div>
+                                <div class="flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    <span class="font-semibold">BETA</span>
+                                </div>
+                            </div>
+
+                            <!-- CTA Button dengan Gradient Khusus -->
+                            <a :href="route(innovativeQuiz.route)"
+                                :class="`block w-full bg-gradient-to-r ${innovativeQuiz.gradient} hover:shadow-xl text-white font-semibold py-3 rounded-xl transition-all duration-300 text-center group/btn`">
+                                <span class="flex items-center justify-center gap-2">
+                                    Coba Sekarang
+                                    <svg class="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Empty State -->
@@ -307,6 +433,9 @@ watch(searchQuery, () => {
                                 Kuis kami dirancang untuk menguji pemahaman Anda tentang Bahasa dan Budaya Belitung.
                                 Setiap kuis memiliki soal-soal yang dapat diselesaikan dalam waktu yang ditentukan.
                                 <strong class="text-orange-600">Kuis Tantangan</strong> memungkinkan Anda bermain bersama teman dalam format yang lebih seru!
+                                <span class="block mt-2 text-purple-600 font-medium">
+                                    🚀 Kuis Inovatif sedang dalam tahap pengembangan dan menggunakan teknologi speech recognition!
+                                </span>
                             </p>
                         </div>
                     </div>

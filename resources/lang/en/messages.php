@@ -209,4 +209,11 @@ return [
     'jangan ragu' => 'Don\'t Hesitate to Contact Us',
     'jangan ragu deskripsi' => 'Want to know more about Bilikbecakap? Or have any questions? We are ready to help! You can contact us through the form below or use the contact details provided.',
     'support_by' => 'Support by',
+
+    'kuis titile' => 'Belitung Malay Language Learning Quiz',
+    'kuis deskripsi' => 'Translate text between Indonesian and Belitung Malay using Artificial Intelligence technology.',
+    'kuis' => 'Quiz',
+    'tentang kuis' => 'Tentang Kuis',
+    'tentang kuis deskripsi' => 'Our quiz is designed to test your understanding of Belitung Language and Culture. Each quiz has questions that can be completed within a set time. Challenge Quiz allows you to play with friends in a more exciting format!',
+
 ];

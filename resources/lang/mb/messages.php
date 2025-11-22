@@ -208,4 +208,11 @@ return [
     'jangan ragu' => 'Jan Ragu Idang Menghubungi Kamek',
     'jangan ragu deskripsi' => 'Renyek tahu lebe banyak tentang Bilikbecakap? Atau memiliki pertanyaen? Kamek siap membantu! Hubungi kamek melalui formulir de bawah ini atau gunakan detel kuntak nok tesedie.',
     'support_by' => 'Didukung oleh',
+
+    'kuis titile' => 'Kuis Pembelajaran Bahase Melayu Belitong',
+    'kuis deskripsi' => 'Terjemahkan teks antare Bahase Indonesia kan Bahase Melayu Belitong makai teknologi Kecerdasan Buatan.',
+    'kuis' => 'Kuis',
+    'tentang kuis' => 'Tentang Kuis',
+    'tentang kuis deskripsi' => 'Kuis kamek dirancang idang menguji pemahaman Tua tentang Bahase kan Budaya Belitong. Setiap kuis memiliki soal-soal- nok bule deselesaien dalam waktu nok detentukan. Kuis Tantangan memungkinkan Tua bemain bersama teman dalam format nok lebe seru!',
+
 ];

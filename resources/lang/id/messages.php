@@ -221,4 +221,10 @@ return [
     'jangan ragu deskripsi' => 'Ingin tahu lebih banyak tentang Bilikbecakap? atau memiliki pertanyaan? Kami siap membantu! Hubungi kami melalui formulir di bawah ini atau gunakan detail kontak yang tersedia.',
     'support_by' => 'Didukung oleh',
 
+    'kuis titile' => 'Kuis Pembelajaran Bahasa Melayu Belitung',
+    'kuis deskripsi' => 'Terjemahkan teks antara Bahasa Indonesia dan Bahasa Melayu Belitung menggunakan teknologi Kecerdasan Buatan.',
+    'kuis' => 'Kuis',
+    'tentang kuis' => 'Tentang Kuis',
+    'tentang kuis deskripsi' => 'Kuis kami dirancang untuk menguji pemahaman Anda tentang Bahasa dan Budaya Belitung. Setiap kuis memiliki soal-soal yang dapat diselesaikan dalam waktu yang ditentukan. Kuis Tantangan memungkinkan Anda bermain bersama teman dalam format yang lebih seru!',
+
 ];

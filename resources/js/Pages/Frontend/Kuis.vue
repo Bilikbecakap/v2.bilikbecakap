@@ -2,7 +2,9 @@
 import { ref, watch } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
+import { useTranslations } from '@/composables/useTranslations';
 
+const { t } = useTranslations();
 const props = defineProps({
     quizzes: Object,
     search: String,
@@ -110,10 +112,10 @@ watch(searchQuery, () => {
                 <!-- Header -->
                 <div class="text-center mb-12">
                     <h1 class="text-4xl md:text-5xl font-bold text-[#54b0af] mb-4 drop-shadow-sm">
-                        Kuis Pembelajaran Bahasa Belitung
+                        {{ t('messages.kuis titile') }}
                     </h1>
                     <p class="text-lg text-[#002b44]/80 max-w-2xl mx-auto drop-shadow-sm">
-                        Uji kemampuan Anda dengan mengerjakan kuis interaktif tentang Bahasa dan Budaya Belitung
+                        {{ t('messages.kuis deskripsi') }}
                     </p>
                 </div>
 
@@ -373,7 +375,7 @@ watch(searchQuery, () => {
                     class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-4 mt-8">
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div class="text-sm text-gray-600">
-                            Menampilkan {{ quizzes.from }} - {{ quizzes.to }} dari {{ quizzes.total }} kuis
+                        {{ t('messages.menampilkan') }} {{ quizzes.from }} - {{ quizzes.to }} {{ t('messages.dari') }} {{ quizzes.total }} {{ t('messages.kuis') }}
                         </div>
 
                         <div class="flex items-center gap-1">
@@ -428,14 +430,9 @@ watch(searchQuery, () => {
                             </svg>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold text-[#002b44] mb-2">Tentang Kuis</h4>
+                            <h4 class="text-lg font-semibold text-[#002b44] mb-2">{{ t('messages.tentang kuis') }}</h4>
                             <p class="text-gray-600 leading-relaxed">
-                                Kuis kami dirancang untuk menguji pemahaman Anda tentang Bahasa dan Budaya Belitung.
-                                Setiap kuis memiliki soal-soal yang dapat diselesaikan dalam waktu yang ditentukan.
-                                <strong class="text-orange-600">Kuis Tantangan</strong> memungkinkan Anda bermain bersama teman dalam format yang lebih seru!
-                                <span class="block mt-2 text-purple-600 font-medium">
-                                    🚀 Kuis Inovatif sedang dalam tahap pengembangan dan menggunakan teknologi speech recognition!
-                                </span>
+                                {{ t('messages.tentang kuis deskripsi') }}
                             </p>
                         </div>
                     </div>

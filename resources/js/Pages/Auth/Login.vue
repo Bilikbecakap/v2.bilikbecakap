@@ -7,7 +7,9 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { useTranslations } from '@/composables/useTranslations';
 
+const { t } = useTranslations();
 const props = defineProps({
     canResetPassword: {
         type: Boolean,
@@ -146,15 +148,24 @@ const submit = () => {
                             </div>
                         </div>
 
-                        <!-- Back to Home -->
+                        <!-- Link to Register -->
                         <div class="text-center">
+                            <p class="text-sm text-gray-600">
+                                Belum punya akun?
+                                <Link 
+                                    href="/register" 
+                                    class="text-[#54b0af] hover:text-[#459a99] font-semibold transition-colors"
+                                >
+                                    Daftar di sini
+                                </Link>
+                            </p>
+                        </div>
+
+                        <!-- Back to Home -->
+                        <div class="text-center mt-4">
                             <Link href="/"
                                 class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-[#54b0af] font-medium transition-colors duration-200">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                            Kembali ke Beranda
+                                <!-- icon tetap sama -->
                             </Link>
                         </div>
                     </div>

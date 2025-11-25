@@ -9,7 +9,7 @@ return [
     'activity_log' => 'Activity log',
     'settings' => 'Settings',
     'logout' => 'Logout',
-    'login' => 'Masuk',
+    'login' => 'Login',
     'register' => 'Register',
     'all_users' => 'All Users',
     'all_roles' => 'All Roles',

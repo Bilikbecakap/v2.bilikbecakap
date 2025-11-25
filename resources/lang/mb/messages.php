@@ -215,4 +215,9 @@ return [
     'tentang kuis' => 'Tentang Kuis',
     'tentang kuis deskripsi' => 'Kuis kamek dirancang idang menguji pemahaman Tua tentang Bahase kan Budaya Belitong. Setiap kuis memiliki soal-soal- nok bule deselesaien dalam waktu nok detentukan. Kuis Tantangan memungkinkan Tua bemain bersama teman dalam format nok lebe seru!',
 
+    'masuk ke akun anda' => 'Masok ke Akun Tua',
+    'Ingat saya' => 'Ingat Sayek',
+    'atau' => 'atau',
+    'belum punya akun' => 'Belum punya akun?',
+    'daftar disini' => 'Daftar disini',
 ];

@@ -59,7 +59,7 @@ const submit = () => {
                     <!-- Header -->
                     <div class="text-center mb-8">
                         <h1 class="text-4xl font-bold text-[#002b44] mb-2 drop-shadow-lg">
-                            Masuk ke Akun Anda
+                            {{ t('messages.masuk ke akun anda') }}
                         </h1>
                     </div>
 
@@ -116,7 +116,7 @@ const submit = () => {
                                 <label class="flex items-center">
                                     <Checkbox name="remember" v-model:checked="form.remember"
                                         class="rounded border-gray-300 text-[#54b0af] shadow-sm focus:ring-[#54b0af]" />
-                                    <span class="ms-2 text-sm text-gray-600">Ingat saya</span>
+                                    <span class="ms-2 text-sm text-gray-600">{{ t('messages.Ingat saya') }}</span>
                                 </label>
                             </div>
 
@@ -144,19 +144,19 @@ const submit = () => {
                                 <div class="w-full border-t border-gray-200"></div>
                             </div>
                             <div class="relative flex justify-center text-sm">
-                                <span class="px-4 bg-white text-gray-500">atau</span>
+                                <span class="px-4 bg-white text-gray-500">{{ t('messages.atau') }}</span>
                             </div>
                         </div>
 
                         <!-- Link to Register -->
                         <div class="text-center">
                             <p class="text-sm text-gray-600">
-                                Belum punya akun?
+                                {{ t('messages.belum punya akun') }}
                                 <Link 
                                     href="/register" 
                                     class="text-[#54b0af] hover:text-[#459a99] font-semibold transition-colors"
                                 >
-                                    Daftar di sini
+                                    {{ t('messages.daftar disini') }}
                                 </Link>
                             </p>
                         </div>

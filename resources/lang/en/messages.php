@@ -216,4 +216,9 @@ return [
     'tentang kuis' => 'Tentang Kuis',
     'tentang kuis deskripsi' => 'Our quiz is designed to test your understanding of Belitung Language and Culture. Each quiz has questions that can be completed within a set time. Challenge Quiz allows you to play with friends in a more exciting format!',
 
+    'masuk ke akun anda' => 'Sign in to Your Account',
+    'Ingat saya' => 'Remember me',
+    'atau' => 'or',
+    'belum punya akun' => 'Don\'t have an account?',
+    'daftar disini' => 'Sign Up Here',
 ];

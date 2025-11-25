@@ -227,4 +227,9 @@ return [
     'tentang kuis' => 'Tentang Kuis',
     'tentang kuis deskripsi' => 'Kuis kami dirancang untuk menguji pemahaman Anda tentang Bahasa dan Budaya Belitung. Setiap kuis memiliki soal-soal yang dapat diselesaikan dalam waktu yang ditentukan. Kuis Tantangan memungkinkan Anda bermain bersama teman dalam format yang lebih seru!',
 
+    'masuk ke akun anda' => 'Masuk ke Akun Anda',
+    'Ingat saya' => 'Ingat saya',
+    'atau' => 'atau',
+    'belum punya akun' => 'Belum punya akun?',
+    'daftar disini' => 'Daftar disini',
 ];

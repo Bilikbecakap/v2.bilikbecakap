@@ -123,7 +123,8 @@ return [
     'Hapus pencarian' => 'Clear search',
     'Pencarian' => 'Search',
     'cari' => 'Search',
-    
+    'Filter berdasarkan huruf' => 'Filter by letter',
+    'huruf' => 'Letter',
 
     'bahasa melayu belitung' => 'Belitung Malay',
     'bahasa indonesia' => 'Indonesian',

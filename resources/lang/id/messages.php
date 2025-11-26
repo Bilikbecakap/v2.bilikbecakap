@@ -136,6 +136,8 @@ return [
     'Hapus pencarian' => 'Hapus pencarian',
     'Pencarian' => 'Pencarian',
     'cari' => 'Cari',
+    'Filter berdasarkan huruf' => 'Filter berdasarkan huruf',
+    'huruf' => 'Huruf',
 
 
     'bahasa melayu belitung' => 'Bahasa Melayu Belitung',

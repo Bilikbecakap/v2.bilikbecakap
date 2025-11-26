@@ -114,7 +114,7 @@ const playAudio = (kamusId, audioUrl) => {
                                 {{ t('messages.Menampilkan hasil pencarian untuk') }}: <span class="font-semibold">"{{ search }}"</span>
                             </span>
                             <span v-if="letter">
-                                {{ search ? ' • ' : '' }}Huruf: <span class="font-semibold">{{ letter }}</span>
+                                {{ search ? ' • ' : '' }}{{ t('messages.huruf') }}: <span class="font-semibold">{{ letter }}</span>
                             </span>
                             <button @click="clearFilters"
                                 class="ml-2 text-[#54b0af] hover:text-[#459a99] font-medium">
@@ -127,7 +127,7 @@ const playAudio = (kamusId, audioUrl) => {
                 <!-- A-Z Filter -->
                 <div class="max-w-8xl mx-auto mb-8">
                     <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
-                        <h3 class="text-sm font-semibold text-[#002b44] mb-4 text-center">Filter berdasarkan huruf:</h3>
+                        <h3 class="text-sm font-semibold text-[#002b44] mb-4 text-center">{{ t('messages.Filter berdasarkan huruf') }}:</h3>
                         <div class="flex flex-wrap justify-center gap-2">
                             <button
                                 v-for="letter in alphabet"

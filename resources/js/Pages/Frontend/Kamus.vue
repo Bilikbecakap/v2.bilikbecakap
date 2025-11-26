@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import { useTranslations } from '@/composables/useTranslations';
@@ -7,18 +7,48 @@ import { useTranslations } from '@/composables/useTranslations';
 const props = defineProps({
     kamus: Object,
     search: String,
+    letter: String,
+    letterCounts: {
+        type: Object,
+        default: () => ({})
+    },
 });
 
 const { t } = useTranslations();
 const searchQuery = ref(props.search || '');
+const selectedLetter = ref(props.letter || '');
 const isPlaying = ref(null);
 const audioPlayer = ref(null);
 
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+// Safe access to letterCounts
+const counts = computed(() => props.letterCounts || {});
+
 const handleSearch = () => {
-    router.get('/kamus', { search: searchQuery.value }, {
+    router.get('/kamus', { 
+        search: searchQuery.value,
+        letter: selectedLetter.value 
+    }, {
         preserveState: true,
         preserveScroll: true,
     });
+};
+
+const filterByLetter = (letter) => {
+    if (selectedLetter.value === letter) {
+        selectedLetter.value = '';
+    } else {
+        selectedLetter.value = letter;
+    }
+    searchQuery.value = '';
+    handleSearch();
+};
+
+const clearFilters = () => {
+    searchQuery.value = '';
+    selectedLetter.value = '';
+    handleSearch();
 };
 
 const playAudio = (kamusId, audioUrl) => {
@@ -39,7 +69,6 @@ const playAudio = (kamusId, audioUrl) => {
 </script>
 
 <template>
-
     <Head title="Kamus Digital - Bilikbecakap" />
 
     <FrontendLayout>
@@ -66,7 +95,7 @@ const playAudio = (kamusId, audioUrl) => {
                 </div>
 
                 <!-- Search -->
-                <div class="max-w-3xl mx-auto mb-12">
+                <div class="max-w-3xl mx-auto mb-8">
                     <form @submit.prevent="handleSearch" class="relative">
                         <input v-model="searchQuery" type="text" :placeholder="t('messages.kamus placeholder')"
                             class="w-full px-6 py-4 pr-14 rounded-2xl border-2 border-white/50 bg-white/90 backdrop-blur-sm text-[#002b44] placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#54b0af] focus:border-transparent shadow-lg" />
@@ -79,10 +108,15 @@ const playAudio = (kamusId, audioUrl) => {
                         </button>
                     </form>
 
-                    <div v-if="search" class="mt-4 text-center">
+                    <div v-if="search || letter" class="mt-4 text-center">
                         <p class="text-sm text-[#002b44]/70">
-                            {{ t('messages.Menampilkan hasil pencarian untuk') }}: <span class="font-semibold">"{{ search }}"</span>
-                            <button @click="searchQuery = ''; handleSearch()"
+                            <span v-if="search">
+                                {{ t('messages.Menampilkan hasil pencarian untuk') }}: <span class="font-semibold">"{{ search }}"</span>
+                            </span>
+                            <span v-if="letter">
+                                {{ search ? ' • ' : '' }}Huruf: <span class="font-semibold">{{ letter }}</span>
+                            </span>
+                            <button @click="clearFilters"
                                 class="ml-2 text-[#54b0af] hover:text-[#459a99] font-medium">
                                 {{ t('messages.Hapus pencarian') }}
                             </button>
@@ -90,42 +124,61 @@ const playAudio = (kamusId, audioUrl) => {
                     </div>
                 </div>
 
+                <!-- A-Z Filter -->
+                <div class="max-w-8xl mx-auto mb-8">
+                    <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+                        <h3 class="text-sm font-semibold text-[#002b44] mb-4 text-center">Filter berdasarkan huruf:</h3>
+                        <div class="flex flex-wrap justify-center gap-2">
+                            <button
+                                v-for="letter in alphabet"
+                                :key="letter"
+                                @click="filterByLetter(letter)"
+                                class="min-w-[40px] h-10 px-3 rounded-lg font-semibold text-sm transition-all duration-200 transform hover:scale-105"
+                                :class="selectedLetter === letter
+                                    ? 'bg-[#54b0af] text-white shadow-lg'
+                                    : counts[letter] 
+                                        ? 'bg-white text-[#002b44] border-2 border-gray-200 hover:border-[#54b0af] hover:text-[#54b0af]'
+                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'"
+                                :disabled="!counts[letter]"
+                            >
+                                {{ letter }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Table -->
                 <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full">
-                            <!-- HEADER: Lebih besar, teks bold, padding lebih tinggi -->
+                            <!-- HEADER -->
                             <thead>
                                 <tr class="bg-[#54b0af] text-white">
-                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">{{ t('messages.bahasa melayu belitung') }}
-                                    </th>
+                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">{{ t('messages.bahasa melayu belitung') }}</th>
                                     <th class="px-12 py-5 text-left text-base font-bold w-1/4">{{ t('messages.bahasa indonesia') }}</th>
                                     <th class="px-12 py-5 text-left text-base font-bold w-1/4">{{ t('messages.keterangan') }}</th>
                                     <th class="px-12 py-5 text-center text-base font-bold w-20">{{ t('messages.audio') }}</th>
                                 </tr>
                             </thead>
-                            <!-- BODY: Baris lebih tinggi, padding lebih besar -->
+                            <!-- BODY -->
                             <tbody class="divide-y divide-gray-100">
                                 <tr v-for="(item, index) in kamus.data" :key="item.id"
                                     :class="index % 2 === 0 ? 'bg-[#002b44]/5' : 'bg-white'"
                                     class="hover:bg-[#54b0af]/10 transition-colors duration-200">
                                     <td class="px-12 py-6">
-                                        <span class="text-[#002b44] font-semibold text-base">{{ item.bahasa_melayu
-                                        }}</span>
+                                        <span class="text-[#002b44] font-semibold text-base">{{ item.bahasa_melayu }}</span>
                                     </td>
                                     <td class="px-12 py-6">
                                         <span class="text-gray-700 text-base">{{ item.bahasa_indonesia }}</span>
                                     </td>
                                     <td class="px-12 py-6">
-                                        <span class="text-gray-600 text-sm leading-relaxed line-clamp-3">{{
-                                            item.keterangan || '-' }}</span>
+                                        <span class="text-gray-600 text-sm leading-relaxed line-clamp-3">{{ item.keterangan || '-' }}</span>
                                     </td>
                                     <td class="px-12 py-6 text-center">
                                         <button v-if="item.audio" @click="playAudio(item.id, `/serve-media/${item.audio}`)"
                                             class="inline-flex items-center justify-center w-12 h-12 bg-[#FCB415] hover:bg-[#e0a013] text-white rounded-full transition-all duration-200 transform hover:scale-110"
                                             :class="{ 'bg-[#e0a013] animate-pulse': isPlaying === item.id }">
-                                            <svg v-if="isPlaying === item.id" class="w-6 h-6" fill="currentColor"
-                                                viewBox="0 0 24 24">
+                                            <svg v-if="isPlaying === item.id" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                                             </svg>
                                             <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -138,20 +191,19 @@ const playAudio = (kamusId, audioUrl) => {
                             </tbody>
                         </table>
 
-                        <!-- Empty State (diperbesar juga) -->
+                        <!-- Empty State -->
                         <div v-if="!kamus.data || kamus.data.length === 0" class="text-center py-20">
-                            <svg class="w-24 h-24 text-gray-300 mx-auto mb-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
+                            <svg class="w-24 h-24 text-gray-300 mx-auto mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
                             <p class="text-xl font-medium text-gray-600">
-                                {{ search ? t('messages.no_results_found') : t('messages.no_data_available') }}
+                                {{ search || letter ? t('messages.no_results_found') : t('messages.no_data_available') }}
                             </p>
                         </div>
                     </div>
 
-                    <!-- Pagination (MOBILE RESPONSIVE) -->
+                    <!-- Pagination -->
                     <div v-if="kamus.data && kamus.data.length > 0"
                         class="px-3 sm:px-6 py-4 bg-gray-50 border-t border-gray-200">
                         <div class="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
@@ -160,18 +212,17 @@ const playAudio = (kamusId, audioUrl) => {
                             </div>
 
                             <div class="flex items-center gap-0.5 sm:gap-1 overflow-x-auto pb-1 sm:pb-0 order-1 sm:order-2 w-full sm:w-auto justify-center sm:justify-end">
-                                <!-- Previous (icon only) -->
+                                <!-- Previous -->
                                 <component :is="kamus.prev_page_url ? 'a' : 'span'" :href="kamus.prev_page_url"
                                     class="p-1 sm:p-2 rounded-lg transition-all flex-shrink-0" :class="kamus.prev_page_url
                                         ? 'bg-white text-[#002b44] hover:bg-[#54b0af] hover:text-white border border-gray-300'
                                         : 'bg-gray-100 text-gray-400 cursor-not-allowed'">
                                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 19l-7-7 7-7" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                     </svg>
                                 </component>
 
-                                <!-- Page Numbers (hanya angka + ...) -->
+                                <!-- Page Numbers -->
                                 <template v-for="(link, i) in kamus.links" :key="i">
                                     <component v-if="link.url && !isNaN(link.label)" :is="'a'" :href="link.url"
                                         class="px-1.5 sm:px-3 py-1 sm:py-1.5 rounded text-xs sm:text-sm font-medium transition-all flex-shrink-0"
@@ -185,14 +236,13 @@ const playAudio = (kamusId, audioUrl) => {
                                     </span>
                                 </template>
 
-                                <!-- Next (icon only) -->
+                                <!-- Next -->
                                 <component :is="kamus.next_page_url ? 'a' : 'span'" :href="kamus.next_page_url"
                                     class="p-1 sm:p-2 rounded-lg transition-all flex-shrink-0" :class="kamus.next_page_url
                                         ? 'bg-white text-[#002b44] hover:bg-[#54b0af] hover:text-white border border-gray-300'
                                         : 'bg-gray-100 text-gray-400 cursor-not-allowed'">
                                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5l7 7-7 7" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                     </svg>
                                 </component>
                             </div>

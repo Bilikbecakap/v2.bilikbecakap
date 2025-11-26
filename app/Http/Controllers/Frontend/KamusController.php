@@ -23,14 +23,28 @@ class KamusController extends Controller
             });
         }
 
+        // Filter berdasarkan huruf
+        if ($request->filled('letter')) {
+            $query->where('bahasa_melayu', 'LIKE', $request->letter . '%');
+        }
+
         // Sorting alfabetis
         $query->orderBy('bahasa_melayu', 'asc');
 
         $kamus = $query->paginate(10)->appends($request->query());
 
+        // Hitung jumlah kata per huruf untuk badge
+        $letterCounts = Kamus::where('status', 1)
+            ->selectRaw('UPPER(LEFT(bahasa_melayu, 1)) as letter, COUNT(*) as count')
+            ->groupBy('letter')
+            ->pluck('count', 'letter')
+            ->toArray();
+
         return Inertia::render('Frontend/Kamus', [
             'kamus' => $kamus,
             'search' => $request->search,
+            'letter' => $request->letter,
+            'letterCounts' => $letterCounts,
             'locale' => app()->getLocale(),
         ]);
     }

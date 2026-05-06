@@ -120,13 +120,6 @@ const animateCounter = (refValue, target, duration) => {
                     <!-- Left Column: Content -->
                     <div class="space-y-6 xl:space-y-8 animate-fade-in-up">
                         <div class="space-y-3 lg:space-y-4">
-                            <!-- Badge - Enhanced hover effect -->
-                            <div class="inline-flex items-center gap-2 bg-[#54b0af]/10 text-[#54b0af] px-3 lg:px-4 py-2 rounded-full text-xs lg:text-sm font-medium hover:bg-[#54b0af] hover:text-white transition-all duration-300 cursor-default hover:scale-110 hover:shadow-lg">
-                                <svg class="w-4 lg:w-5 h-4 lg:h-5 animate-spin-slow" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                {{ t("messages.Platform Pelestarian Budaya Belitung") }}
-                            </div>
 
                             <!-- Heading -->
                             <h1 class="text-3xl md:text-4xl lg:text-6xl font-bold text-[#002b44] leading-tight">
@@ -251,13 +244,6 @@ const animateCounter = (refValue, target, duration) => {
             <div class="container mx-auto px-6">
                 <!-- Section Header -->
                 <div class="text-center mb-16 space-y-4" :class="{ 'animate-slide-up': isFeatureVisible }">
-                    <div class="inline-flex items-center gap-2 bg-[#54b0af]/10 text-[#54b0af] px-4 py-2 rounded-full text-sm font-medium hover:scale-110 transition-transform duration-300">
-                        <svg class="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                        {{ t("messages.Temukan Keunggulan Kami") }}
-                    </div>
                     <h2 class="text-4xl md:text-5xl font-bold text-[#002b44]">{{ t("messages.Fitur Utama") }}</h2>
                     <p class="text-lg text-gray-600 max-w-2xl mx-auto">
                         {{ t("messages.Fitur Utama Deskripsi") }}
@@ -422,14 +408,6 @@ const animateCounter = (refValue, target, duration) => {
 
                     <!-- Right Column: Content with typing effect -->
                     <div class="space-y-6" :class="{ 'animate-slide-right': isAchievementVisible }">
-                        <!-- Badge -->
-                        <div class="inline-flex items-center gap-2 bg-[#54b0af]/10 text-[#54b0af] px-4 py-2 rounded-full text-sm font-medium hover:scale-110 transition-transform duration-300 cursor-default">
-                            <svg class="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            {{ t("messages.perjalanan kami") }}
-                        </div>
 
                         <!-- Heading -->
                         <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-[#002b44] leading-tight">
@@ -641,13 +619,6 @@ const animateCounter = (refValue, target, duration) => {
             <div class="container mx-auto px-6">
                 <!-- Section Header -->
                 <div class="text-center mb-16 space-y-4" :class="{ 'animate-slide-up': isBlogVisible }">
-                    <div class="inline-flex items-center gap-2 bg-[#54b0af]/10 text-[#54b0af] px-4 py-2 rounded-full text-sm font-medium hover:scale-110 transition-transform duration-300">
-                        <svg class="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                        </svg>
-                        {{ t("messages.berita dan blog") }}
-                    </div>
                     <h2 class="text-4xl md:text-5xl font-bold text-[#002b44]">{{ t("messages.berita dan blog title") }}</h2>
                     <p class="text-lg text-gray-600 max-w-2xl mx-auto">
                         {{ t("messages.berita dan blog deskripsi") }}

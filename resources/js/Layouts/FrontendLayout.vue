@@ -25,9 +25,9 @@ const showLanguageDropdown = ref(false);
 const isScrolled = ref(false);
 
 const languages = {
-    id: { name: "Bahasa Indonesia", short: "IDN" },
-    en: { name: "English", short: "ENG" },
-    mb: { name: "Melayu Belitung", short: "MYB" },
+    id: { name: "Bahasa Indonesia" },
+    en: { name: "English" },
+    mb: { name: "Melayu Belitung" },
 };
 
 const switchLanguage = (newLocale) => {
@@ -173,7 +173,7 @@ onUnmounted(() => {
                         <div class="relative">
                             <button @click="toggleLanguageDropdown"
                                 class="px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99] border-2 border-[#54b0af]">
-                                {{ languages[currentLocale].short }}
+                                {{ languages[currentLocale].name }}
                             </button>
 
                             <transition enter-active-class="transition ease-out duration-200"
@@ -181,13 +181,13 @@ onUnmounted(() => {
                                 leave-active-class="transition ease-in duration-150"
                                 leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
                                 <div v-show="showLanguageDropdown" @click.stop
-                                    class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2">
+                                    class="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-2">
                                     <button v-for="(lang, code) in languages" :key="code" @click="switchLanguage(code)"
                                         :class="[
                                             'flex items-center justify-between w-full px-3 py-2 text-sm transition-colors duration-200',
                                             currentLocale === code ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-50'
                                         ]">
-                                        <span>{{ lang.short }}</span>
+                                        <span>{{ lang.name }}</span>
                                         <svg v-if="currentLocale === code" class="w-4 h-4" fill="currentColor"
                                             viewBox="0 0 20 20">
                                             <path fill-rule="evenodd"
@@ -206,7 +206,7 @@ onUnmounted(() => {
                         <div class="relative">
                             <button @click="toggleLanguageDropdown"
                                 class="px-2.5 py-1.5 rounded-lg font-medium text-xs transition-all duration-200 bg-[#54b0af] text-white hover:bg-[#459a99]">
-                                {{ languages[currentLocale].short }}
+                                {{ languages[currentLocale].name }}
                             </button>
 
                             <transition enter-active-class="transition ease-out duration-200"
@@ -214,13 +214,13 @@ onUnmounted(() => {
                                 leave-active-class="transition ease-in duration-150"
                                 leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
                                 <div v-show="showLanguageDropdown" @click.stop
-                                    class="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-[70]">
+                                    class="absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-[70]">
                                     <button v-for="(lang, code) in languages" :key="code" @click="switchLanguage(code)"
                                         :class="[
                                             'flex items-center justify-between w-full px-3 py-2 text-sm transition-colors duration-200',
                                             currentLocale === code ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-50'
                                         ]">
-                                        <span>{{ lang.short }}</span>
+                                        <span>{{ lang.name }}</span>
                                         <svg v-if="currentLocale === code" class="w-4 h-4" fill="currentColor"
                                             viewBox="0 0 20 20">
                                             <path fill-rule="evenodd"

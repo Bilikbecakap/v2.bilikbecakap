@@ -80,20 +80,6 @@ Route::post('/penerjemah/extract-text', [PenerjemahController::class, 'extractTe
 Route::post('/chatbot/send', [ChatbotController::class, 'sendMessage'])->name('chatbot.send');
 Route::get('/chatbot/context-options', [ChatbotController::class, 'getContextOptions'])->name('chatbot.context');
 
-//kuis interaktif prototipe pengembangan
-Route::get('/kuis-inovatif/pelafalan-kata', function () {
-    return Inertia::render('Frontend/KuisInovatif/PelafalanKata');
-})->name('kuis-inovatif.pelafalan-kata');
-
-Route::get('/kuis-inovatif/dengar-jawab', function () {
-    return Inertia::render('Frontend/KuisInovatif/DengarJawab');
-})->name('kuis-inovatif.dengar-jawab');
-
-// Kuis Inovatif - Drag & Drop Matching
-Route::get('/kuis-inovatif/cocokkan-kata', function () {
-    return Inertia::render('Frontend/KuisInovatif/CocokkanKata');
-})->name('kuis-inovatif.cocokkan-kata');
-
 Route::get('/test-gemini', function() {
     $service = new \App\Services\GeminiService();
     

@@ -16,7 +16,9 @@
       "Bash(php -l app/Http/Controllers/Api/V1/KuisController.php)",
       "Bash(php -l app/Http/Resources/KuisResource.php)",
       "Bash(php -l app/Http/Controllers/Api/V1/GaleriController.php)",
-      "Bash(php -l app/Http/Resources/GaleriResource.php)"
+      "Bash(php -l app/Http/Resources/GaleriResource.php)",
+      "Bash(xargs wc -l)",
+      "Bash(Remove-Item *)"
     ]
   }
 }

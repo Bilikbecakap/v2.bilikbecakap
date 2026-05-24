@@ -1,11 +1,12 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 
 const props = defineProps({
-    roles: Array,
+    roles: Object,
 });
 
 const { can } = usePermissions();
@@ -72,7 +73,7 @@ const deleteRole = (id) => {
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-                        <tr v-for="role in roles" :key="role.id"
+                        <tr v-for="role in roles.data" :key="role.id"
                             class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
@@ -149,7 +150,7 @@ const deleteRole = (id) => {
                 </table>
 
                 <!-- Empty State -->
-                <div v-if="roles.length === 0" class="text-center py-12">
+                <div v-if="roles.data.length === 0" class="text-center py-12">
                     <svg class="w-16 h-16 text-slate-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
@@ -167,6 +168,9 @@ const deleteRole = (id) => {
                     </Link>
                 </div>
             </div>
+
+            <!-- Pagination -->
+            <Pagination :data="roles" />
         </div>
     </AdminLayout>
 </template>

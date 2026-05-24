@@ -24,7 +24,7 @@ class RoleController extends Controller implements HasMiddleware
 
     public function index()
     {
-        $roles = Role::with('permissions')->get();
+        $roles = Role::with('permissions')->paginate(15);
 
         return Inertia::render('Roles/Index', [
             'roles' => $roles

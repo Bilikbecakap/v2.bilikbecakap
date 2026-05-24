@@ -20,7 +20,7 @@ class PermissionController extends Controller implements HasMiddleware
 
     public function index()
     {
-        $permissions = Permission::orderBy('name')->get();
+        $permissions = Permission::orderBy('name')->paginate(20);
 
         return Inertia::render('Permissions/Index', [
             'permissions' => $permissions

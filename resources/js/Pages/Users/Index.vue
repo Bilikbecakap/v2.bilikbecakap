@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
@@ -7,7 +8,9 @@ import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 const props = defineProps({
-    users: Array,
+    users: Object,
+    activeCount: Number,
+    withRolesCount: Number,
 });
 
 const { can } = usePermissions();
@@ -79,7 +82,7 @@ const deleteUser = (id) => {
                     <div>
                         <p class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ t('messages.total_users')
                             }}</p>
-                        <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ users.length }}</p>
+                        <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ users.total }}</p>
                     </div>
                 </div>
             </div>
@@ -97,9 +100,7 @@ const deleteUser = (id) => {
                     <div>
                         <p class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ t('messages.active_users')
                             }}</p>
-                        <p class="text-2xl font-bold text-slate-900 dark:text-white">{{users.filter(user =>
-                            user.email_verified_at).length}}
-                        </p>
+                        <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ activeCount }}</p>
                     </div>
                 </div>
             </div>
@@ -117,10 +118,7 @@ const deleteUser = (id) => {
                     <div>
                         <p class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ t('messages.with_roles') }}
                         </p>
-                        <p class="text-2xl font-bold text-slate-900 dark:text-white">{{users.filter(user => user.roles
-                            &&
-                            user.roles.length >
-                            0).length}}</p>
+                        <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ withRolesCount }}</p>
                     </div>
                 </div>
             </div>
@@ -160,7 +158,7 @@ const deleteUser = (id) => {
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-                        <tr v-for="user in users" :key="user.id"
+                        <tr v-for="user in users.data" :key="user.id"
                             class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
@@ -238,7 +236,7 @@ const deleteUser = (id) => {
                 </table>
 
                 <!-- Empty State -->
-                <div v-if="users.length === 0" class="text-center py-12">
+                <div v-if="users.data.length === 0" class="text-center py-12">
                     <svg class="w-16 h-16 text-slate-400 dark:text-slate-600 mx-auto mb-4" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
@@ -256,6 +254,9 @@ const deleteUser = (id) => {
                     </Link>
                 </div>
             </div>
+
+            <!-- Pagination -->
+            <Pagination :data="users" />
         </div>
     </AdminLayout>
 </template>

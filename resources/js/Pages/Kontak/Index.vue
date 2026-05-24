@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
@@ -252,20 +253,7 @@ const formatDate = (date) => {
             </div>
 
             <!-- Pagination -->
-            <div v-if="kontaks.last_page > 1" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between">
-                <div class="text-sm text-slate-600 dark:text-slate-400">
-                    Menampilkan {{ kontaks.from }} - {{ kontaks.to }} dari {{ kontaks.total }} pesan
-                </div>
-                <div class="flex space-x-2">
-                    <Link v-if="kontaks.prev_page_url" :href="kontaks.prev_page_url" class="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600">
-                        ← Sebelumnya
-                    </Link>
-                    
-                    <Link v-if="kontaks.next_page_url" :href="kontaks.next_page_url" class="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600">
-                        Selanjutnya →
-                    </Link>
-                </div>
-            </div>
+            <Pagination :data="kontaks" />
         </div>
     </AdminLayout>
 </template>

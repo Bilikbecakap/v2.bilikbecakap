@@ -25,10 +25,12 @@ class UserController extends Controller implements HasMiddleware
 
     public function index()
     {
-        $users = User::with(['roles', 'profile'])->get();
+        $users = User::with(['roles', 'profile'])->paginate(15);
 
         return Inertia::render('Users/Index', [
-            'users' => $users
+            'users' => $users,
+            'activeCount' => User::whereNotNull('email_verified_at')->count(),
+            'withRolesCount' => User::has('roles')->count(),
         ]);
     }
 

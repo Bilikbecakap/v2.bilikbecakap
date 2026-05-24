@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from "@/Layouts/AdminLayout.vue";
+import Pagination from "@/Components/Pagination.vue";
 import { Head, Link, router } from "@inertiajs/vue3";
 import { ref, computed } from "vue";
 import { usePermissions } from "@/composables/usePermissions";
@@ -322,64 +323,7 @@ const getCommentableTypeLabel = (type) => {
       </div>
 
       <!-- Pagination -->
-      <div
-        v-if="komentars.data && komentars.data.length > 0"
-        class="mt-8 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 px-6 py-4"
-      >
-        <div class="flex items-center justify-between">
-          <div class="text-sm text-slate-600 dark:text-slate-400">
-            Menampilkan {{ komentars.from }} sampai {{ komentars.to }} dari
-            {{ komentars.total }} komentar
-          </div>
-
-          <div class="flex items-center space-x-2">
-            <Link
-              v-if="komentars.prev_page_url"
-              :href="komentars.prev_page_url"
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-150"
-            >
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-              Previous
-            </Link>
-
-            <div class="hidden sm:flex items-center space-x-1">
-              <template v-for="(link, index) in komentars.links" :key="index">
-                <Link
-                  v-if="link.url && !isNaN(link.label)"
-                  :href="link.url"
-                  :class="[
-                    'inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150',
-                    link.active
-                      ? 'bg-blue-600 text-white border border-blue-600'
-                      : 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700',
-                  ]"
-                >
-                  {{ link.label }}
-                </Link>
-                <span
-                  v-else-if="link.label === '...'"
-                  class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400"
-                >
-                  ...
-                </span>
-              </template>
-            </div>
-
-            <Link
-              v-if="komentars.next_page_url"
-              :href="komentars.next_page_url"
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-150"
-            >
-              Next
-              <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </div>
+      <Pagination :data="komentars" />
     </div>
 
     <!-- Delete Modal -->

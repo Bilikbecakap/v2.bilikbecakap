@@ -1,11 +1,12 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 
 const props = defineProps({
-    permissions: Array,
+    permissions: Object,
 });
 
 const { t } = useTranslations();
@@ -62,7 +63,7 @@ const deletePermission = (id, name) => {
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-                        <tr v-for="permission in permissions" :key="permission.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-150">
+                        <tr v-for="permission in permissions.data" :key="permission.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="text-sm font-mono text-slate-500 dark:text-slate-400">{{ permission.id }}</span>
                             </td>
@@ -104,6 +105,9 @@ const deletePermission = (id, name) => {
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            <Pagination :data="permissions" />
         </div>
     </AdminLayout>
 </template>

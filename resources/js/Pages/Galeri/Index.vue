@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from "@/Layouts/AdminLayout.vue";
+import Pagination from "@/Components/Pagination.vue";
 import { Head, Link, router } from "@inertiajs/vue3";
 import { ref, watch } from "vue";
 import { usePermissions } from "@/composables/usePermissions";
@@ -321,36 +322,7 @@ const getStatusBadge = (isActive) => {
       </div>
 
       <!-- Pagination -->
-      <div
-        v-if="galeri.links.length > 3"
-        class="px-6 py-4 border-t border-slate-200 dark:border-slate-700"
-      >
-        <div class="flex justify-center">
-          <nav class="flex gap-2">
-            <template v-for="(link, index) in galeri.links" :key="index">
-              <Link
-                v-if="link.url"
-                :href="link.url"
-                :class="[
-                  'px-4 py-2 text-sm rounded-lg border transition-colors',
-                  link.active
-                    ? 'bg-purple-500 text-white border-purple-500'
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700',
-                ]"
-                v-html="link.label"
-              />
-              <span
-                v-else
-                :class="[
-                  'px-4 py-2 text-sm rounded-lg border transition-colors opacity-50 cursor-not-allowed',
-                  'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600',
-                ]"
-                v-html="link.label"
-              />
-            </template>
-          </nav>
-        </div>
-      </div>
+      <Pagination :data="galeri" />
     </div>
 
     <!-- Delete Modal -->

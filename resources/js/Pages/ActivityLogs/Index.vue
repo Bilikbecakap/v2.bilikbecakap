@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -135,24 +136,7 @@ const getEventColor = (description) => {
             </div>
 
             <!-- Pagination -->
-            <div v-if="activities.links" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <div class="text-sm text-slate-600 dark:text-slate-400">
-                    Showing {{ activities.from }} to {{ activities.to }} of {{ activities.total }} results
-                </div>
-                <div class="flex gap-2">
-                    <template v-for="link in activities.links" :key="link.label">
-                        <Link v-if="link.url" :href="link.url" :class="[
-                            'px-3 py-1.5 text-sm rounded-lg transition-colors',
-                            link.active
-                                ? 'bg-blue-600 dark:bg-blue-500 text-white'
-                                : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-                        ]" v-html="link.label" preserve-scroll />
-                        <span v-else
-                            :class="'px-3 py-1.5 text-sm rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'"
-                            v-html="link.label" />
-                    </template>
-                </div>
-            </div>
+            <Pagination :data="activities" />
         </div>
     </AdminLayout>
 </template>

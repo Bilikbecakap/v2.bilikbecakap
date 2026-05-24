@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import { Head, Link, router } from "@inertiajs/vue3";
 import { ref, computed } from "vue";
@@ -47,7 +47,7 @@ const deleteArtikel = (artikel) => {
 
 const confirmDelete = () => {
   if (selectedArtikel.value) {
-    router.delete(route("artikel.destroy", selectedArtikel.value.id), {
+    router.delete(route("admin.artikel.destroy", selectedArtikel.value.id), {
       onSuccess: () => {
         showDeleteModal.value = false;
         selectedArtikel.value = null;
@@ -57,15 +57,15 @@ const confirmDelete = () => {
 };
 
 const approveArtikel = (artikel) => {
-  router.patch(route("artikel.approve", artikel.id));
+  router.patch(route("admin.artikel.approve", artikel.id));
 };
 
 const rejectArtikel = (artikel) => {
-  router.patch(route("artikel.reject", artikel.id));
+  router.patch(route("admin.artikel.reject", artikel.id));
 };
 
 const applyFilters = () => {
-  router.get(route("artikel.index"), filters.value, {
+  router.get(route("admin.artikel.index"), filters.value, {
     preserveState: true,
     replace: true,
   });
@@ -84,7 +84,7 @@ const resetFilters = () => {
 const sortBy = (field) => {
   const direction = props.sort === field && props.direction === "asc" ? "desc" : "asc";
   router.get(
-    route("artikel.index"),
+    route("admin.artikel.index"),
     {
       ...filters.value,
       sort: field,
@@ -152,7 +152,7 @@ const getThumbnailUrl = (thumbnail) => {
 
         <div v-if="can('create artikel')" class="flex gap-3">
           <Link
-            :href="route('artikel.create')"
+            :href="route('admin.artikel.create')"
             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:shadow-md transition-all duration-200"
           >
             <svg
@@ -403,7 +403,7 @@ const getThumbnailUrl = (thumbnail) => {
                       </span>
                     </div>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                      oleh {{ item.creator?.name }} • {{ formatDate(item.created_at) }}
+                      oleh {{ item.creator?.name }} â€¢ {{ formatDate(item.created_at) }}
                     </p>
                     <div class="flex flex-wrap gap-1">
                       <span
@@ -558,7 +558,7 @@ const getThumbnailUrl = (thumbnail) => {
                   <!-- Edit -->
                   <Link
                     v-if="item.can_edit"
-                    :href="route('artikel.edit', item.id)"
+                    :href="route('admin.artikel.edit', item.id)"
                     class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 border border-blue-200 dark:border-blue-700 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-150"
                   >
                     <svg
@@ -766,3 +766,4 @@ const getThumbnailUrl = (thumbnail) => {
     </div>
   </AdminLayout>
 </template>
+

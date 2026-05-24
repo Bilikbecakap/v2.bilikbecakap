@@ -186,17 +186,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/kamus/{kamus}/reject', [AdminKamusController::class, 'reject'])->name('kamus.reject');
 
         // Artikel Management
-        Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
-        Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('artikel.create');
-        Route::post('/artikel', [ArtikelController::class, 'store'])->name('artikel.store');
-        Route::get('/artikel/{artikel}', [ArtikelController::class, 'show'])->name('artikel.show');
-        Route::get('/artikel/{artikel}/edit', [ArtikelController::class, 'edit'])->name('artikel.edit');
-        Route::put('/artikel/{artikel}', [ArtikelController::class, 'update'])->name('artikel.update');
-        Route::delete('/artikel/{artikel}', [ArtikelController::class, 'destroy'])->name('artikel.destroy');
-        Route::patch('/artikel/{artikel}/approve', [ArtikelController::class, 'approve'])->name('artikel.approve');
-        Route::patch('/artikel/{artikel}/reject', [ArtikelController::class, 'reject'])->name('artikel.reject');
-        Route::post('/artikel/upload-image', [ArtikelController::class, 'uploadImage'])->name('artikel.upload-image');
-        Route::get('/artikel/{artikel}/detail', [ArtikelController::class, 'show'])->name('admin.artikel.show');
+        Route::get('/artikel', [ArtikelController::class, 'index'])->name('admin.artikel.index');
+        Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('admin.artikel.create');
+        Route::post('/artikel', [ArtikelController::class, 'store'])->name('admin.artikel.store');
+        Route::get('/artikel/{artikel}', [ArtikelController::class, 'show'])->name('admin.artikel.show');
+        Route::get('/artikel/{artikel}/edit', [ArtikelController::class, 'edit'])->name('admin.artikel.edit');
+        Route::put('/artikel/{artikel}', [ArtikelController::class, 'update'])->name('admin.artikel.update');
+        Route::delete('/artikel/{artikel}', [ArtikelController::class, 'destroy'])->name('admin.artikel.destroy');
+        Route::patch('/artikel/{artikel}/approve', [ArtikelController::class, 'approve'])->name('admin.artikel.approve');
+        Route::patch('/artikel/{artikel}/reject', [ArtikelController::class, 'reject'])->name('admin.artikel.reject');
+        Route::post('/artikel/upload-image', [ArtikelController::class, 'uploadImage'])->name('admin.artikel.upload-image');
+        Route::get('/artikel/{artikel}/detail', [ArtikelController::class, 'show'])->name('admin.artikel.detail');
 
         // Modul Pembelajaran
         Route::get('/modul-pembelajaran', [ModulPembelajaranController::class, 'index'])->name('modul-pembelajaran.index');

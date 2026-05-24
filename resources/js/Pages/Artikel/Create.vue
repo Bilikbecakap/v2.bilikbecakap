@@ -249,7 +249,7 @@ const autoTranslateToEnglish = async () => {
 };
 
 const submit = () => {
-  form.post(route("artikel.store"));
+  form.post(route("admin.artikel.store"));
 };
 
 // Watch for title changes to generate slug

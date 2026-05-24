@@ -289,7 +289,7 @@ const submit = async () => {
     }
 
     // Send with fetch
-    const response = await fetch(route("artikel.update", props.artikel.id), {
+    const response = await fetch(route("admin.artikel.update", props.artikel.id), {
       method: 'POST',
       body: formData,
       headers: {

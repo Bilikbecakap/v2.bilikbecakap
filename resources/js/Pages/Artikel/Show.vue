@@ -145,7 +145,7 @@ const currentContent = computed(() => {
 
           <Link
             v-if="can('edit artikel')"
-            :href="route('artikel.edit', artikel.id)"
+            :href="route('admin.artikel.edit', artikel.id)"
             class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-150"
           >
             <svg

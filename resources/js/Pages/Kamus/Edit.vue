@@ -7,6 +7,10 @@ const props = defineProps({
     kamus: {
         type: Object,
         required: true
+    },
+    hasValidationPermission: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -15,8 +19,16 @@ const form = useForm({
     bahasa_melayu: props.kamus.bahasa_melayu,
     bahasa_indonesia: props.kamus.bahasa_indonesia,
     keterangan: props.kamus.keterangan,
+    status: props.kamus.status,
     audio: null
 });
+
+const statusOptions = [
+    { value: 1, label: 'Aktif', description: 'Kamus langsung aktif dan terlihat publik' },
+    { value: 3, label: 'Menunggu', description: 'Menunggu validasi sebelum dipublikasikan' },
+    { value: 4, label: 'Menunggu Finalisasi', description: 'Sudah divalidasi, menunggu finalisasi' },
+    { value: 2, label: 'Tidak Aktif', description: 'Kamus tidak aktif dan tidak terlihat publik' },
+];
 
 // Audio recording states
 const isRecording = ref(false);
@@ -267,13 +279,13 @@ const switchUploadMethod = (method) => {
 };
 
 // Submit form
-// Submit form
 const submit = () => {
     // Prepare form data
     const submitData = {
         bahasa_melayu: form.bahasa_melayu,
         bahasa_indonesia: form.bahasa_indonesia,
         keterangan: form.keterangan || '',
+        status: form.status,
         audio: form.audio,
         remove_audio: removeExistingAudioFlag.value ? '1' : '0',
         _method: 'PUT' // Method spoofing untuk Laravel
@@ -393,6 +405,68 @@ onUnmounted(() => {
                         ></textarea>
                         <p v-if="form.errors.keterangan" class="mt-2 text-sm text-red-600 dark:text-red-400">
                             {{ form.errors.keterangan }}
+                        </p>
+                    </div>
+
+                    <!-- Status (hanya untuk user dengan validasi kamus permission) -->
+                    <div v-if="hasValidationPermission">
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                            Status Kamus
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label
+                                v-for="opt in statusOptions"
+                                :key="opt.value"
+                                :class="[
+                                    'flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all duration-200',
+                                    form.status === opt.value
+                                        ? opt.value === 1  ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                                        : opt.value === 2  ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                                        : opt.value === 3  ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20'
+                                        :                    'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                        : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'
+                                ]"
+                            >
+                                <input
+                                    type="radio"
+                                    :value="opt.value"
+                                    v-model="form.status"
+                                    class="sr-only"
+                                >
+                                <!-- Radio indicator -->
+                                <div :class="[
+                                    'w-4 h-4 rounded-full border-2 flex-shrink-0 mt-0.5 mr-3 flex items-center justify-center',
+                                    form.status === opt.value
+                                        ? opt.value === 1  ? 'border-green-500'
+                                        : opt.value === 2  ? 'border-red-500'
+                                        : opt.value === 3  ? 'border-yellow-500'
+                                        :                    'border-blue-500'
+                                        : 'border-slate-300 dark:border-slate-600'
+                                ]">
+                                    <div v-if="form.status === opt.value" :class="[
+                                        'w-2 h-2 rounded-full',
+                                        opt.value === 1 ? 'bg-green-500'
+                                        : opt.value === 2 ? 'bg-red-500'
+                                        : opt.value === 3 ? 'bg-yellow-500'
+                                        : 'bg-blue-500'
+                                    ]"></div>
+                                </div>
+                                <div>
+                                    <p :class="[
+                                        'text-sm font-semibold',
+                                        form.status === opt.value
+                                            ? opt.value === 1  ? 'text-green-800 dark:text-green-300'
+                                            : opt.value === 2  ? 'text-red-800 dark:text-red-300'
+                                            : opt.value === 3  ? 'text-yellow-800 dark:text-yellow-300'
+                                            :                    'text-blue-800 dark:text-blue-300'
+                                            : 'text-slate-700 dark:text-slate-300'
+                                    ]">{{ opt.label }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ opt.description }}</p>
+                                </div>
+                            </label>
+                        </div>
+                        <p v-if="form.errors.status" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                            {{ form.errors.status }}
                         </p>
                     </div>
                 </div>

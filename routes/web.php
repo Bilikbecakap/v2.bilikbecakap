@@ -179,12 +179,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/kamus/{kamus}/edit', [AdminKamusController::class, 'edit'])->name('kamus.edit');
         Route::put('/kamus/{kamus}', [AdminKamusController::class, 'update'])->name('kamus.update');
         Route::delete('/kamus/{kamus}', [AdminKamusController::class, 'destroy'])->name('kamus.destroy');
-        Route::get('/kamus-validate', [AdminKamusController::class, 'validate'])->name('kamus.validate');
+        Route::get('/kamus/{kamus}/tinjauan', [AdminKamusController::class, 'tinjauan'])->name('kamus.tinjauan');
+        Route::post('/kamus/{kamus}/validasi', [AdminKamusController::class, 'validasiKamus'])->name('kamus.validasi');
+        Route::post('/kamus/{kamus}/finalisasi', [AdminKamusController::class, 'finalisasiKamus'])->name('kamus.finalisasi');
         Route::patch('/kamus/{kamus}/approve', [AdminKamusController::class, 'approve'])->name('kamus.approve');
         Route::patch('/kamus/{kamus}/reject', [AdminKamusController::class, 'reject'])->name('kamus.reject');
-        Route::post('/kamus/bulk-delete', [AdminKamusController::class, 'bulkDelete'])->name('kamus.bulk-delete');
-        Route::post('/kamus/bulk-approve', [AdminKamusController::class, 'bulkApprove'])->name('kamus.bulk-approve');
-        Route::post('/kamus/bulk-reject', [AdminKamusController::class, 'bulkReject'])->name('kamus.bulk-reject');
 
         // Artikel Management
         Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');

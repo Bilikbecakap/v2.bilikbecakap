@@ -7,17 +7,17 @@ use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
-class GeminiService extends AIBaseService implements AIServiceInterface
+class OpenAIService extends AIBaseService implements AIServiceInterface
 {
     private string $apiKey;
-    private string $apiUrl;
+    private string $model;
+    private string $apiUrl = 'https://api.openai.com/v1/chat/completions';
     private Client $client;
 
     public function __construct()
     {
-        $this->apiKey = config('ai.gemini.api_key');
-        $model        = config('ai.gemini.model', 'gemini-2.5-flash');
-        $this->apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
+        $this->apiKey = config('ai.openai.api_key');
+        $this->model  = config('ai.openai.model', 'gpt-4o-mini');
         $this->client = new Client();
     }
 
@@ -25,14 +25,21 @@ class GeminiService extends AIBaseService implements AIServiceInterface
     // HTTP layer
     // -------------------------------------------------------------------------
 
-    private function makeRequest(array $data, int $timeout = 30): object
+    private function makeRequest(array $messages, int $timeout = 30, int $maxTokens = 2048): object
     {
         try {
-            $response = $this->client->post($this->apiUrl . '?key=' . $this->apiKey, [
-                'json'    => $data,
+            $response = $this->client->post($this->apiUrl, [
+                'json' => [
+                    'model'      => $this->model,
+                    'messages'   => $messages,
+                    'max_tokens' => $maxTokens,
+                ],
                 'timeout' => $timeout,
-                'headers' => ['Content-Type' => 'application/json'],
-                'verify'  => false,
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Content-Type'  => 'application/json',
+                ],
+                'verify' => false,
             ]);
 
             return new class($response) {
@@ -42,7 +49,7 @@ class GeminiService extends AIBaseService implements AIServiceInterface
                 public function body(): string      { return (string) $this->r->getBody(); }
             };
         } catch (RequestException $e) {
-            Log::error('Gemini API Error', ['message' => $e->getMessage()]);
+            Log::error('OpenAI API Error', ['message' => $e->getMessage()]);
             return new class {
                 public function successful(): bool  { return false; }
                 public function json(): array       { return []; }
@@ -51,14 +58,14 @@ class GeminiService extends AIBaseService implements AIServiceInterface
         }
     }
 
-    private function ask(string $prompt, int $timeout = 30): string
+    private function ask(string $prompt, int $timeout = 30, int $maxTokens = 1024): string
     {
         $response = $this->makeRequest([
-            'contents' => [['parts' => [['text' => $prompt]]]],
-        ], $timeout);
+            ['role' => 'user', 'content' => $prompt],
+        ], $timeout, $maxTokens);
 
         if ($response->successful()) {
-            return $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            return $response->json()['choices'][0]['message']['content'] ?? '';
         }
         return '';
     }
@@ -71,11 +78,11 @@ class GeminiService extends AIBaseService implements AIServiceInterface
     {
         try {
             $response = $this->makeRequest([
-                'contents' => [['parts' => [['text' => 'Hello, just testing connection']]]],
-            ], 10);
+                ['role' => 'user', 'content' => 'Hello, just testing connection'],
+            ], 10, 10);
 
             return $response->successful()
-                ? ['success' => true,  'message' => 'Koneksi Gemini berhasil!']
+                ? ['success' => true,  'message' => 'Koneksi OpenAI berhasil!']
                 : ['success' => false, 'message' => 'Gagal connect: ' . $response->body()];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
@@ -86,7 +93,7 @@ class GeminiService extends AIBaseService implements AIServiceInterface
     {
         try {
             $prompt      = $this->buildTranslatePrompt($text, $direction);
-            $translation = $this->ask($prompt);
+            $translation = $this->ask($prompt, 30, 600);
 
             if ($translation === '') {
                 return ['success' => false, 'error' => 'API Error'];
@@ -113,7 +120,7 @@ class GeminiService extends AIBaseService implements AIServiceInterface
     public function translateToEnglish(string $text): array
     {
         $prompt      = "Translate this Indonesian text to English. Only return the translation, no explanation. Maintain proper capitalization: \"{$text}\"";
-        $translation = $this->ask($prompt);
+        $translation = $this->ask($prompt, 30, 600);
 
         if ($translation === '') {
             return ['success' => false, 'error' => 'Translation failed'];
@@ -125,7 +132,7 @@ class GeminiService extends AIBaseService implements AIServiceInterface
     public function translateToIndonesian(string $text): array
     {
         $prompt      = "Translate this English text to Indonesian. Only return the translation, no explanation. Maintain proper capitalization: \"{$text}\"";
-        $translation = $this->ask($prompt);
+        $translation = $this->ask($prompt, 30, 600);
 
         if ($translation === '') {
             return ['success' => false, 'error' => 'Translation failed'];
@@ -193,37 +200,41 @@ class GeminiService extends AIBaseService implements AIServiceInterface
                 $imageData = base64_encode(file_get_contents($imagePath));
                 $mimeType  = mime_content_type($imagePath);
 
-                $prompt = "Extract ALL text from this image. Return ONLY the extracted text, nothing else. Preserve line breaks and formatting. Do not add explanations or labels.";
-
-                $response = $this->client->post($this->apiUrl . '?key=' . $this->apiKey, [
-                    'json' => [
-                        'contents' => [[
-                            'parts' => [
-                                ['text' => $prompt],
-                                ['inline_data' => ['mime_type' => $mimeType, 'data' => $imageData]],
+                $response = $this->makeRequest([
+                    [
+                        'role' => 'user',
+                        'content' => [
+                            [
+                                'type' => 'text',
+                                'text' => "Extract ALL text from this image. Return ONLY the extracted text, nothing else. Preserve line breaks and formatting. Do not add explanations or labels.",
                             ],
-                        ]],
+                            [
+                                'type'      => 'image_url',
+                                'image_url' => ['url' => "data:{$mimeType};base64,{$imageData}"],
+                            ],
+                        ],
                     ],
-                    'timeout' => 120,
-                    'headers' => ['Content-Type' => 'application/json'],
-                    'verify'  => false,
-                ]);
+                ], 120, 4096);
 
-                if ($response->getStatusCode() === 200) {
-                    $data          = json_decode($response->getBody(), true);
-                    $extractedText = trim($data['candidates'][0]['content']['parts'][0]['text'] ?? '');
+                if ($response->successful()) {
+                    $extractedText = trim($response->json()['choices'][0]['message']['content'] ?? '');
                     return ['success' => true, 'text' => $extractedText];
                 }
 
-            } catch (\GuzzleHttp\Exception\ServerException $e) {
+                return ['success' => false, 'error' => 'API Error: ' . $response->body()];
+
+            } catch (RequestException $e) {
                 $attempt++;
-                if ($e->getResponse()->getStatusCode() === 503) {
+                $statusCode = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 0;
+
+                if ($statusCode === 429 || $statusCode === 503) {
                     if ($attempt >= $maxRetries) {
                         return ['success' => false, 'error' => 'Server sedang sibuk. Coba lagi dalam beberapa menit.'];
                     }
                     sleep(pow(2, $attempt));
                     continue;
                 }
+
                 return ['success' => false, 'error' => 'API Error: ' . $e->getMessage()];
             } catch (\Exception $e) {
                 Log::error('OCR Extract Exception', ['message' => $e->getMessage()]);
@@ -237,9 +248,9 @@ class GeminiService extends AIBaseService implements AIServiceInterface
     public function testTranslateDetails(string $text, string $direction = 'belitung_to_indonesia'): array
     {
         $result = [
-            'original_text'  => $text,
-            'cleaned_text'   => $this->cleanText($text),
-            'cleaned_words'  => explode(' ', $this->cleanText($text)),
+            'original_text' => $text,
+            'cleaned_text'  => $this->cleanText($text),
+            'cleaned_words' => explode(' ', $this->cleanText($text)),
         ];
 
         $context = $this->createOptimizedContext($text, $direction);

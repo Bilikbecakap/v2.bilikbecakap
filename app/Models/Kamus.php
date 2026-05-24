@@ -29,6 +29,7 @@ class Kamus extends Model
             1 => 'aktif',
             2 => 'tidak aktif',
             3 => 'menunggu',
+            4 => 'menunggu finalisasi',
         ];
 
         return $statusTexts[$this->status] ?? 'unknown';
@@ -42,6 +43,16 @@ class Kamus extends Model
     public function updater()
     {
         return $this->belongsTo(User::class, 'update_by');
+    }
+
+    public function validasiRecords()
+    {
+        return $this->hasMany(KamusValidasi::class, 'kamus_id');
+    }
+
+    public function validasiDisetujui()
+    {
+        return $this->hasMany(KamusValidasi::class, 'kamus_id')->where('action', 'setuju');
     }
 
     public function getActivitylogOptions(): LogOptions

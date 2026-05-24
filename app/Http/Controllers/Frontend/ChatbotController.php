@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Contracts\AIServiceInterface;
 use App\Http\Controllers\Controller;
-use App\Services\GeminiService;
 use Illuminate\Http\Request;
 
 class ChatbotController extends Controller
 {
-    private $geminiService;
+    private AIServiceInterface $geminiService;
 
-    public function __construct(GeminiService $geminiService)
+    public function __construct(AIServiceInterface $geminiService)
     {
         $this->geminiService = $geminiService;
     }

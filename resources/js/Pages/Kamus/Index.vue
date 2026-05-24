@@ -2,134 +2,41 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePermissions } from '@/composables/usePermissions';
-import { computed, ref, watch } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({
-    kamus: Object, // Changed from Array to Object for pagination
+    kamus: Object,
     sort: String,
     direction: String,
     search: String,
     status: String,
     hasValidationPermission: Boolean,
+    hasFinalizePermission: Boolean,
     currentUserId: Number
 });
 
 const { can } = usePermissions();
 
-// Local search state
 const searchQuery = ref(props.search || '');
-
-// Bulk action states
-const selectedItems = ref([]);
-const selectAll = ref(false);
-const showBulkActions = ref(false);
-
-// Modal states untuk konfirmasi
 const showDeleteModal = ref(false);
-const showApproveModal = ref(false);
-const showRejectModal = ref(false);
 const selectedKamus = ref(null);
-const modalAction = ref(null); // 'single', 'bulk'
-const bulkActionData = ref(null);
 
-// Computed untuk row numbers
 const getRowNumber = (index) => {
     const currentPage = props.kamus.current_page || 1;
     const perPage = props.kamus.per_page || 15;
     return (currentPage - 1) * perPage + index + 1;
 };
 
-// Computed untuk bulk actions
-const allItemsSelected = computed(() => {
-    return props.kamus.data && props.kamus.data.length > 0 && 
-           selectedItems.value.length === props.kamus.data.length;
-});
-
-const someItemsSelected = computed(() => {
-    return selectedItems.value.length > 0 && selectedItems.value.length < props.kamus.data.length;
-});
-
-const canDeleteSelected = computed(() => {
-    return selectedItems.value.every(id => {
-        const item = props.kamus.data.find(k => k.id === id);
-        return item && item.can_delete;
-    });
-});
-
-const selectedItemsInfo = computed(() => {
-    const items = selectedItems.value.map(id => 
-        props.kamus.data.find(k => k.id === id)
-    ).filter(Boolean);
-    
-    return {
-        total: items.length,
-        canDelete: items.filter(item => item.can_delete).length,
-        cannotDelete: items.filter(item => !item.can_delete).length,
-        activeItems: items.filter(item => item.status === 1).length,
-        pendingItems: items.filter(item => item.status === 3).length,
-        inactiveItems: items.filter(item => item.status === 2).length,
-    };
-});
-
-// Watch for selectAll changes
-watch(selectAll, (newVal) => {
-    if (newVal) {
-        selectedItems.value = props.kamus.data
-            .filter(item => item.can_delete)
-            .map(item => item.id);
-    } else {
-        selectedItems.value = [];
+const deleteKamus = (id) => {
+    const item = props.kamus.data.find(k => k.id === id);
+    if (item) {
+        selectedKamus.value = item;
+        showDeleteModal.value = true;
     }
-});
-
-// Watch for selectedItems changes
-watch(selectedItems, (newVal) => {
-    selectAll.value = newVal.length > 0 && allItemsSelected.value;
-    showBulkActions.value = newVal.length > 0;
-}, { deep: true });
-
-// Bulk action functions
-const toggleSelectAll = () => {
-    selectAll.value = !selectAll.value;
-};
-
-const toggleSelectItem = (itemId) => {
-    const index = selectedItems.value.indexOf(itemId);
-    if (index > -1) {
-        selectedItems.value.splice(index, 1);
-    } else {
-        selectedItems.value.push(itemId);
-    }
-};
-
-const clearSelection = () => {
-    selectedItems.value = [];
-    selectAll.value = false;
-    showBulkActions.value = false;
-};
-
-// Modal functions untuk delete
-const openDeleteModal = (kamus, isBulk = false) => {
-    selectedKamus.value = kamus;
-    modalAction.value = 'single';
-    if (isBulk) {
-        modalAction.value = 'bulk';
-        bulkActionData.value = {
-            count: selectedItems.value.length,
-            items: selectedItems.value.map(id => 
-                props.kamus.data.find(k => k.id === id)
-            ).filter(Boolean)
-        };
-    }
-    showDeleteModal.value = true;
 };
 
 const confirmDelete = () => {
-    if (modalAction.value === 'bulk') {
-        bulkDelete();
-    } else {
-        performDelete();
-    }
+    performDelete();
     showDeleteModal.value = false;
 };
 
@@ -140,144 +47,12 @@ const performDelete = () => {
     }
 };
 
-// Modal functions untuk approve
-const openApproveModal = (isBulk = false) => {
-    modalAction.value = 'single';
-    if (isBulk) {
-        modalAction.value = 'bulk';
-        bulkActionData.value = {
-            count: selectedItems.value.filter(id => {
-                const item = props.kamus.data.find(k => k.id === id);
-                return item && item.status === 3;
-            }).length
-        };
-    }
-    showApproveModal.value = true;
-};
-
-const confirmApprove = () => {
-    if (modalAction.value === 'bulk') {
-        performBulkApprove();
-    } else {
-        performApprove();
-    }
-    showApproveModal.value = false;
-};
-
-const performApprove = () => {
-    if (selectedKamus.value) {
-        router.patch(`/admin/kamus/${selectedKamus.value.id}/approve`);
-        selectedKamus.value = null;
-    }
-};
-
-// Modal functions untuk reject
-const openRejectModal = (isBulk = false) => {
-    modalAction.value = 'single';
-    if (isBulk) {
-        modalAction.value = 'bulk';
-        bulkActionData.value = {
-            count: selectedItems.value.filter(id => {
-                const item = props.kamus.data.find(k => k.id === id);
-                return item && item.status === 3;
-            }).length
-        };
-    }
-    showRejectModal.value = true;
-};
-
-const confirmReject = () => {
-    if (modalAction.value === 'bulk') {
-        performBulkReject();
-    } else {
-        performReject();
-    }
-    showRejectModal.value = false;
-};
-
-const performReject = () => {
-    if (selectedKamus.value) {
-        router.patch(`/admin/kamus/${selectedKamus.value.id}/reject`);
-        selectedKamus.value = null;
-    }
-};
-
-// Bulk actions
-const bulkDelete = () => {
-    if (selectedItems.value.length === 0) return;
-    router.post('/admin/kamus/bulk-delete', {
-        ids: selectedItems.value
-    }, {
-        onSuccess: () => {
-            clearSelection();
-        }
-    });
-};
-
-const performBulkApprove = () => {
-    const pendingItems = selectedItems.value.filter(id => {
-        const item = props.kamus.data.find(k => k.id === id);
-        return item && item.status === 3;
-    });
-    
-    if (pendingItems.length === 0) return;
-    
-    router.post('/admin/kamus/bulk-approve', {
-        ids: pendingItems
-    }, {
-        onSuccess: () => {
-            clearSelection();
-        }
-    });
-};
-
-const performBulkReject = () => {
-    const pendingItems = selectedItems.value.filter(id => {
-        const item = props.kamus.data.find(k => k.id === id);
-        return item && item.status === 3;
-    });
-    
-    if (pendingItems.length === 0) return;
-    
-    router.post('/admin/kamus/bulk-reject', {
-        ids: pendingItems
-    }, {
-        onSuccess: () => {
-            clearSelection();
-        }
-    });
-};
-
-// Old inline functions (kept for reference but now using modals)
-const deleteKamus = (id, bahasa_melayu) => {
-    const item = props.kamus.data.find(k => k.id === id);
-    if (item) {
-        selectedKamus.value = item;
-        showDeleteModal.value = true;
-    }
-};
-
-const approveKamus = (id) => {
-    const item = props.kamus.data.find(k => k.id === id);
-    if (item) {
-        selectedKamus.value = item;
-        showApproveModal.value = true;
-    }
-};
-
-const rejectKamus = (id) => {
-    const item = props.kamus.data.find(k => k.id === id);
-    if (item) {
-        selectedKamus.value = item;
-        showRejectModal.value = true;
-    }
-};
-
 const getStatusBadge = (status) => {
     const statusConfig = {
         1: { text: 'Aktif', class: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' },
         2: { text: 'Tidak Aktif', class: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' },
-        3: { text: 'Menunggu', class: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' }
+        3: { text: 'Menunggu', class: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' },
+        4: { text: 'Menunggu Finalisasi', class: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300' },
     };
     return statusConfig[status] || { text: 'Unknown', class: 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300' };
 };
@@ -363,7 +138,6 @@ const performSearch = () => {
 
 const clearFilters = () => {
     searchQuery.value = '';
-    clearSelection();
     router.get(route('kamus.index'), {}, {
         preserveState: true,
         preserveScroll: true,
@@ -395,58 +169,11 @@ const statusOptions = [
     { value: '', label: 'Semua Status' },
     { value: '1', label: 'Aktif' },
     { value: '3', label: 'Menunggu' },
+    { value: '4', label: 'Menunggu Finalisasi' },
     { value: '2', label: 'Tidak Aktif' }
 ];
 
-// Helpers untuk modal
-const getModalTitle = () => {
-    if (showDeleteModal.value) return 'Hapus Kamus';
-    if (showApproveModal.value) return 'Setujui Kamus';
-    if (showRejectModal.value) return 'Tolak Kamus';
-    return '';
-};
 
-const getModalMessage = () => {
-    if (showDeleteModal.value) {
-        if (modalAction.value === 'bulk') {
-            const items = bulkActionData.value.items.slice(0, 3);
-            const itemNames = items.map(item => `"${item.bahasa_melayu}"`).join(', ');
-            const moreItems = bulkActionData.value.count > 3 ? ` dan ${bulkActionData.value.count - 3} lainnya` : '';
-            return `Apakah Anda yakin ingin menghapus ${bulkActionData.value.count} kamus (${itemNames}${moreItems})? Tindakan ini tidak dapat dibatalkan.`;
-        }
-        return `Apakah Anda yakin ingin menghapus kamus "${selectedKamus.value?.bahasa_melayu}"? Tindakan ini tidak dapat dibatalkan.`;
-    }
-    
-    if (showApproveModal.value) {
-        if (modalAction.value === 'bulk') {
-            return `Apakah Anda yakin ingin menyetujui ${bulkActionData.value.count} kamus yang dipilih?`;
-        }
-        return `Apakah Anda yakin ingin menyetujui kamus "${selectedKamus.value?.bahasa_melayu}"?`;
-    }
-    
-    if (showRejectModal.value) {
-        if (modalAction.value === 'bulk') {
-            return `Apakah Anda yakin ingin menolak ${bulkActionData.value.count} kamus yang dipilih?`;
-        }
-        return `Apakah Anda yakin ingin menolak kamus "${selectedKamus.value?.bahasa_melayu}"?`;
-    }
-    
-    return '';
-};
-
-const getModalIcon = () => {
-    if (showDeleteModal.value) return 'delete';
-    if (showApproveModal.value) return 'approve';
-    if (showRejectModal.value) return 'reject';
-    return '';
-};
-
-const getModalButtonColor = () => {
-    if (showDeleteModal.value) return 'red';
-    if (showApproveModal.value) return 'green';
-    if (showRejectModal.value) return 'orange';
-    return 'blue';
-};
 </script>
 
 <template>
@@ -457,15 +184,26 @@ const getModalButtonColor = () => {
 
         <!-- Header Section -->
         <div class="mb-6 md:mb-8">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h2 class="text-xl md:text-2xl font-bold text-slate-800 dark:text-white">Semua Kamus</h2>
                     <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Kelola data kamus Melayu - Indonesia</p>
                 </div>
-                <div class="flex gap-3">
-                    <Link 
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Badge notif ada yang perlu ditinjau -->
+                    <div
+                        v-if="(hasValidationPermission || hasFinalizePermission) && kamus.data && kamus.data.some(k => k.can_tinjau)"
+                        class="inline-flex items-center px-3 py-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded-xl text-sm font-medium border border-yellow-200 dark:border-yellow-800"
+                    >
+                        <svg class="w-4 h-4 mr-1.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        Ada kamus perlu ditinjau
+                    </div>
+                    <!-- Tambah Kamus -->
+                    <Link
                         v-if="can('create kamus')"
-                        href="/admin/kamus/create" 
+                        href="/admin/kamus/create"
                         class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-sm rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-sm hover:shadow-md"
                     >
                         <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -476,106 +214,6 @@ const getModalButtonColor = () => {
                 </div>
             </div>
         </div>
-
-        <!-- Bulk Actions Bar -->
-        <Transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="transform opacity-0 -translate-y-2"
-            enter-to-class="transform opacity-100 translate-y-0"
-            leave-active-class="transition duration-150 ease-in"
-            leave-from-class="transform opacity-100 translate-y-0"
-            leave-to-class="transform opacity-0 -translate-y-2"
-        >
-            <div v-if="showBulkActions" class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-4">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
-                                {{ selectedItemsInfo.total }} item dipilih
-                            </span>
-                        </div>
-                        
-                        <div v-if="selectedItemsInfo.cannotDelete > 0" class="text-xs text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-lg">
-                            {{ selectedItemsInfo.cannotDelete }} item tidak dapat dihapus
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center gap-2">
-                        <!-- Bulk Actions Buttons -->
-                        <div class="flex gap-2">
-                            <!-- Bulk Delete -->
-                            <button 
-                                v-if="can('delete kamus') && selectedItemsInfo.canDelete > 0"
-                                @click="openDeleteModal(null, true)"
-                                class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors duration-150"
-                                title="Hapus Terpilih"
-                            >
-                                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                Hapus ({{ selectedItemsInfo.canDelete }})
-                            </button>
-
-                            <!-- Bulk Approve -->
-                            <button 
-                                v-if="can('validasi kamus') && selectedItemsInfo.pendingItems > 0"
-                                @click="openApproveModal(true)"
-                                class="inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors duration-150"
-                                title="Setujui Terpilih"
-                            >
-                                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Setujui ({{ selectedItemsInfo.pendingItems }})
-                            </button>
-
-                            <!-- Bulk Reject -->
-                            <button 
-                                v-if="can('validasi kamus') && selectedItemsInfo.pendingItems > 0"
-                                @click="openRejectModal(true)"
-                                class="inline-flex items-center px-3 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30 rounded-lg hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors duration-150"
-                                title="Tolak Terpilih"
-                            >
-                                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                Tolak ({{ selectedItemsInfo.pendingItems }})
-                            </button>
-                        </div>
-
-                        <!-- Clear Selection -->
-                        <button 
-                            @click="clearSelection"
-                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-150"
-                            title="Batal Pilih"
-                        >
-                            <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            Batal
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Selection Summary -->
-                <div v-if="selectedItemsInfo.total > 0" class="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
-                    <div class="flex flex-wrap gap-2 text-xs">
-                        <span v-if="selectedItemsInfo.activeItems > 0" class="inline-flex items-center px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded">
-                            {{ selectedItemsInfo.activeItems }} Aktif
-                        </span>
-                        <span v-if="selectedItemsInfo.pendingItems > 0" class="inline-flex items-center px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded">
-                            {{ selectedItemsInfo.pendingItems }} Menunggu
-                        </span>
-                        <span v-if="selectedItemsInfo.inactiveItems > 0" class="inline-flex items-center px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 rounded">
-                            {{ selectedItemsInfo.inactiveItems }} Tidak Aktif
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </Transition>
 
         <!-- Filter Section -->
         <div class="mb-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -692,18 +330,6 @@ const getModalButtonColor = () => {
                 <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                     <thead class="bg-slate-50 dark:bg-slate-800/50">
                         <tr>
-                            <!-- Bulk Select Header -->
-                            <th class="px-6 py-4 text-left w-12">
-                                <div class="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        :checked="allItemsSelected"
-                                        :indeterminate="someItemsSelected"
-                                        @change="toggleSelectAll"
-                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                    >
-                                </div>
-                            </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-16">No</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Bahasa Melayu</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-72">Bahasa Indonesia</th>
@@ -749,29 +375,11 @@ const getModalButtonColor = () => {
                     </thead>
                     <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
                         <tr v-for="(item, index) in kamus.data" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-150">
-                            <!-- Bulk Select Checkbox -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        :value="item.id"
-                                        :checked="selectedItems.includes(item.id)"
-                                        @change="toggleSelectItem(item.id)"
-                                        :disabled="!item.can_delete"
-                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                </div>
-                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="text-sm font-mono text-slate-500 dark:text-slate-400">{{ getRowNumber(index) }}</span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-teal-500 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
-                                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                        </svg>
-                                    </div>
                                     <div class="min-w-0">
                                         <span class="text-sm font-medium text-slate-900 dark:text-white">{{ item.bahasa_melayu }}</span>
                                     </div>
@@ -829,6 +437,20 @@ const getModalButtonColor = () => {
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex items-center justify-center space-x-2">
 
+                                    <!-- Tinjau Button (validasi kamus - status menunggu) -->
+                                    <Link
+                                        v-if="can('validasi kamus') && item.status === 3"
+                                        :href="`/admin/kamus/${item.id}/tinjauan`"
+                                        class="inline-flex items-center px-2 py-1 text-xs font-medium text-yellow-700 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors duration-150"
+                                        title="Tinjau Kamus"
+                                    >
+                                        <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        Tinjau
+                                    </Link>
+
                                     <!-- Edit Button -->
                                     <Link 
                                         v-if="can('edit kamus') && (item.can_edit)"
@@ -852,34 +474,23 @@ const getModalButtonColor = () => {
                                         </svg>
                                     </div>
 
-                                    <!-- Approve Button -->
-                                    <button 
-                                        v-if="can('validasi kamus') && item.status === 3"
-                                        @click="approveKamus(item.id)"
-                                        class="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors duration-150"
-                                        title="Setujui Kamus"
+                                    <!-- Tinjau Button (finalisasi kamus - menunggu finalisasi) -->
+                                    <Link
+                                        v-if="hasFinalizePermission && item.status === 4"
+                                        :href="`/admin/kamus/${item.id}/tinjauan`"
+                                        class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors duration-150"
+                                        title="Finalisasi Kamus"
                                     >
-                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                                         </svg>
-                                    </button>
+                                        Finalisasi
+                                    </Link>
 
-                                    <!-- Reject Button -->
-                                    <button 
-                                        v-if="can('validasi kamus') && item.status === 3"
-                                        @click="rejectKamus(item.id)"
-                                        class="inline-flex items-center px-2 py-1 text-xs font-medium text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30 rounded-lg hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors duration-150"
-                                        title="Tolak Kamus"
-                                    >
-                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-
-                                    <!-- Delete Button -->
-                                    <button 
-                                        v-if="can('delete kamus') && (item.can_delete)"
-                                        @click="deleteKamus(item.id, item.bahasa_melayu)" 
+                                    <!-- Delete Button (owner atau finalisasi kamus) -->
+                                    <button
+                                        v-if="item.can_delete"
+                                        @click="deleteKamus(item.id, item.bahasa_melayu)"
                                         class="inline-flex items-center px-2 py-1 text-xs font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors duration-150"
                                         title="Hapus Kamus"
                                     >
@@ -888,20 +499,9 @@ const getModalButtonColor = () => {
                                         </svg>
                                     </button>
 
-                                    <!-- Info tooltip untuk delete jika tidak bisa delete -->
-                                    <div 
-                                        v-else-if="can('delete kamus') && !item.can_delete"
-                                        class="inline-flex items-center px-2 py-1 text-xs font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-lg cursor-not-allowed"
-                                        title="Hanya dapat menghapus kamus yang Anda buat sendiri"
-                                    >
-                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </div>
-
                                     <!-- Jika tidak ada action yang bisa dilakukan -->
-                                    <span 
-                                        v-if="!can('edit kamus') && !can('delete kamus') && !can('validasi kamus')"
+                                    <span
+                                        v-if="!can('edit kamus') && !item.can_delete && !item.can_tinjau && !can('validasi kamus') && !hasFinalizePermission"
                                         class="text-xs text-slate-400 dark:text-slate-500"
                                     >
                                         -
@@ -1061,7 +661,7 @@ const getModalButtonColor = () => {
                             </h3>
                             <div class="mt-2">
                                 <p class="text-sm text-slate-500 dark:text-slate-400">
-                                    {{ getModalMessage() }}
+                                    Apakah Anda yakin ingin menghapus kamus "{{ selectedKamus?.bahasa_melayu }}"? Tindakan ini tidak dapat dibatalkan.
                                 </p>
                             </div>
                         </div>
@@ -1086,156 +686,5 @@ const getModalButtonColor = () => {
             </div>
         </div>
 
-        <!-- Approve Modal -->
-        <div
-            v-if="showApproveModal"
-            class="fixed inset-0 z-50 overflow-y-auto"
-            aria-labelledby="modal-title"
-            role="dialog"
-            aria-modal="true"
-        >
-            <div
-                class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
-            >
-                <div
-                    class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity"
-                    aria-hidden="true"
-                    @click="showApproveModal = false"
-                ></div>
-                <span
-                    class="hidden sm:inline-block sm:align-middle sm:h-screen"
-                    aria-hidden="true"
-                    >&#8203;</span
-                >
-                <div
-                    class="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
-                >
-                    <div class="sm:flex sm:items-start">
-                        <div
-                            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 sm:mx-0 sm:h-10 sm:w-10"
-                        >
-                            <svg
-                                class="h-6 w-6 text-green-600 dark:text-green-400"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M5 13l4 4L19 7"
-                                />
-                            </svg>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3
-                                class="text-lg leading-6 font-medium text-slate-900 dark:text-slate-100"
-                                id="modal-title"
-                            >
-                                Setujui Kamus
-                            </h3>
-                            <div class="mt-2">
-                                <p class="text-sm text-slate-500 dark:text-slate-400">
-                                    {{ getModalMessage() }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                        <button
-                            @click="confirmApprove"
-                            type="button"
-                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-150"
-                        >
-                            Setujui
-                        </button>
-                        <button
-                            @click="showApproveModal = false"
-                            type="button"
-                            class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-700 text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-150"
-                        >
-                            Batal
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Reject Modal -->
-        <div
-            v-if="showRejectModal"
-            class="fixed inset-0 z-50 overflow-y-auto"
-            aria-labelledby="modal-title"
-            role="dialog"
-            aria-modal="true"
-        >
-            <div
-                class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
-            >
-                <div
-                    class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity"
-                    aria-hidden="true"
-                    @click="showRejectModal = false"
-                ></div>
-                <span
-                    class="hidden sm:inline-block sm:align-middle sm:h-screen"
-                    aria-hidden="true"
-                    >&#8203;</span
-                >
-                <div
-                    class="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
-                >
-                    <div class="sm:flex sm:items-start">
-                        <div
-                            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-900/20 sm:mx-0 sm:h-10 sm:w-10"
-                        >
-                            <svg
-                                class="h-6 w-6 text-orange-600 dark:text-orange-400"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"
-                                />
-                            </svg>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3
-                                class="text-lg leading-6 font-medium text-slate-900 dark:text-slate-100"
-                                id="modal-title"
-                            >
-                                Tolak Kamus
-                            </h3>
-                            <div class="mt-2">
-                                <p class="text-sm text-slate-500 dark:text-slate-400">
-                                    {{ getModalMessage() }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                        <button
-                            @click="confirmReject"
-                            type="button"
-                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-600 text-base font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-150"
-                        >
-                            Tolak
-                        </button>
-                        <button
-                            @click="showRejectModal = false"
-                            type="button"
-                            class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-700 text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-150"
-                        >
-                            Batal
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </AdminLayout>
 </template>

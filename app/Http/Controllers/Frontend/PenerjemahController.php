@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Contracts\AIServiceInterface;
 use App\Http\Controllers\Controller;
-use App\Services\GeminiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class PenerjemahController extends Controller
 {
-    protected $geminiService;
+    protected AIServiceInterface $geminiService;
 
-    public function __construct(GeminiService $geminiService)
+    public function __construct(AIServiceInterface $geminiService)
     {
         $this->geminiService = $geminiService;
     }

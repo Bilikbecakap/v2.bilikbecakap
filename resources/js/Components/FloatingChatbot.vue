@@ -8,26 +8,21 @@ const isOpen = ref(false);
 const messages = ref([]);
 const userInput = ref('');
 const isLoading = ref(false);
-const contextType = ref('general');
 const chatContainer = ref(null);
 
 const STORAGE_KEY = 'bilik_chatbot_history';
-const CONTEXT_KEY = 'bilik_chatbot_context';
 const MAX_MESSAGES = 50;
 
-const contextOptions = {
-    general: 'Umum',
-    kamus: 'Tentang Kamus',
-    penerjemah: 'Tentang Penerjemah',
-    pembelajaran: 'Tentang Pembelajaran',
-    tentang: 'Tentang Bilikbecakap'
-};
+const quickQuestions = [
+    { label: 'Tentang Bilikbecakap', text: 'Ceritakan tentang Bilikbecakap' },
+    { label: 'Fitur Kamus', text: 'Jelaskan fitur kamus digital Bilikbecakap' },
+    { label: 'Cara Penerjemah', text: 'Bagaimana cara menggunakan penerjemah?' },
+    { label: 'Modul Belajar', text: 'Ceritakan tentang modul pembelajaran di Bilikbecakap' },
+];
 
 const loadChatHistory = () => {
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        const storedContext = localStorage.getItem(CONTEXT_KEY);
-
         if (stored) {
             const parsed = JSON.parse(stored);
             messages.value = parsed.map(msg => ({
@@ -36,10 +31,6 @@ const loadChatHistory = () => {
             }));
         } else {
             addWelcomeMessage();
-        }
-
-        if (storedContext) {
-            contextType.value = storedContext;
         }
     } catch (error) {
         console.error('Error loading chat history:', error);
@@ -59,7 +50,6 @@ const saveChatHistory = () => {
     try {
         const messagesToSave = messages.value.slice(-MAX_MESSAGES);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(messagesToSave));
-        localStorage.setItem(CONTEXT_KEY, contextType.value);
     } catch (error) {
         console.error('Error saving chat history:', error);
         if (error.name === 'QuotaExceededError') {
@@ -76,11 +66,15 @@ const saveChatHistory = () => {
 const clearChatHistory = () => {
     try {
         localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(CONTEXT_KEY);
         addWelcomeMessage();
     } catch (error) {
         console.error('Error clearing chat history:', error);
     }
+};
+
+const sendQuickQuestion = async (text) => {
+    userInput.value = text;
+    await sendMessage();
 };
 
 onMounted(() => {
@@ -118,7 +112,6 @@ const sendMessage = async () => {
             },
             body: JSON.stringify({
                 message: userMessage,
-                context_type: contextType.value,
                 history: messages.value.slice(0, -1).map(msg => ({
                     user: msg.type === 'user' ? msg.content : '',
                     assistant: msg.type === 'assistant' ? msg.content : ''
@@ -173,6 +166,29 @@ const handleKeydown = (e) => {
         sendMessage();
     }
 };
+
+const parseMarkdown = (text) => {
+    let html = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    // Bold: **text** → <strong>
+    html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+
+    // Bullet lines → <li>
+    html = html.replace(/^[*-] (.+)$/gm, '<li>$1</li>');
+
+    // Wrap consecutive <li> in <ul>
+    html = html.replace(/(<li>[^\n]*<\/li>\n?)+/g, (match) =>
+        `<ul class="chat-ul">${match.trim().replace(/\n/g, '')}</ul>`
+    );
+
+    // Remaining newlines → <br>
+    html = html.replace(/\n/g, '<br>');
+
+    return html;
+};
 </script>
 
 <template>
@@ -212,16 +228,18 @@ const handleKeydown = (e) => {
                 </button>
             </div>
 
-            <!-- Context Options -->
-            <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 overflow-x-auto">
-                <div class="flex gap-2 flex-nowrap">
-                    <button v-for="(label, type) in contextOptions" :key="type" @click="contextType = type" :class="[
-                        'px-2.5 py-1 text-xs rounded-full transition-colors whitespace-nowrap',
-                        contextType === type
-                            ? 'bg-[#54b0af] text-white'
-                            : 'bg-white text-gray-700 hover:bg-gray-200 border border-gray-300'
-                    ]">
-                        {{ label }}
+            <!-- Quick Questions -->
+            <div v-if="messages.length <= 1" class="px-3 py-2 bg-gray-50 border-b border-gray-200 overflow-x-auto">
+                <p class="text-xs text-gray-400 mb-1.5">Pertanyaan umum:</p>
+                <div class="flex gap-1.5 flex-nowrap">
+                    <button
+                        v-for="q in quickQuestions"
+                        :key="q.label"
+                        @click="sendQuickQuestion(q.text)"
+                        :disabled="isLoading"
+                        class="px-2.5 py-1 text-xs rounded-full whitespace-nowrap bg-white text-gray-700 hover:bg-[#54b0af] hover:text-white border border-gray-300 transition-colors disabled:opacity-50"
+                    >
+                        {{ q.label }}
                     </button>
                 </div>
             </div>
@@ -237,7 +255,8 @@ const handleKeydown = (e) => {
                             ? 'bg-[#54b0af] text-white rounded-br-none'
                             : 'bg-gray-200 text-gray-800 rounded-bl-none'
                     ]">
-                        {{ msg.content }}
+                        <div v-if="msg.type === 'assistant'" class="chat-content" v-html="parseMarkdown(msg.content)"></div>
+                        <template v-else>{{ msg.content }}</template>
                     </div>
                 </div>
 
@@ -303,5 +322,20 @@ const handleKeydown = (e) => {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #459a99;
+}
+
+.chat-content :deep(.chat-ul) {
+    list-style-type: disc;
+    padding-left: 1.1rem;
+    margin: 0.2rem 0;
+}
+
+.chat-content :deep(li) {
+    margin-bottom: 2px;
+    line-height: 1.5;
+}
+
+.chat-content :deep(strong) {
+    font-weight: 600;
 }
 </style>

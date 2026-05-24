@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\GeminiService;
+use App\Contracts\AIServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -11,9 +11,9 @@ use Inertia\Inertia;
 
 class TranslateController extends Controller implements HasMiddleware
 {
-    protected $geminiService;
+    protected AIServiceInterface $geminiService;
 
-    public function __construct(GeminiService $geminiService)
+    public function __construct(AIServiceInterface $geminiService)
     {
         $this->geminiService = $geminiService;
     }

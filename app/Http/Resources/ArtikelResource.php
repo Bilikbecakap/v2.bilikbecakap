@@ -17,21 +17,10 @@ class ArtikelResource extends JsonResource
         return [
             'id'               => $this->id,
             'slug'             => $this->slug,
-            'judul'            => [
-                'id' => $this->judul_indonesia,
-                'ms' => $this->judul_melayu,
-                'en' => $this->judul_english,
-            ],
-            'excerpt'          => [
-                'id' => $this->excerpt_indonesia,
-                'ms' => $this->excerpt_melayu,
-                'en' => $this->excerpt_english,
-            ],
-            'konten'           => $this->when($hasKonten, [
-                'id' => $this->konten_indonesia,
-                'ms' => $this->konten_melayu,
-                'en' => $this->konten_english,
-            ]),
+            'judul'            => $this->judul_indonesia,
+            'excerpt'          => $this->excerpt_indonesia,
+            'konten'           => $this->when($hasKonten, $this->konten_indonesia),
+            'url'              => route('artikel.show', $this->slug),
             'gambar_thumbnail' => $this->gambar_thumbnail
                 ? Storage::disk('public')->url($this->gambar_thumbnail)
                 : null,

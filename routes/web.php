@@ -39,6 +39,23 @@ use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
+| 301 Redirects (URL lama → URL baru)
+|--------------------------------------------------------------------------
+*/
+
+Route::redirect('/about', '/tentang', 301);
+Route::redirect('/contact', '/kontak', 301);
+Route::redirect('/team', '/tentang', 301);
+Route::redirect('/gallery', '/galeri', 301);
+Route::redirect('/quiz-umum', '/kuis', 301);
+Route::redirect('/quiz-umum/{any}', '/kuis', 301)->where('any', '.*');
+Route::redirect('/index.php/team', '/tentang', 301);
+Route::redirect('/index.php/gallery', '/galeri', 301);
+Route::redirect('/index.php/contact', '/kontak', 301);
+Route::redirect('/index.php/{any}', '/', 301)->where('any', '.*');
+
+/*
+|--------------------------------------------------------------------------
 | Public Routes (Landing Page)
 |--------------------------------------------------------------------------
 |

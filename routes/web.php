@@ -80,6 +80,60 @@ Route::post('/penerjemah/extract-text', [PenerjemahController::class, 'extractTe
 Route::post('/chatbot/send', [ChatbotController::class, 'sendMessage'])->name('chatbot.send');
 Route::get('/chatbot/context-options', [ChatbotController::class, 'getContextOptions'])->name('chatbot.context');
 
+Route::get('/sitemap.xml', function () {
+    $baseUrl = 'https://bilikbecakap.com';
+
+    $staticUrls = [
+        ['loc' => $baseUrl . '/', 'changefreq' => 'daily', 'priority' => '1.0'],
+        ['loc' => $baseUrl . '/kamus', 'changefreq' => 'weekly', 'priority' => '0.8'],
+        ['loc' => $baseUrl . '/penerjemah', 'changefreq' => 'monthly', 'priority' => '0.7'],
+        ['loc' => $baseUrl . '/pembelajaran', 'changefreq' => 'weekly', 'priority' => '0.8'],
+        ['loc' => $baseUrl . '/artikel', 'changefreq' => 'daily', 'priority' => '0.8'],
+        ['loc' => $baseUrl . '/kuis', 'changefreq' => 'weekly', 'priority' => '0.7'],
+        ['loc' => $baseUrl . '/galeri', 'changefreq' => 'monthly', 'priority' => '0.6'],
+        ['loc' => $baseUrl . '/kontak', 'changefreq' => 'yearly', 'priority' => '0.5'],
+        ['loc' => $baseUrl . '/tentang', 'changefreq' => 'yearly', 'priority' => '0.5'],
+    ];
+
+    $artikels = \App\Models\Artikel::where('status', 'published')
+        ->select('slug', 'updated_at')
+        ->orderByDesc('updated_at')
+        ->get()
+        ->map(fn ($a) => [
+            'loc' => $baseUrl . '/artikel/' . $a->slug,
+            'lastmod' => $a->updated_at->toAtomString(),
+            'changefreq' => 'monthly',
+            'priority' => '0.7',
+        ]);
+
+    $moduls = \App\Models\ModulPembelajaran::where('status', 'published')
+        ->select('slug', 'updated_at')
+        ->orderByDesc('updated_at')
+        ->get()
+        ->map(fn ($m) => [
+            'loc' => $baseUrl . '/pembelajaran/' . $m->slug,
+            'lastmod' => $m->updated_at->toAtomString(),
+            'changefreq' => 'monthly',
+            'priority' => '0.7',
+        ]);
+
+    $urls = array_merge($staticUrls, $artikels->toArray(), $moduls->toArray());
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+    foreach ($urls as $url) {
+        $xml .= "  <url>\n";
+        $xml .= "    <loc>" . htmlspecialchars($url['loc']) . "</loc>\n";
+        if (!empty($url['lastmod'])) $xml .= "    <lastmod>{$url['lastmod']}</lastmod>\n";
+        $xml .= "    <changefreq>{$url['changefreq']}</changefreq>\n";
+        $xml .= "    <priority>{$url['priority']}</priority>\n";
+        $xml .= "  </url>\n";
+    }
+    $xml .= '</urlset>';
+
+    return response($xml, 200)->header('Content-Type', 'application/xml');
+})->name('sitemap');
+
 Route::get('/test-gemini', function() {
     $service = new \App\Services\GeminiService();
     

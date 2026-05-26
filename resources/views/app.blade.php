@@ -11,6 +11,7 @@
         <meta name="keywords" content="bilikbecakap, pemajuan kebudayaan, pelestarian kebudayaan, Bilikbecakap adalah platform digital yang didedikasikan untuk pelestarian bahasa dan budaya Belitung Timur, khususnya Bahasa Belitung.">
         <meta name="author" content="Bilikbecakap">
         <meta name="robots" content="index, follow">
+        <link rel="canonical" href="{{ url()->current() }}"  />
 
         <!-- Favicon - Multiple formats for better browser support -->
         <link rel="icon" type="image/png" href="/icon.png">

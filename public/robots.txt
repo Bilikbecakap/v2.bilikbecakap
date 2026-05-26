@@ -1,2 +1,17 @@
 User-agent: *
-Disallow:
+Disallow: /language/
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /users
+Disallow: /roles
+Disallow: /permissions
+Disallow: /activity-logs
+Disallow: /data-master
+Disallow: /translate-test
+Disallow: /test-gemini
+Disallow: /serve-media/
+Disallow: /chatbot/
+Disallow: /penerjemah/extract-text
+
+Sitemap: https://bilikbecakap.com/sitemap.xml

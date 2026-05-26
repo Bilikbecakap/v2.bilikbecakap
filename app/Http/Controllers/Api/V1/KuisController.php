@@ -129,8 +129,8 @@ class KuisController extends Controller
 
         $soal = $quiz->questions()
             ->select(['id', 'quiz_id', 'question', 'question_type', 'order'])
-            ->with(['options' => fn ($q) => $q->select(['id', 'quiz_question_id', 'option_text'])->inRandomOrder()])
-            ->inRandomOrder()
+            ->with(['options' => fn ($q) => $q->select(['id', 'quiz_question_id', 'option_text'])->reorder()->inRandomOrder()])
+            ->reorder()->inRandomOrder()
             ->get();
 
         return response()->json([
@@ -289,8 +289,8 @@ class KuisController extends Controller
         // Kirim soal sekaligus agar mobile tidak perlu request tambahan
         $soal = $quiz->questions()
             ->select(['id', 'quiz_id', 'question', 'question_type', 'order'])
-            ->with(['options' => fn ($q) => $q->select(['id', 'quiz_question_id', 'option_text'])->inRandomOrder()])
-            ->inRandomOrder()
+            ->with(['options' => fn ($q) => $q->select(['id', 'quiz_question_id', 'option_text'])->reorder()->inRandomOrder()])
+            ->reorder()->inRandomOrder()
             ->get();
 
         return response()->json([

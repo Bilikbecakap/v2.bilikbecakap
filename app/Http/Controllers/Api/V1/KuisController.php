@@ -129,8 +129,8 @@ class KuisController extends Controller
 
         $soal = $quiz->questions()
             ->select(['id', 'quiz_id', 'question', 'question_type', 'order'])
-            ->with(['options' => fn ($q) => $q->select(['id', 'quiz_question_id', 'option_text'])])
-            ->orderBy('order')
+            ->with(['options' => fn ($q) => $q->select(['id', 'quiz_question_id', 'option_text'])->inRandomOrder()])
+            ->inRandomOrder()
             ->get();
 
         return response()->json([
@@ -289,8 +289,8 @@ class KuisController extends Controller
         // Kirim soal sekaligus agar mobile tidak perlu request tambahan
         $soal = $quiz->questions()
             ->select(['id', 'quiz_id', 'question', 'question_type', 'order'])
-            ->with(['options' => fn ($q) => $q->select(['id', 'quiz_question_id', 'option_text'])])
-            ->orderBy('order')
+            ->with(['options' => fn ($q) => $q->select(['id', 'quiz_question_id', 'option_text'])->inRandomOrder()])
+            ->inRandomOrder()
             ->get();
 
         return response()->json([
@@ -298,7 +298,7 @@ class KuisController extends Controller
             'message' => 'Kuis berhasil dimulai',
             'data'    => [
                 'attempt_id' => $attempt->id,
-                'quiz'       => ['id' => $quiz->id, 'title' => $quiz->title, 'duration' => $quiz->duration],
+                'quiz'       => ['id' => $quiz->id, 'title' => $quiz->title, 'duration' => $quiz->duration, 'music_url' => $quiz->music_url],
                 'soal'       => $soal,
             ],
         ], 201);
@@ -387,20 +387,35 @@ class KuisController extends Controller
         }
 
         $request->validate([
-            'attempt_id'               => ['required', 'integer'],
+            'attempt_id'               => ['nullable', 'integer'],
+            'participant_name'         => ['required_without:attempt_id', 'string', 'max:255'],
+            'started_at'               => ['required_without:attempt_id', 'date'],
+            'completed_at'             => ['required_without:attempt_id', 'date'],
             'answers'                  => ['required', 'array'],
             'answers.*.question_id'    => ['required', 'exists:quiz_questions,id'],
             'answers.*.option_id'      => ['nullable', 'exists:quiz_options,id'],
             'answers.*.answer_text'    => ['nullable', 'string', 'max:500'],
         ]);
 
-        $attempt = QuizAttempt::where('id', $request->attempt_id)
-            ->where('quiz_id', $quiz->id)
-            ->whereNull('completed_at')
-            ->first();
-
-        if (! $attempt) {
-            return response()->json(['success' => false, 'message' => 'Attempt tidak valid atau sudah selesai'], 422);
+        if ($request->attempt_id) {
+            $attempt = QuizAttempt::where('id', $request->attempt_id)
+                ->where('quiz_id', $quiz->id)
+                ->whereNull('completed_at')
+                ->first();
+            if (! $attempt) {
+                return response()->json(['success' => false, 'message' => 'Attempt tidak valid atau sudah selesai'], 422);
+            }
+        } else {
+            $totalSoal = $quiz->questions()->count();
+            $attempt = QuizAttempt::create([
+                'quiz_id'          => $quiz->id,
+                'participant_name' => $request->participant_name,
+                'score'            => 0,
+                'correct_answers'  => 0,
+                'total_questions'  => $totalSoal,
+                'started_at'       => $request->started_at,
+                'completed_at'     => $request->completed_at,
+            ]);
         }
 
         DB::beginTransaction();
@@ -452,6 +467,24 @@ class KuisController extends Controller
             return response()->json(['success' => false, 'message' => 'Gagal menyimpan jawaban'], 500);
         }
 
+        $review = $quiz->questions()
+            ->select(['id', 'question', 'correct_answer', 'order'])
+            ->with(['options' => fn ($q) => $q->select(['id', 'quiz_question_id', 'option_text', 'is_correct'])])
+            ->orderBy('order')
+            ->get()
+            ->map(function ($q) use ($attempt) {
+                $jawaban = QuizAnswer::where('quiz_attempt_id', $attempt->id)
+                    ->where('quiz_question_id', $q->id)
+                    ->first();
+                return [
+                    'question_id'        => $q->id,
+                    'question'           => $q->question,
+                    'options'            => $q->options,
+                    'selected_option_id' => $jawaban?->quiz_option_id,
+                    'is_correct'         => $jawaban?->is_correct ?? false,
+                ];
+            });
+
         return response()->json([
             'success' => true,
             'message' => 'Jawaban berhasil disimpan',
@@ -460,6 +493,7 @@ class KuisController extends Controller
                 'score'           => $score,
                 'correct_answers' => $correctCount,
                 'total_questions' => $total,
+                'review'          => $review,
             ],
         ]);
     }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\ArtikelController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\KamusController;
 use App\Http\Controllers\Api\V1\GaleriController;
+use App\Http\Controllers\Api\V1\KontakController;
 use App\Http\Controllers\Api\V1\KuisController;
 use App\Http\Controllers\Api\V1\PembelajaranController;
 use App\Http\Controllers\Api\V1\PenerjemahController;
@@ -20,6 +21,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
+
+    // ── Kontak ───────────────────────────────────────────────────────────
+    Route::post('/kontak', [KontakController::class, 'store'])->middleware('throttle:10,1')->name('kontak.store');
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/kontak',      [KontakController::class, 'index'])->name('kontak.index');
+        Route::get('/kontak/{id}', [KontakController::class, 'show'])->name('kontak.show')->where('id', '[0-9]+');
+    });
 
     // ── Auth ─────────────────────────────────────────────────────────────
     Route::post('/login',  [AuthController::class, 'login'])->middleware('throttle:10,1')->name('auth.login');

@@ -14,5 +14,6 @@ class Kontak extends Model
         'nomor_telepon',
         'subjek',
         'pesan',
+        'sumber',
     ];
 }

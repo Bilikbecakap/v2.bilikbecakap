@@ -31,7 +31,9 @@ class KontakController extends Controller
         ]);
 
         try {
-            Kontak::create($request->all());
+            Kontak::create(array_merge($request->only('nama', 'email', 'nomor_telepon', 'subjek', 'pesan'), [
+                'sumber' => 'bilikbecakap.com',
+            ]));
             return redirect()->route('kontak.index')->with('success', 'Pesan kontak berhasil dikirim! Kami akan segera menghubungi Anda.');
         } catch (\Exception $e) {
             return back()->withInput()->withErrors(['error' => 'Gagal mengirim pesan: ' . $e->getMessage()]);

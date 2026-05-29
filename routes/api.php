@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\ArtikelController;
+use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\KamusController;
 use App\Http\Controllers\Api\V1\GaleriController;
 use App\Http\Controllers\Api\V1\KuisController;
@@ -19,6 +20,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
+
+    // ── Auth ─────────────────────────────────────────────────────────────
+    Route::post('/login',  [AuthController::class, 'login'])->middleware('throttle:10,1')->name('auth.login');
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/user',    [AuthController::class, 'user'])->name('auth.user');
+        Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+    });
 
     // ── Galeri ───────────────────────────────────────────────────────────
     Route::prefix('galeri')->name('galeri.')->group(function () {

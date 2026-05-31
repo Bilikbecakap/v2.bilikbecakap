@@ -148,6 +148,17 @@ onUnmounted(() => {
                                     ]">
                                     {{ t("messages.gallery") }}
                                     </Link>
+                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <Link href="/aplikasi" :class="[
+                                        'flex items-center gap-2 px-4 py-2 text-sm transition-colors duration-200',
+                                        isActive('/aplikasi') ? 'bg-[#54b0af] text-white font-medium' : 'text-gray-700 hover:bg-[#54b0af] hover:text-white'
+                                    ]">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                    {{ t("messages.aplikasi") }}
+                                    <span class="ml-auto bg-[#FCB415] text-[#002b44] text-xs font-black px-1.5 py-0.5 rounded-full leading-none">BETA</span>
+                                    </Link>
                                 </div>
                             </transition>
                         </div>
@@ -340,6 +351,16 @@ onUnmounted(() => {
                     ]">
                     {{ t("messages.gallery") }}
                     </Link>
+                    <Link href="/aplikasi" @click="showMobileMenu = false" :class="[
+                        'font-medium transition-colors duration-200 py-2 px-3 rounded-lg flex items-center gap-2',
+                        isActive('/aplikasi') ? 'bg-[#54b0af] text-white' : 'text-gray-700 hover:bg-gray-100'
+                    ]">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    {{ t("messages.aplikasi") }}
+                    <span class="bg-[#FCB415] text-[#002b44] text-xs font-black px-1.5 py-0.5 rounded-full leading-none">BETA</span>
+                    </Link>
                 </div>
             </div>
         </transition>
@@ -461,7 +482,7 @@ onUnmounted(() => {
                                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                                 <span class="text-gray-300 text-sm">
-                                    Senyubuk, Belitung Timur,<br>Indonesia
+                                    Belitung Timur, Bangka Belitung <br>Indonesia
                                 </span>
                             </li>
                             <li class="flex items-start gap-3">

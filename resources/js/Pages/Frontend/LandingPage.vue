@@ -100,7 +100,15 @@ const animateCounter = (refValue, target, duration) => {
 
     <FrontendLayout>
         <!-- Hero Section -->
-        <section class="relative bg-gradient-to-br from-[#54b0af]/10 via-white to-[#002b44]/5 py-12 lg:py-20 overflow-hidden">
+        <section class="hero-section relative overflow-hidden min-h-screen flex items-center">
+
+            <!-- Mobile overlay: top-to-bottom, semi-transparan agar teks terbaca -->
+            <div class="absolute inset-0 pointer-events-none lg:hidden"
+                style="background: linear-gradient(to bottom, rgba(255,255,255,0.93) 0%, rgba(255,255,255,0.88) 65%, rgba(255,255,255,0.65) 100%);"></div>
+            <!-- Desktop overlay: kiri ke kanan, berhenti sebelum ilustrasi -->
+            <div class="absolute inset-0 pointer-events-none hidden lg:block"
+                style="background: linear-gradient(to right, rgba(255,255,255,0.87) 0%, rgba(255,255,255,0.85) 42%, rgba(255,255,255,0.40) 54%, transparent 64%);"></div>
+
             <!-- Animated Background Particles -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="particle particle-1"></div>
@@ -115,112 +123,135 @@ const animateCounter = (refValue, target, duration) => {
             <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#002b44]/10 rounded-full blur-3xl -z-10 animate-blob animation-delay-2000"></div>
             <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-[#FCB415]/10 rounded-full blur-3xl -z-10 animate-blob animation-delay-4000"></div>
 
-            <div class="container mx-auto px-4 lg:px-6">
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-12 items-center">
-                    <!-- Left Column: Content -->
-                    <div class="space-y-6 xl:space-y-8 animate-fade-in-up">
-                        <div class="space-y-3 lg:space-y-4">
+            <div class="container mx-auto px-6 lg:px-8 relative z-10 py-20 lg:py-28">
+                <div class="max-w-xl lg:max-w-[50%] animate-fade-in-up space-y-7 lg:space-y-8">
 
-                            <!-- Heading -->
-                            <h1 class="text-3xl md:text-4xl lg:text-6xl font-bold text-[#002b44] leading-tight">
-                                {{ t("messages.welcome_to") }}
-                                <span class="text-[#54b0af] block mt-2 hover:scale-105 transition-transform duration-300 inline-block cursor-default">Bilikbecakap</span>
-                            </h1>
-
-                            <!-- Description with typing effect -->
-                            <p class="text-base md:text-lg text-gray-600 leading-relaxed animate-fade-in-delayed">
-                                {{ t("messages.welcome_massage") }}
-                            </p>
-                        </div>
-
-                        <!-- CTA Buttons with ripple effect -->
-                        <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 lg:gap-4">
-                            <a href="#keunggulan-kami"
-                                class="group relative inline-flex items-center gap-2 bg-[#54b0af] hover:bg-[#459a99] text-white px-6 lg:px-8 py-3 lg:py-4 rounded-full font-semibold text-sm lg:text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full sm:w-auto justify-center sm:justify-start overflow-hidden">
-                                <span class="relative z-10">{{ t("messages.start_learning") }}</span>
-                                <svg class="relative z-10 w-4 lg:w-5 h-4 lg:h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                </svg>
-                                <span class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
-                            </a>
-                        </div>
-
-                        <!-- Stats with bounce animation on hover -->
-                        <div class="grid grid-cols-3 gap-3 lg:gap-6 pt-6 lg:pt-8 border-t border-gray-200">
-                            <div class="text-center group cursor-default hover:scale-110 transition-transform duration-300">
-                                <div class="text-2xl lg:text-3xl font-bold text-[#54b0af] group-hover:text-[#002b44] transition-colors counter-bounce">
-                                    {{ Math.floor(stat1) }}+
-                                </div>
-                                <div class="text-xs lg:text-sm text-gray-600 mt-1">{{ t("messages.words in the dictionary") }}</div>
-                            </div>
-                            <div class="text-center group cursor-default hover:scale-110 transition-transform duration-300">
-                                <div class="text-2xl lg:text-3xl font-bold text-[#54b0af] group-hover:text-[#002b44] transition-colors counter-bounce">
-                                    {{ Math.floor(stat2) }}+
-                                </div>
-                                <div class="text-xs lg:text-sm text-gray-600 mt-1">{{ t("messages.Modul dan Kuis Pembelajaran") }}</div>
-                            </div>
-                            <div class="text-center group cursor-default hover:scale-110 transition-transform duration-300">
-                                <div class="text-2xl lg:text-3xl font-bold text-[#54b0af] group-hover:text-[#002b44] transition-colors counter-bounce">
-                                    {{ Math.floor(stat3) }}%
-                                </div>
-                                <div class="text-xs lg:text-sm text-gray-600 mt-1">{{ t("messages.akurasi penerjemah") }}</div>
-                            </div>
-                        </div>
+                    <!-- Badge -->
+                    <div class="inline-flex items-center gap-2 bg-[#54b0af]/10 border border-[#54b0af]/30 px-4 py-2 rounded-full backdrop-blur-sm">
+                        <span class="w-2 h-2 bg-[#54b0af] rounded-full animate-pulse"></span>
+                        <span class="text-[#54b0af] text-xs font-semibold tracking-widest uppercase">{{ t("messages.hero_badge") }}</span>
                     </div>
 
-                    <!-- Right Column: Hero Image with 3D tilt effect -->
-                    <div class="relative animate-fade-in hidden xl:block hero-image-container">
-                        <!-- Main Hero Image -->
-                        <div class="relative z-10 transform-gpu transition-transform duration-300 hero-image">
-                            <img src="/hero-bilikbecakap.png" alt="Bilikbecakap Hero" class="w-full h-auto">
-                        </div>
+                    <!-- Heading -->
+                    <h1 class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
+                        <span class="text-[#002b44] whitespace-nowrap">{{ t("messages.hero_title_1") }}</span><br>
+                        <span class="text-[#54b0af]">{{ t("messages.hero_title_2") }}</span>
+                    </h1>
 
-                        <!-- Floating Animated Elements with enhanced animations -->
-                        <div class="absolute top-24 left-40 animate-float-slow hover:scale-125 transition-transform duration-300 cursor-pointer">
-                            <div class="bg-white p-3 lg:p-4 rounded-xl shadow-xl border-2 border-[#54b0af] hover:border-[#002b44] transition-colors backdrop-blur-sm">
-                                <svg class="w-10 lg:w-12 h-10 lg:h-12 text-[#54b0af]" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                </svg>
+                    <!-- Description -->
+                    <p class="text-lg text-gray-700 leading-relaxed animate-fade-in-delayed max-w-lg">
+                        {{ t("messages.hero_description") }}
+                    </p>
+
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <a href="#keunggulan-kami"
+                            class="group relative inline-flex items-center justify-center gap-2 bg-[#54b0af] hover:bg-[#459a99] text-white px-8 py-4 rounded-full font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden">
+                            <span class="relative z-10">🚀 {{ t("messages.hero_cta") }}</span>
+                            <svg class="w-5 h-5 group-hover:translate-y-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                            <span class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+                        </a>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="pt-6 border-t border-gray-290">
+
+                        <!-- Mobile: simple 3-col, no card -->
+                        <div class="grid grid-cols-3 gap-3 md:hidden">
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-[#54b0af]">{{ Math.floor(stat1) }}+</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ t("messages.stat_kosakata_label") }}</div>
+                            </div>
+                            <div class="text-center border-x border-gray-200">
+                                <div class="text-xl font-bold text-[#54b0af]">{{ Math.floor(stat2) }}+</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ t("messages.stat_modul_label") }}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-[#54b0af]">{{ Math.floor(stat3) }}%</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ t("messages.stat_akurasi_label") }}</div>
                             </div>
                         </div>
 
-                        <div class="absolute top-1/4 -right-8 animate-float-medium hover:scale-125 transition-transform duration-300 cursor-pointer hover:rotate-12">
-                            <div class="bg-[#54b0af] p-3 lg:p-4 rounded-xl shadow-xl hover:bg-[#002b44] transition-colors">
-                                <svg class="w-10 lg:w-12 h-10 lg:h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                                </svg>
+                        <!-- Desktop: full cards -->
+                        <div class="hidden md:flex flex-row gap-2">
+                            <div class="group cursor-default hover:scale-[1.03] transition-all duration-300 bg-white/95 backdrop-blur-sm border border-gray-200 hover:border-[#54b0af]/60 rounded-xl px-4 py-4 shadow hover:shadow-md w-48">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-10 h-10 bg-[#54b0af]/10 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-[#54b0af]/20 transition-colors">
+                                        <svg class="w-5 h-5 text-[#54b0af]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-base font-bold text-[#54b0af] group-hover:text-[#002b44] transition-colors leading-none">{{ Math.floor(stat1) }}+</div>
+                                        <div class="text-xs font-semibold text-gray-700 mt-0.5">{{ t("messages.stat_kosakata_label") }}</div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2 leading-snug">{{ t("messages.stat_kosakata_desc") }}</p>
+                            </div>
+                            <div class="group cursor-default hover:scale-[1.03] transition-all duration-300 bg-white/80 backdrop-blur-sm border border-gray-100 hover:border-[#002b44]/40 rounded-xl px-4 py-4 shadow hover:shadow-md w-48">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-10 h-10 bg-[#002b44]/10 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-[#002b44]/20 transition-colors">
+                                        <svg class="w-5 h-5 text-[#002b44]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-base font-bold text-[#54b0af] group-hover:text-[#002b44] transition-colors leading-none">{{ Math.floor(stat2) }}+</div>
+                                        <div class="text-xs font-semibold text-gray-700 mt-0.5">{{ t("messages.stat_modul_label") }}</div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2 leading-snug">{{ t("messages.stat_modul_desc") }}</p>
+                            </div>
+                            <div class="group cursor-default hover:scale-[1.03] transition-all duration-300 bg-white/80 backdrop-blur-sm border border-gray-100 hover:border-[#FCB415]/60 rounded-xl px-4 py-4 shadow hover:shadow-md w-48">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-10 h-10 bg-[#FCB415]/10 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-[#FCB415]/20 transition-colors">
+                                        <svg class="w-5 h-5 text-[#FCB415]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-base font-bold text-[#54b0af] group-hover:text-[#002b44] transition-colors leading-none">{{ Math.floor(stat3) }}%</div>
+                                        <div class="text-xs font-semibold text-gray-700 mt-0.5">{{ t("messages.stat_akurasi_label") }}</div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2 leading-snug">{{ t("messages.stat_akurasi_desc") }}</p>
                             </div>
                         </div>
 
-                        <div class="absolute bottom-20 -left-6 animate-float-fast hover:scale-125 transition-transform duration-300 cursor-pointer hover:-rotate-12">
-                            <div class="bg-[#002b44] p-3 lg:p-4 rounded-xl shadow-xl hover:bg-[#FCB415] transition-colors">
-                                <svg class="w-10 lg:w-12 h-10 lg:h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                                </svg>
-                            </div>
-                        </div>
-
-                        <div class="absolute -bottom-2 right-1/4 animate-float-medium hover:scale-125 transition-transform duration-300 cursor-pointer">
-                            <div class="bg-white p-3 lg:p-4 rounded-xl shadow-xl border-2 border-[#002b44] hover:border-[#54b0af] transition-colors backdrop-blur-sm">
-                                <svg class="w-10 lg:w-12 h-10 lg:h-12 text-[#002b44]" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                </svg>
-                            </div>
-                        </div>
-
-                        <!-- Decorative Circles with improved animation -->
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-[#54b0af]/20 rounded-full blur-2xl animate-pulse-slow"></div>
-                        <div class="absolute bottom-0 left-0 w-40 h-40 bg-[#002b44]/20 rounded-full blur-2xl animate-pulse-slow" style="animation-delay: 1s;"></div>
                     </div>
                 </div>
             </div>
+
+            <!-- App info card - bottom right -->
+            <a href="/aplikasi" class="group hidden lg:block absolute bottom-24 right-10 xl:right-16 z-20">
+                <div class="bg-white/90 backdrop-blur-md border border-gray-100 rounded-2xl shadow-xl px-4 py-3.5 w-64 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-sm font-bold text-[#002b44] truncate">{{ t("messages.app_card_title") }}</span>
+                                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">BETA</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ t("messages.app_card_desc") }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                        <span class="text-xs text-gray-400">{{ t("messages.app_card_label") }}</span>
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 group-hover:gap-2 transition-all duration-200">
+                            {{ t("messages.app_card_cta") }}
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+            </a>
 
             <!-- Wave Divider with animation -->
             <div class="absolute bottom-0 left-0 right-0 overflow-hidden leading-[0]">
@@ -232,8 +263,31 @@ const animateCounter = (refValue, target, duration) => {
         </section>
 
         <!-- What We Offer Section with stagger animation -->
-        <section class="py-20 bg-white" id="keunggulan-kami">
-            <div class="container mx-auto px-6">
+        <section class="py-20 bg-white relative overflow-hidden" id="keunggulan-kami">
+
+            <!-- Batik pattern background -->
+            <div class="absolute inset-0 pointer-events-none">
+                <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern id="batikPattern" width="60" height="60" patternUnits="userSpaceOnUse">
+                            <!-- Diamond outer -->
+                            <path d="M30 2 L58 30 L30 58 L2 30 Z" fill="none" stroke="#54b0af" stroke-width="0.7" opacity="0.25"/>
+                            <!-- Diamond inner -->
+                            <path d="M30 14 L46 30 L30 46 L14 30 Z" fill="none" stroke="#002b44" stroke-width="0.5" opacity="0.12"/>
+                            <!-- Corner dots -->
+                            <circle cx="30" cy="2" r="1.2" fill="#54b0af" opacity="0.2"/>
+                            <circle cx="58" cy="30" r="1.2" fill="#54b0af" opacity="0.2"/>
+                            <circle cx="30" cy="58" r="1.2" fill="#54b0af" opacity="0.2"/>
+                            <circle cx="2" cy="30" r="1.2" fill="#54b0af" opacity="0.2"/>
+                            <!-- Center dot -->
+                            <circle cx="30" cy="30" r="1.5" fill="#FCB415" opacity="0.15"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#batikPattern)"/>
+                </svg>
+            </div>
+
+            <div class="container mx-auto px-6 relative z-10">
                 <!-- Section Header -->
                 <div class="text-center mb-16 space-y-4" :class="{ 'animate-slide-up': isFeatureVisible }">
                     <h2 class="text-4xl md:text-5xl font-bold text-[#002b44]">{{ t("messages.Fitur Utama") }}</h2>
@@ -363,6 +417,43 @@ const animateCounter = (refValue, target, duration) => {
                 </div>
             </div>
         </section>
+
+        <!-- App Banner -->
+        <div class="bg-[#002b44] py-6">
+            <div class="container mx-auto px-6 lg:px-8">
+                <div class="flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
+
+                    <!-- Icon -->
+                    <div class="w-12 h-12 bg-white/10 border border-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <svg class="w-6 h-6 text-[#54b0af]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+
+                    <!-- Text -->
+                    <div class="flex-1 text-center sm:text-left">
+                        <div class="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                            <span class="text-white font-bold text-base">{{ t("messages.app_banner_title") }}</span>
+                            <span class="bg-[#FCB415] text-[#002b44] text-xs font-black px-2 py-0.5 rounded-full leading-none">BETA</span>
+                        </div>
+                        <p class="text-white/60 text-sm">{{ t("messages.app_banner_desc") }}</p>
+                    </div>
+
+                    <!-- CTA -->
+                    <a href="/aplikasi"
+                        class="group flex-shrink-0 inline-flex items-center gap-2 bg-[#54b0af] hover:bg-[#459a99] text-white px-6 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        {{ t("messages.app_banner_cta") }}
+                        <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </a>
+
+                </div>
+            </div>
+        </div>
 
         <!-- Achievement Section with parallax -->
         <section class="achievement-section py-20 bg-gradient-to-br from-[#002b44]/5 via-white to-[#54b0af]/5 relative overflow-hidden">
@@ -714,6 +805,19 @@ const animateCounter = (refValue, target, duration) => {
 </template>
 
 <style scoped>
+/* Hero section background */
+.hero-section {
+    background-image: url('/background-herosection.png');
+    background-size: cover;
+    background-position: 72% center; /* mobile: geser ke kanan agar ilustrasi kelihatan */
+}
+
+@media (min-width: 1024px) {
+    .hero-section {
+        background-position: center center;
+    }
+}
+
 /* Existing animations */
 @keyframes fade-in-up {
     from {

@@ -73,6 +73,7 @@ Route::post('/penerjemah/process', [PenerjemahController::class, 'translate'])->
 Route::get('/pembelajaran', [PembelajaranController::class, 'index'])->name('pembelajaran');
 Route::get('/pembelajaran/{slug}', [PembelajaranController::class, 'show'])->name('pembelajaran.show');
 Route::get('/tentang', function () {return Inertia::render('Frontend/Tentang');})->name('tentang');
+Route::get('/aplikasi', function () {return Inertia::render('Frontend/Aplikasi');})->name('aplikasi');
 Route::post('/komentar', [KomentarController::class, 'store'])->name('komentar.store');
 Route::get('/artikel', [BlogController::class, 'daftar'])->name('artikel.index');
 Route::get('/artikel/{slug}', [BlogController::class, 'baca'])->name('artikel.show');

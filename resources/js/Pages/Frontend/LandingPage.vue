@@ -144,14 +144,6 @@ const animateCounter = (refValue, target, duration) => {
                                 </svg>
                                 <span class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
                             </a>
-                            <a href="#"
-                                class="group relative inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-[#002b44] px-6 lg:px-8 py-3 lg:py-4 rounded-full font-semibold text-sm lg:text-base border-2 border-[#002b44] transition-all duration-300 transform hover:-translate-y-1 w-full sm:w-auto justify-center sm:justify-start overflow-hidden">
-                                <span class="relative z-10">{{ t("messages.join") }}</span>
-                                <svg class="relative z-10 w-4 lg:w-5 h-4 lg:h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </a>
                         </div>
 
                         <!-- Stats with bounce animation on hover -->

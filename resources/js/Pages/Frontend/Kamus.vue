@@ -180,9 +180,16 @@ const playAudio = (kamusId, audioUrl) => {
                                         <span v-else class="text-gray-400 text-sm">-</span>
                                     </td>
                                     <td class="px-12 py-6 text-center">
-                                        <button v-if="item.audio" @click="playAudio(item.id, `/serve-media/${item.audio}`)"
-                                            class="inline-flex items-center justify-center w-12 h-12 bg-[#FCB415] hover:bg-[#e0a013] text-white rounded-full transition-all duration-200 transform hover:scale-110"
-                                            :class="{ 'bg-[#e0a013] animate-pulse': isPlaying === item.id }">
+                                        <button
+                                            @click="item.audio ? playAudio(item.id, `/serve-media/${item.audio}`) : null"
+                                            :disabled="!item.audio"
+                                            :title="item.audio ? 'Putar audio' : 'Audio tidak tersedia'"
+                                            class="inline-flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200"
+                                            :class="item.audio
+                                                ? isPlaying === item.id
+                                                    ? 'bg-[#e0a013] animate-pulse text-white transform scale-110'
+                                                    : 'bg-[#FCB415] hover:bg-[#e0a013] text-white transform hover:scale-110 cursor-pointer'
+                                                : 'bg-gray-200 text-gray-400 cursor-not-allowed opacity-60'">
                                             <svg v-if="isPlaying === item.id" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                                             </svg>
@@ -190,7 +197,6 @@ const playAudio = (kamusId, audioUrl) => {
                                                 <path d="M8 5v14l11-7z" />
                                             </svg>
                                         </button>
-                                        <span v-else class="text-gray-400 text-sm">-</span>
                                     </td>
                                 </tr>
                             </tbody>

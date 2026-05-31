@@ -130,12 +130,66 @@ abstract class AIBaseService
 
     protected function getWebsiteContext(string $contextType = 'general'): string
     {
-        return Cache::remember('website_context_full', 3600, fn() => $this->getFullContext());
+        return match($contextType) {
+            'kamus'        => Cache::remember('website_context_kamus', 1800, fn() => $this->getKamusContext()),
+            'penerjemah'   => $this->getPenerjemahContext(),
+            'pembelajaran' => $this->getBelajarContext(),
+            'tentang'      => $this->getTentangContext(),
+            default        => Cache::remember('website_context_full', 3600, fn() => $this->getFullContext()),
+        };
+    }
+
+    private function getPosLabel(string $pos): string
+    {
+        return match($pos) {
+            'n'    => 'kata benda',
+            'v'    => 'kata kerja',
+            'a'    => 'kata sifat',
+            'adv'  => 'kata keterangan',
+            'num'  => 'kata bilangan',
+            'pron' => 'kata ganti',
+            'p'    => 'kata tugas',
+            default => $pos,
+        };
+    }
+
+    protected function fetchKamusExamples(string $keyword = '', int $limit = 15): string
+    {
+        $query = \App\Models\Kamus::where('status', 1)->with('contoh');
+
+        if ($keyword !== '') {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('kata', 'LIKE', "%{$keyword}%")
+                  ->orWhere('definisi', 'LIKE', "%{$keyword}%");
+            });
+        } else {
+            $query->inRandomOrder();
+        }
+
+        $words = $query->limit($limit)->get();
+
+        if ($words->isEmpty()) {
+            $words = \App\Models\Kamus::where('status', 1)->with('contoh')->inRandomOrder()->limit($limit)->get();
+        }
+
+        $result = '';
+        foreach ($words as $word) {
+            $pos     = $word->pos ? ' (' . $this->getPosLabel($word->pos) . ')' : '';
+            $result .= "\n• {$word->kata}{$pos}: {$word->definisi}";
+            $contoh  = $word->contoh->first();
+            if ($contoh) {
+                $result .= "\n  Contoh: \"{$contoh->contoh_kalimat}\"";
+                if ($contoh->arti_contoh_kalimat) {
+                    $result .= " → \"{$contoh->arti_contoh_kalimat}\"";
+                }
+            }
+        }
+        return $result;
     }
 
     protected function getFullContext(): string
     {
-        $totalWords = DatasetTranslate::count();
+        $totalWords = \App\Models\Kamus::where('status', 1)->count();
 
         return "
             NAMA WEBSITE: Bilikbecakap (bilikbecakap.com)
@@ -149,7 +203,7 @@ abstract class AIBaseService
             LOKASI: Belitung Timur, Indonesia | EMAIL: kbkmsenyubuk@gmail.com
 
             FITUR UTAMA:
-            1. KAMUS DIGITAL - Database {$totalWords} kata Melayu Belitung, audio pronunciation, definisi, filter & sorting
+            1. KAMUS DIGITAL - Database {$totalWords} kata Melayu Belitung, lengkap dengan audio pronunciation, definisi, dan contoh kalimat
             2. PENERJEMAH - Indonesia ↔ Melayu Belitung ↔ English, berbasis AI + database lokal
             3. PEMBELAJARAN - Modul interaktif, quiz, topik: Kosakata Dasar, Frasa Umum, Budaya & Tradisi, Sejarah Belitung
             4. GALERI - Dokumentasi budaya dan tradisi Belitung
@@ -186,23 +240,31 @@ abstract class AIBaseService
 
     protected function getKamusContext(): string
     {
-        $totalWords  = DatasetTranslate::count();
-        $sampleWords = DatasetTranslate::limit(20)->get();
+        $totalWords  = \App\Models\Kamus::where('status', 1)->count();
+        $sampleWords = \App\Models\Kamus::where('status', 1)->with('contoh')->inRandomOrder()->limit(20)->get();
 
         $context = "
             KAMUS DIGITAL BILIKBECAKAP
-            Total Kata: {$totalWords}
+            Total Kata Aktif: {$totalWords}
 
             FITUR KAMUS:
-            - Pencarian cepat untuk kata Melayu Belitung atau Indonesia
+            - Pencarian kata Melayu Belitung
             - Audio pronunciation untuk setiap kata
-            - Keterangan/definisi untuk setiap kata
-            - Filter dan sorting
+            - Definisi dan kelas kata (kata benda, kata kerja, dll)
+            - Contoh kalimat penggunaan
 
             CONTOH KATA DALAM DATABASE:
         ";
         foreach ($sampleWords as $word) {
-            $context .= "\n- {$word->bahasa_belitung} (Melayu Belitung) = {$word->bahasa_indonesia} (Indonesia)";
+            $pos     = $word->pos ? ' (' . $this->getPosLabel($word->pos) . ')' : '';
+            $context .= "\n• {$word->kata}{$pos}: {$word->definisi}";
+            $contoh  = $word->contoh->first();
+            if ($contoh) {
+                $context .= "\n  Contoh: \"{$contoh->contoh_kalimat}\"";
+                if ($contoh->arti_contoh_kalimat) {
+                    $context .= " → \"{$contoh->arti_contoh_kalimat}\"";
+                }
+            }
         }
         return $context;
     }
@@ -337,33 +399,57 @@ abstract class AIBaseService
 
     protected function buildChatPrompt(string $userMessage, string $contextType, string $historyText = ''): string
     {
-        $context = $this->getWebsiteContext($contextType);
+        $context        = $this->getWebsiteContext($contextType);
         $historySection = $historyText ? "RIWAYAT PERCAKAPAN (5 pesan terakhir):\n{$historyText}\n" : '';
+
+        // Deteksi apakah user meminta contoh kata / info kamus
+        $kamusKeywords = ['contoh', 'kata', 'kamus', 'bahasa belitung', 'melayu belitung', 'arti', 'definisi', 'terjemah', 'apa itu', 'artinya'];
+        $needsKamusData = false;
+        $lowerMsg = strtolower($userMessage);
+        foreach ($kamusKeywords as $kw) {
+            if (str_contains($lowerMsg, $kw)) {
+                $needsKamusData = true;
+                break;
+            }
+        }
+
+        $kamusSection = '';
+        if ($needsKamusData || $contextType === 'kamus') {
+            // Coba cari kata spesifik yang disebut user
+            preg_match_all('/[a-zA-Z\x{0080}-\x{FFFF}]{3,}/u', $userMessage, $matches);
+            $stopwords = ['contoh', 'kata', 'dari', 'yang', 'untuk', 'dengan', 'berikan', 'kasih', 'tolong', 'bisa', 'apa', 'ada', 'saya', 'anda', 'kamu', 'tentang', 'dalam'];
+            $keywords  = array_filter($matches[0] ?? [], fn($w) => !in_array(strtolower($w), $stopwords) && strlen($w) >= 3);
+            $keyword   = !empty($keywords) ? implode(' ', array_slice(array_values($keywords), 0, 2)) : '';
+
+            $kamusData = $this->fetchKamusExamples($keyword, 10);
+            if ($kamusData) {
+                $kamusSection = "\nDATA KAMUS DARI DATABASE (gunakan ini untuk menjawab):\n{$kamusData}\n";
+            }
+        }
 
         return "
             Anda adalah asisten AI resmi untuk website Bilikbecakap - Platform Pelestarian Budaya dan Bahasa Melayu Belitung.
 
             PERAN ANDA:
             - Nama: Asisten Bilikbecakap
-            - Fokus utama: Bahasa Melayu Belitung dan pelestarian budaya Belitung
-            - Bahasa: Gunakan Bahasa Indonesia yang ramah, hangat, dan profesional
-            - Jika user menyapa dalam Bahasa Melayu Belitung, balas dengan sapaan yang sama sebelum menjawab
+            - Fokus utama: Bahasa Melayu Belitung, kosakata, dan pelestarian budaya Belitung
+            - Bahasa: Gunakan Bahasa Indonesia yang santai, hangat, dan natural — seperti berbicara dengan teman
+            - Jika user menyapa dalam Bahasa Melayu Belitung, balas dengan sapaan yang sama
 
             INFORMASI WEBSITE:
             {$context}
-
+            {$kamusSection}
             {$historySection}
             INSTRUKSI:
-            1. Jawab pertanyaan user berdasarkan informasi website di atas dan riwayat percakapan
-            2. Jika pertanyaan tidak ada dalam informasi website, katakan dengan jujur bahwa Anda tidak memiliki informasi tersebut
-            3. Pertahankan fokus pada Bahasa Melayu Belitung dan pelestarian budaya Belitung
-            4. Pertahankan konsistensi dengan jawaban sebelumnya dalam riwayat percakapan
-            5. Jika user bertanya tentang fitur website, jelaskan dengan detail dan jelas
-            6. Selalu tawarkan bantuan lebih lanjut di akhir setiap jawaban
-            7. Jangan menjawab pertanyaan yang tidak berkaitan dengan Bilikbecakap atau Bahasa/Budaya Belitung
+            1. Jawab langsung dan natural — tidak perlu selalu membuka dengan salam panjang
+            2. Jika ada DATA KAMUS di atas, GUNAKAN data tersebut untuk menjawab dengan contoh nyata dari database
+            3. Jika user meminta contoh kata, langsung berikan contohnya beserta definisi dan contoh kalimat
+            4. Jika ada data di database, JANGAN bilang \"tidak ada informasi\" — pakai data yang sudah diberikan
+            5. Boleh berbagi pengetahuan umum tentang bahasa Melayu Belitung dan budaya Belitung
+            6. Jawaban harus sesuai panjangnya dengan pertanyaan — pertanyaan singkat, jawab singkat; pertanyaan detail, jawab detail
 
             Pertanyaan User: \"{$userMessage}\"
 
-            Jawaban (natural, informatif, dan tetap fokus pada Bilikbecakap):";
+            Jawaban:";
     }
 }

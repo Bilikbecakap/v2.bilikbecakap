@@ -18,6 +18,11 @@ const props = defineProps({
 const { can } = usePermissions();
 
 const searchQuery = ref(props.search || '');
+
+const posLabels = {
+    a: 'Kata Sifat', adv: 'Kata Keterangan', n: 'Kata Benda',
+    num: 'Kata Bilangan', p: 'Kata Tugas', pron: 'Kata Ganti', v: 'Kata Kerja',
+};
 const showDeleteModal = ref(false);
 const selectedKamus = ref(null);
 
@@ -238,7 +243,7 @@ const statusOptions = [
                                 v-model="searchQuery"
                                 @keyup.enter="performSearch"
                                 type="text"
-                                placeholder="Cari berdasarkan bahasa Melayu atau Indonesia..."
+                                placeholder="Cari berdasarkan kata atau definisi..."
                                 class="block w-full pl-10 pr-10 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                             >
                             <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -276,7 +281,7 @@ const statusOptions = [
                 </div>
                 
                 <!-- Active Filters Info -->
-                <div v-if="search || status || (sort === 'created_at')" class="mt-4 flex flex-wrap gap-2">
+                <div v-if="search || status" class="mt-4 flex flex-wrap gap-2">
                     <!-- Search Filter Info -->
                     <div v-if="search" class="inline-flex items-center px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-lg text-sm">
                         <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -291,14 +296,6 @@ const statusOptions = [
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z" />
                         </svg>
                         Status: {{ statusOptions.find(opt => opt.value === status)?.label }}
-                    </div>
-
-                    <!-- Sort Info -->
-                    <div v-if="sort === 'created_at'" class="inline-flex items-center px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-lg text-sm">
-                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                        </svg>
-                        Urutan: {{ direction === 'asc' ? 'Terlama ke Terbaru' : 'Terbaru ke Terlama' }}
                     </div>
 
                     <!-- Clear All Button -->
@@ -331,45 +328,12 @@ const statusOptions = [
                     <thead class="bg-slate-50 dark:bg-slate-800/50">
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-16">No</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Bahasa Melayu</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-72">Bahasa Indonesia</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Kata Melayu</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-24">Kelas Kata</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-72">Definisi</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-24">Audio</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-24">Status</th>
                             <th v-if="can('validasi kamus')" class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-32">Dibuat Oleh</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-32">
-                                <button 
-                                    @click="sortByDate(sort === 'created_at' && direction === 'asc' ? 'desc' : 'asc')"
-                                    class="flex items-center space-x-1 hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-150 group"
-                                >
-                                    <span>Tanggal</span>
-                                    <div class="flex flex-col">
-                                        <svg 
-                                            :class="[
-                                                'w-3 h-3 transition-colors duration-150',
-                                                sort === 'created_at' && direction === 'asc' 
-                                                    ? 'text-blue-600 dark:text-blue-400' 
-                                                    : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'
-                                            ]" 
-                                            fill="currentColor" 
-                                            viewBox="0 0 20 20"
-                                        >
-                                            <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                        <svg 
-                                            :class="[
-                                                'w-3 h-3 -mt-1 transition-colors duration-150',
-                                                sort === 'created_at' && direction === 'desc' 
-                                                    ? 'text-blue-600 dark:text-blue-400' 
-                                                    : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'
-                                            ]" 
-                                            fill="currentColor" 
-                                            viewBox="0 0 20 20"
-                                        >
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </button>
-                            </th>
                             <th class="px-6 py-4 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-48">Actions</th>
                         </tr>
                     </thead>
@@ -381,16 +345,22 @@ const statusOptions = [
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
                                     <div class="min-w-0">
-                                        <span class="text-sm font-medium text-slate-900 dark:text-white">{{ item.bahasa_melayu }}</span>
+                                        <span class="text-sm font-medium text-slate-900 dark:text-white">{{ item.kata }}</span>
                                     </div>
                                 </div>
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span v-if="item.pos"
+                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300">
+                                    {{ posLabels[item.pos] || item.pos }}
+                                </span>
+                                <span v-else class="text-xs text-slate-400">-</span>
+                            </td>
                             <td class="px-6 py-4">
                                 <div class="w-72">
-                                    <span class="text-sm text-slate-900 dark:text-white block truncate" :title="item.bahasa_indonesia">
-                                        {{ truncateText(item.bahasa_indonesia, 60) }}
+                                    <span class="text-sm text-slate-900 dark:text-white block truncate" :title="item.definisi">
+                                        {{ truncateText(item.definisi, 60) }}
                                     </span>
-                                        <p v-if="item.keterangan" class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{{ truncateText(item.keterangan, 80) }}</p>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -421,7 +391,7 @@ const statusOptions = [
                                     <span>{{ item.creator?.name || '-' }}</span>
                                     <!-- Indicator untuk data milik user yang login -->
                                     <span 
-                                        v-if="item.create_by === currentUserId"
+                                        v-if="item.created_by === currentUserId"
                                         class="ml-2 inline-flex items-center px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-full"
                                         title="Data yang Anda buat"
                                     >
@@ -430,9 +400,6 @@ const statusOptions = [
                                         </svg>
                                     </span>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
-                                {{ formatDate(item.created_at) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex items-center justify-center space-x-2">
@@ -661,7 +628,7 @@ const statusOptions = [
                             </h3>
                             <div class="mt-2">
                                 <p class="text-sm text-slate-500 dark:text-slate-400">
-                                    Apakah Anda yakin ingin menghapus kamus "{{ selectedKamus?.bahasa_melayu }}"? Tindakan ini tidak dapat dibatalkan.
+                                    Apakah Anda yakin ingin menghapus kamus "{{ selectedKamus?.kata }}"? Tindakan ini tidak dapat dibatalkan.
                                 </p>
                             </div>
                         </div>

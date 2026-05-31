@@ -11,41 +11,36 @@ class KamusController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Kamus::where('status', 1);
+        $query = Kamus::where('status', 1)->with('contoh');
 
-        // Filter berdasarkan search
         if ($request->filled('search')) {
             $searchTerm = $request->search;
-            $query->where(function($q) use ($searchTerm) {
-                $q->where('bahasa_melayu', 'LIKE', '%' . $searchTerm . '%')
-                  ->orWhere('bahasa_indonesia', 'LIKE', '%' . $searchTerm . '%')
-                  ->orWhere('keterangan', 'LIKE', '%' . $searchTerm . '%');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('kata', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('definisi', 'LIKE', '%' . $searchTerm . '%');
             });
         }
 
-        // Filter berdasarkan huruf
         if ($request->filled('letter')) {
-            $query->where('bahasa_melayu', 'LIKE', $request->letter . '%');
+            $query->where('kata', 'LIKE', $request->letter . '%');
         }
 
-        // Sorting alfabetis
-        $query->orderBy('bahasa_melayu', 'asc');
+        $query->orderBy('kata', 'asc');
 
         $kamus = $query->paginate(10)->appends($request->query());
 
-        // Hitung jumlah kata per huruf untuk badge
         $letterCounts = Kamus::where('status', 1)
-            ->selectRaw('UPPER(LEFT(bahasa_melayu, 1)) as letter, COUNT(*) as count')
+            ->selectRaw('UPPER(LEFT(kata, 1)) as letter, COUNT(*) as count')
             ->groupBy('letter')
             ->pluck('count', 'letter')
             ->toArray();
 
         return Inertia::render('Frontend/Kamus', [
-            'kamus' => $kamus,
-            'search' => $request->search,
-            'letter' => $request->letter,
+            'kamus'        => $kamus,
+            'search'       => $request->search,
+            'letter'       => $request->letter,
             'letterCounts' => $letterCounts,
-            'locale' => app()->getLocale(),
+            'locale'       => app()->getLocale(),
         ]);
     }
 }

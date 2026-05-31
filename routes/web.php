@@ -19,7 +19,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ActivityLogController;
-use App\Http\Controllers\AdminKamusController; 
+use App\Http\Controllers\AdminKamusController;
+use App\Http\Controllers\AdminTerjemahController;
 use App\Http\Controllers\DatasetTranslateController;
 use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\MasterModulController;
@@ -242,6 +243,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/dataset-translate/import', [DatasetTranslateController::class, 'import'])->name('dataset-translate.import');
         Route::get('/dataset-translate/export', [DatasetTranslateController::class, 'export'])->name('dataset-translate.export');
         Route::get('/dataset-translate/statistics', [DatasetTranslateController::class, 'statistics'])->name('dataset-translate.statistics');
+
+        // Testing Penerjemah
+        Route::get('/terjemah', [AdminTerjemahController::class, 'index'])->name('terjemah.index');
+        Route::get('/terjemah/create', [AdminTerjemahController::class, 'create'])->name('terjemah.create');
+        Route::post('/terjemah', [AdminTerjemahController::class, 'store'])->name('terjemah.store');
+        Route::get('/terjemah/{terjemah}/edit', [AdminTerjemahController::class, 'edit'])->name('terjemah.edit');
+        Route::put('/terjemah/{terjemah}', [AdminTerjemahController::class, 'update'])->name('terjemah.update');
+        Route::delete('/terjemah/{terjemah}', [AdminTerjemahController::class, 'destroy'])->name('terjemah.destroy');
+        Route::get('/terjemah/{terjemah}/tinjauan', [AdminTerjemahController::class, 'tinjauan'])->name('terjemah.tinjauan');
+        Route::post('/terjemah/{terjemah}/validasi', [AdminTerjemahController::class, 'validasiTerjemah'])->name('terjemah.validasi');
+        Route::post('/terjemah/{terjemah}/finalisasi', [AdminTerjemahController::class, 'finalisasiTerjemah'])->name('terjemah.finalisasi');
 
         //Kamus Management
         Route::get('/kamus', [AdminKamusController::class, 'index'])->name('kamus.index');

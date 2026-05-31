@@ -1,13 +1,28 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { Link, usePage, router } from "@inertiajs/vue3";
 import { usePermissions } from "@/composables/usePermissions";
 import { useTranslations } from "@/composables/useTranslations";
 import { useDarkMode } from "@/composables/useDarkMode";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-const showingSidebar = ref(false);
+const SIDEBAR_KEY = 'bb_sidebar_open';
+
+const readSidebarStorage = () => {
+  try { return localStorage.getItem(SIDEBAR_KEY) !== 'false'; } catch { return true; }
+};
+const writeSidebarStorage = (val) => {
+  try { localStorage.setItem(SIDEBAR_KEY, String(val)); } catch {}
+};
+
 const isMobile = ref(false);
+const isHovering = ref(false);
+const showingSidebar = ref(readSidebarStorage());
+
+// Sidebar dianggap "terbuka" jika pinned open ATAU sedang di-hover (desktop only)
+const sidebarExpanded = computed(() =>
+  isMobile.value ? showingSidebar.value : (showingSidebar.value || isHovering.value)
+);
 const showSettingsMenu = ref(true);
 const showUserDropdown = ref(false);
 const showLanguageDropdown = ref(false);
@@ -48,23 +63,43 @@ const toggleLanguageDropdown = () => {
 };
 
 const checkMobile = () => {
+  const wasDesktop = !isMobile.value;
   isMobile.value = window.innerWidth < 1024;
-  if (window.innerWidth >= 1024) {
-    showingSidebar.value = true;
+
+  if (!isMobile.value) {
+    // Desktop: pakai state dari localStorage, bukan force-open
+    if (!wasDesktop) {
+      // Baru masuk desktop dari mobile → restore localStorage
+      showingSidebar.value = readSidebarStorage();
+    }
   } else {
+    // Mobile: selalu tutup saat resize ke mobile
     showingSidebar.value = false;
   }
 };
 
 const toggleSidebar = () => {
   showingSidebar.value = !showingSidebar.value;
+  if (!isMobile.value) {
+    writeSidebarStorage(showingSidebar.value);
+  }
 };
+
+const onSidebarEnter = () => { if (!isMobile.value) isHovering.value = true; };
+const onSidebarLeave = () => { if (!isMobile.value) isHovering.value = false; };
 
 const closeSidebarOnMobile = (event) => {
   if (isMobile.value && showingSidebar.value) {
     showingSidebar.value = false;
   }
 };
+
+// Tutup sidebar otomatis saat navigasi di mobile
+watch(() => page.url, () => {
+  if (isMobile.value) {
+    showingSidebar.value = false;
+  }
+});
 
 // Close dropdown when clicking outside
 onMounted(() => {
@@ -98,8 +133,11 @@ onUnmounted(() => {
       isMobile && showingSidebar ? 'translate-x-0' : '',
       isMobile && !showingSidebar ? '-translate-x-full' : '',
       !isMobile ? 'lg:translate-x-0' : '',
-      isMobile ? 'w-80' : showingSidebar ? 'w-72' : 'w-20',
-    ]">
+      isMobile ? 'w-80' : sidebarExpanded ? 'w-72' : 'w-20',
+    ]"
+    @mouseenter="onSidebarEnter"
+    @mouseleave="onSidebarLeave"
+    >
       <div class="flex flex-col h-full">
         <!-- Logo Section -->
         <div
@@ -107,7 +145,7 @@ onUnmounted(() => {
           <div class="flex items-center space-x-3">
             <img src="/icon.png" alt="Bilikbecakap Logo"
               class="w-10 h-10 object-cover rounded-xl shadow-sm flex-shrink-0" />
-            <div v-if="showingSidebar" class="min-w-0">
+            <div v-if="sidebarExpanded" class="min-w-0">
               <h2 class="text-xl font-bold text-slate-800 dark:text-white truncate">
                 Bilikbecakap
               </h2>
@@ -129,9 +167,9 @@ onUnmounted(() => {
               $page.url === '/admin/dashboard'
                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-            ]" :title="!showingSidebar ? 'Dashboard' : ''">
+            ]" :title="!sidebarExpanded ? 'Dashboard' : ''">
             <font-awesome-icon icon="tachometer-alt" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Dashboard</span>
+            <span v-if="sidebarExpanded">Dashboard</span>
             </Link>
             <!-- Menu Kamus -->
             <Link v-if="can('view kamus')" href="/admin/kamus" @click="isMobile ? toggleSidebar() : null" :class="[
@@ -139,9 +177,19 @@ onUnmounted(() => {
               $page.url.startsWith('/admin/kamus')
                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-            ]" :title="!showingSidebar ? 'Kamus' : ''">
+            ]" :title="!sidebarExpanded ? 'Kamus' : ''">
             <font-awesome-icon icon="book" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">{{ t("messages.kamus") }}</span>
+            <span v-if="sidebarExpanded">{{ t("messages.kamus") }}</span>
+            </Link>
+            <!-- Menu Testing Penerjemah -->
+            <Link href="/admin/terjemah" @click="isMobile ? toggleSidebar() : null" :class="[
+              'group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 border',
+              $page.url.startsWith('/admin/terjemah')
+                ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
+            ]" :title="!sidebarExpanded ? 'Testing Penerjemah' : ''">
+            <font-awesome-icon icon="flask" class="w-5 h-5 mr-3 flex-shrink-0" />
+            <span v-if="sidebarExpanded">Testing Penerjemah</span>
             </Link>
             <!-- Menu Translate -->
             <Link href="/translate-test" @click="isMobile ? toggleSidebar() : null" :class="[
@@ -149,9 +197,9 @@ onUnmounted(() => {
               $page.url.startsWith('/translate')
                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-            ]" :title="!showingSidebar ? 'Translate' : ''">
+            ]" :title="!sidebarExpanded ? 'Translate' : ''">
             <font-awesome-icon icon="language" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">{{ t("messages.translator") }}</span>
+            <span v-if="sidebarExpanded">{{ t("messages.translator") }}</span>
             </Link>
             <!-- Menu Artikel -->
             <Link v-if="can('view artikel')" href="/admin/artikel" @click="isMobile ? toggleSidebar() : null" :class="[
@@ -159,9 +207,9 @@ onUnmounted(() => {
               $page.url.startsWith('/admin/artikel')
                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-            ]" :title="!showingSidebar ? 'Artikel' : ''">
+            ]" :title="!sidebarExpanded ? 'Artikel' : ''">
             <font-awesome-icon icon="newspaper" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">{{ t("messages.articles") }}</span>
+            <span v-if="sidebarExpanded">{{ t("messages.articles") }}</span>
             </Link>
 
             <!-- Menu Kuis -->
@@ -172,9 +220,9 @@ onUnmounted(() => {
                   !$page.url.includes('/quiz-test')))
                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
-            ]" :title="!showingSidebar ? 'Kuis' : ''">
+            ]" :title="!sidebarExpanded ? 'Kuis' : ''">
             <font-awesome-icon icon="question-circle" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">{{ t("messages.quiz") }}</span>
+            <span v-if="sidebarExpanded">{{ t("messages.quiz") }}</span>
             </Link>
 
             <!-- Menu Test Quiz -->
@@ -184,9 +232,9 @@ onUnmounted(() => {
                 ($page.url === '/admin/quiz-test' || $page.url.startsWith('/admin/quiz-test/'))
                   ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
-              ]" :title="!showingSidebar ? 'Test Quiz' : ''">
+              ]" :title="!sidebarExpanded ? 'Test Quiz' : ''">
             <font-awesome-icon icon="question-circle" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Test {{ t("messages.quiz") }}</span>
+            <span v-if="sidebarExpanded">Test {{ t("messages.quiz") }}</span>
             </Link>
 
             <!-- Menu Modul Pembelajaran -->
@@ -196,9 +244,9 @@ onUnmounted(() => {
                 $page.url.startsWith('/admin/modul-pembelajaran')
                   ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
-              ]" :title="!showingSidebar ? 'Modul Pembelajaran' : ''">
+              ]" :title="!sidebarExpanded ? 'Modul Pembelajaran' : ''">
             <font-awesome-icon icon="book-open" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">{{ t("messages.learning_modules") }}</span>
+            <span v-if="sidebarExpanded">{{ t("messages.learning_modules") }}</span>
             </Link>
 
             <!-- Menu Galeri -->
@@ -207,9 +255,9 @@ onUnmounted(() => {
               $page.url.startsWith('/admin/galeri')
                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-            ]" :title="!showingSidebar ? 'Galeri' : ''">
+            ]" :title="!sidebarExpanded ? 'Galeri' : ''">
             <font-awesome-icon icon="images" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">{{ t("messages.gallery") }}</span>
+            <span v-if="sidebarExpanded">{{ t("messages.gallery") }}</span>
             </Link>
 
             <!-- Menu Kontak -->
@@ -218,9 +266,9 @@ onUnmounted(() => {
               $page.url.startsWith('/admin/kontak')
                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-            ]" :title="!showingSidebar ? 'Kontak' : ''">
+            ]" :title="!sidebarExpanded ? 'Kontak' : ''">
             <font-awesome-icon icon="address-book" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">{{ t("messages.contact") }}</span>
+            <span v-if="sidebarExpanded">{{ t("messages.contact") }}</span>
             </Link>
 
             <!-- Menu Komentar -->
@@ -229,9 +277,9 @@ onUnmounted(() => {
               $page.url.startsWith('/admin/komentar')
                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-            ]" :title="!showingSidebar ? 'Komentar' : ''">
+            ]" :title="!sidebarExpanded ? 'Komentar' : ''">
             <font-awesome-icon icon="comments" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Komentar</span>
+            <span v-if="sidebarExpanded">Komentar</span>
             </Link>
 
             <Link v-if="can('view data master')" href="/data-master" @click="isMobile ? toggleSidebar() : null" :class="[
@@ -239,9 +287,9 @@ onUnmounted(() => {
               $page.url.startsWith('/data-master')
                 ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-            ]" :title="!showingSidebar ? 'Data Master' : ''">
+            ]" :title="!sidebarExpanded ? 'Data Master' : ''">
             <font-awesome-icon icon="database" class="w-5 h-5 mr-3 flex-shrink-0" />
-            <span v-if="showingSidebar">Data Master</span>
+            <span v-if="sidebarExpanded">Data Master</span>
             </Link>
 
             <!-- Menu Dataset Translate -->
@@ -255,10 +303,10 @@ onUnmounted(() => {
                   ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800'
               ]"
-              :title="!showingSidebar ? 'Dataset Translate' : ''"
+              :title="!sidebarExpanded ? 'Dataset Translate' : ''"
             >
               <font-awesome-icon icon="language" class="w-5 h-5 mr-3 flex-shrink-0" />
-              <span v-if="showingSidebar">Dataset {{ t("messages.translator") }}</span>
+              <span v-if="sidebarExpanded">Dataset {{ t("messages.translator") }}</span>
             </Link>
 
           </div>
@@ -275,9 +323,9 @@ onUnmounted(() => {
                 $page.url.startsWith('/users')
                   ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-              ]" :title="!showingSidebar ? 'Users' : ''">
+              ]" :title="!sidebarExpanded ? 'Users' : ''">
               <font-awesome-icon icon="users" class="w-5 h-5 mr-3 flex-shrink-0" />
-              <span v-if="showingSidebar">{{ t("messages.users") }}</span>
+              <span v-if="sidebarExpanded">{{ t("messages.users") }}</span>
               </Link>
 
               <Link v-if="can('view roles')" href="/roles" @click="isMobile ? toggleSidebar() : null" :class="[
@@ -285,9 +333,9 @@ onUnmounted(() => {
                 $page.url.startsWith('/roles')
                   ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-              ]" :title="!showingSidebar ? 'Roles' : ''">
+              ]" :title="!sidebarExpanded ? 'Roles' : ''">
               <font-awesome-icon icon="shield-alt" class="w-5 h-5 mr-3 flex-shrink-0" />
-              <span v-if="showingSidebar">{{ t("messages.roles") }}</span>
+              <span v-if="sidebarExpanded">{{ t("messages.roles") }}</span>
               </Link>
 
               <Link v-if="hasRole('super-admin')" href="/permissions" @click="isMobile ? toggleSidebar() : null" :class="[
@@ -295,9 +343,9 @@ onUnmounted(() => {
                 $page.url.startsWith('/permissions')
                   ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-              ]" :title="!showingSidebar ? 'Permissions' : ''">
+              ]" :title="!sidebarExpanded ? 'Permissions' : ''">
               <font-awesome-icon icon="lock" class="w-5 h-5 mr-3 flex-shrink-0" />
-              <span v-if="showingSidebar">{{ t("messages.permissions") }}</span>
+              <span v-if="sidebarExpanded">{{ t("messages.permissions") }}</span>
               </Link>
 
               <Link v-if="hasRole('super-admin')" href="/activity-logs" @click="isMobile ? toggleSidebar() : null"
@@ -306,16 +354,16 @@ onUnmounted(() => {
                   $page.url.startsWith('/activity-logs')
                     ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
-                ]" :title="!showingSidebar ? 'Activity Logs' : ''">
+                ]" :title="!sidebarExpanded ? 'Activity Logs' : ''">
               <font-awesome-icon icon="history" class="w-5 h-5 mr-3 flex-shrink-0" />
-              <span v-if="showingSidebar">{{ t("messages.activity_log") }}</span>
+              <span v-if="sidebarExpanded">{{ t("messages.activity_log") }}</span>
               </Link>
             </div>
           </div>
         </nav>
 
         <!-- Back to Home Button (Bottom) -->
-        <div v-if="showingSidebar" class="p-4 border-t border-slate-100 dark:border-slate-700">
+        <div v-if="sidebarExpanded" class="p-4 border-t border-slate-100 dark:border-slate-700">
           <a href="/"
             class="flex items-center justify-center px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 rounded-xl transition-all duration-200 border border-transparent hover:border-blue-100 dark:hover:border-blue-800">
             <font-awesome-icon icon="home" class="w-5 h-5 mr-3" />
@@ -329,8 +377,8 @@ onUnmounted(() => {
     <div :class="[
       'min-h-screen transition-all duration-300',
       {
-        'lg:ml-72': showingSidebar && !isMobile,
-        'lg:ml-20': !showingSidebar && !isMobile,
+        'lg:ml-72': sidebarExpanded && !isMobile,
+        'lg:ml-20': !sidebarExpanded && !isMobile,
       },
     ]">
       <!-- Top Header -->

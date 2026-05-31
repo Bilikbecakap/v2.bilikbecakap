@@ -74,6 +74,11 @@ const statusConfig = {
 
 const getStatusBadge = (status) => statusConfig[status] || { text: 'Unknown', class: 'bg-gray-100 text-gray-800' };
 
+const posLabels = {
+    a: 'Adjektiva', adv: 'Adverbia', n: 'Nomina',
+    num: 'Numeralia', p: 'Partikel', pron: 'Pronomina', v: 'Verba',
+};
+
 const validasiProgress = computed(() => {
     return Math.min((props.totalDisetujui / props.targetValidasi) * 100, 100);
 });
@@ -121,22 +126,41 @@ const validasiProgress = computed(() => {
                     </div>
 
                     <div class="p-6 space-y-5">
-                        <!-- Bahasa Melayu -->
+                        <!-- Kata Melayu Belitung -->
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Bahasa Melayu</label>
-                            <p class="text-lg font-bold text-slate-900 dark:text-white">{{ kamus.bahasa_melayu }}</p>
+                            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Kata Melayu Belitung</label>
+                            <div class="flex items-center gap-3">
+                                <p class="text-lg font-bold text-slate-900 dark:text-white">{{ kamus.kata }}</p>
+                                <span v-if="kamus.pos"
+                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300"
+                                    :title="kamus.pos">
+                                    {{ posLabels[kamus.pos] || kamus.pos }}
+                                </span>
+                            </div>
                         </div>
 
-                        <!-- Bahasa Indonesia -->
+                        <!-- Definisi -->
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Bahasa Indonesia</label>
-                            <p class="text-base text-slate-800 dark:text-slate-200">{{ kamus.bahasa_indonesia }}</p>
+                            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Definisi / Arti</label>
+                            <p class="text-base text-slate-800 dark:text-slate-200">{{ kamus.definisi }}</p>
                         </div>
 
-                        <!-- Keterangan -->
-                        <div v-if="kamus.keterangan">
-                            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Keterangan</label>
-                            <p class="text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 rounded-lg px-4 py-3">{{ kamus.keterangan }}</p>
+                        <!-- Contoh Kalimat -->
+                        <div v-if="kamus.contoh && kamus.contoh.length > 0">
+                            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Contoh Kalimat ({{ kamus.contoh.length }})</label>
+                            <div class="space-y-3">
+                                <div v-for="(c, i) in kamus.contoh" :key="c.id || i"
+                                    class="bg-slate-50 dark:bg-slate-700/50 rounded-lg px-4 py-3">
+                                    <p class="text-sm font-medium text-slate-800 dark:text-slate-200">{{ i + 1 }}. {{ c.contoh_kalimat }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 italic">→ {{ c.arti_contoh_kalimat }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Catatan Validasi -->
+                        <div v-if="kamus.catatan_validasi">
+                            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Catatan Validasi</label>
+                            <p class="text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 rounded-lg px-4 py-3">{{ kamus.catatan_validasi }}</p>
                         </div>
 
                         <!-- Audio -->

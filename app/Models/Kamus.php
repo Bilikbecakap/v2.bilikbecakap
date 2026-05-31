@@ -11,16 +11,17 @@ class Kamus extends Model
 {
     use HasFactory, LogsActivity;
 
-    protected $table = 'kamus'; 
-    
+    protected $table = 'kamus';
+
     protected $fillable = [
-        'bahasa_melayu',
-        'bahasa_indonesia',
+        'kata',
+        'pos',
+        'definisi',
         'audio',
-        'keterangan',
+        'catatan_validasi',
         'status',
-        'create_by',
-        'update_by',
+        'created_by',
+        'updated_by',
     ];
 
     public function getStatusTextAttribute()
@@ -37,12 +38,17 @@ class Kamus extends Model
 
     public function creator()
     {
-        return $this->belongsTo(User::class, 'create_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function updater()
     {
-        return $this->belongsTo(User::class, 'update_by');
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function contoh()
+    {
+        return $this->hasMany(KamusContoh::class, 'kamus_id');
     }
 
     public function validasiRecords()
@@ -58,7 +64,7 @@ class Kamus extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['bahasa_melayu', 'bahasa_indonesia', 'status', 'keterangan'])
+            ->logOnly(['kata', 'definisi', 'status', 'catatan_validasi'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(fn(string $eventName) => "Kamus has been {$eventName}");

@@ -156,7 +156,7 @@ const playAudio = (kamusId, audioUrl) => {
                                 <tr class="bg-[#54b0af] text-white">
                                     <th class="px-12 py-5 text-left text-base font-bold w-1/4">{{ t('messages.bahasa melayu belitung') }}</th>
                                     <th class="px-12 py-5 text-left text-base font-bold w-1/4">{{ t('messages.bahasa indonesia') }}</th>
-                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">{{ t('messages.keterangan') }}</th>
+                                    <th class="px-12 py-5 text-left text-base font-bold w-1/4">Contoh Kalimat</th>
                                     <th class="px-12 py-5 text-center text-base font-bold w-20">{{ t('messages.audio') }}</th>
                                 </tr>
                             </thead>
@@ -166,13 +166,18 @@ const playAudio = (kamusId, audioUrl) => {
                                     :class="index % 2 === 0 ? 'bg-[#002b44]/5' : 'bg-white'"
                                     class="hover:bg-[#54b0af]/10 transition-colors duration-200">
                                     <td class="px-12 py-6">
-                                        <span class="text-[#002b44] font-semibold text-base">{{ item.bahasa_melayu }}</span>
+                                        <span class="text-[#002b44] font-semibold text-base">{{ item.kata }}</span>
                                     </td>
                                     <td class="px-12 py-6">
-                                        <span class="text-gray-700 text-base">{{ item.bahasa_indonesia }}</span>
+                                        <span class="text-gray-700 text-base">{{ item.definisi }}</span>
                                     </td>
                                     <td class="px-12 py-6">
-                                        <span class="text-gray-600 text-sm leading-relaxed line-clamp-3">{{ item.keterangan || '-' }}</span>
+                                        <div v-if="item.contoh && item.contoh.length > 0">
+                                            <p class="text-gray-700 text-sm leading-relaxed">{{ item.contoh[0].contoh_kalimat }}</p>
+                                            <p class="text-gray-500 text-xs italic mt-1">→ {{ item.contoh[0].arti_contoh_kalimat }}</p>
+                                            <span v-if="item.contoh.length > 1" class="text-xs text-[#54b0af] mt-1 block">+{{ item.contoh.length - 1 }} contoh lainnya</span>
+                                        </div>
+                                        <span v-else class="text-gray-400 text-sm">-</span>
                                     </td>
                                     <td class="px-12 py-6 text-center">
                                         <button v-if="item.audio" @click="playAudio(item.id, `/serve-media/${item.audio}`)"

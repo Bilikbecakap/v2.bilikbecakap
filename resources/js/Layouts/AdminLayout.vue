@@ -358,6 +358,18 @@ onUnmounted(() => {
               <font-awesome-icon icon="history" class="w-5 h-5 mr-3 flex-shrink-0" />
               <span v-if="sidebarExpanded">{{ t("messages.activity_log") }}</span>
               </Link>
+
+              <!-- Developer Docs -->
+              <Link v-if="hasRole('super-admin')" href="/admin/dev-docs" @click="isMobile ? toggleSidebar() : null"
+                :class="[
+                  'group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 border',
+                  $page.url.startsWith('/admin/dev-docs')
+                    ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:text-blue-700 dark:hover:text-blue-400 border-transparent hover:border-blue-100 dark:hover:border-blue-800',
+                ]" :title="!sidebarExpanded ? 'Dev Docs' : ''">
+              <font-awesome-icon icon="book-open" class="w-5 h-5 mr-3 flex-shrink-0" />
+              <span v-if="sidebarExpanded">Dev Docs</span>
+              </Link>
             </div>
           </div>
         </nav>

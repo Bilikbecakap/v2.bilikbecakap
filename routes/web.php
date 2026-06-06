@@ -342,6 +342,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/kontak-masuk/{kontak}', [KontakController::class, 'adminDestroy'])->name('admin.kontak.destroy');
         Route::post('/kontak-masuk/bulk-delete', [KontakController::class, 'bulkDelete'])->name('admin.kontak.bulk-delete');
 
+        // Developer Documentation (super-admin only)
+        Route::get('/dev-docs', function () {
+            return Inertia::render('DevDocs/Index');
+        })->middleware('role:super-admin')->name('dev-docs.index');
+
     });
     // Translate Management
     Route::get('/translate-test', [TranslateController::class, 'index'])->name('translate.index');

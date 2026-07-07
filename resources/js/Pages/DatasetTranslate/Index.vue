@@ -173,22 +173,34 @@ const clearFilters = () => {
 
 const sortBy = (field) => {
     const newDirection = props.sort === field && props.direction === 'asc' ? 'desc' : 'asc';
-    
+
     const params = {
         sort: field,
         direction: newDirection
     };
-    
+
     // Keep the current filters if active
     if (searchQuery.value && searchQuery.value.trim() !== '') {
         params.search = searchQuery.value.trim();
     }
-    
+
     router.get(route('dataset-translate.index'), params, {
         preserveState: true,
         preserveScroll: true,
         replace: true
     });
+};
+
+// Export
+const showExportMenu = ref(false);
+
+const exportData = (format) => {
+    showExportMenu.value = false;
+    const params = new URLSearchParams({ format });
+    if (searchQuery.value && searchQuery.value.trim()) {
+        params.set('search', searchQuery.value.trim());
+    }
+    window.location.href = route('dataset-translate.export') + '?' + params.toString();
 };
 </script>
 
@@ -206,9 +218,66 @@ const sortBy = (field) => {
                     <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Kelola data training untuk sistem translate Belitung - Indonesia</p>
                 </div>
                 <div class="flex gap-3">
-                    <Link 
+                    <!-- Export Dropdown -->
+                    <div class="relative">
+                        <button
+                            @click="showExportMenu = !showExportMenu"
+                            class="inline-flex items-center px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-medium text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 shadow-sm"
+                        >
+                            <svg class="w-4 h-4 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export
+                            <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <!-- Backdrop to close dropdown -->
+                        <div
+                            v-if="showExportMenu"
+                            class="fixed inset-0 z-10"
+                            @click="showExportMenu = false"
+                        ></div>
+
+                        <!-- Dropdown Menu -->
+                        <Transition
+                            enter-active-class="transition duration-100 ease-out"
+                            enter-from-class="transform opacity-0 scale-95"
+                            enter-to-class="transform opacity-100 scale-100"
+                            leave-active-class="transition duration-75 ease-in"
+                            leave-from-class="transform opacity-100 scale-100"
+                            leave-to-class="transform opacity-0 scale-95"
+                        >
+                            <div
+                                v-if="showExportMenu"
+                                class="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 z-20 overflow-hidden"
+                            >
+                                <button
+                                    @click="exportData('csv')"
+                                    class="w-full flex items-center px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-150"
+                                >
+                                    <svg class="w-4 h-4 mr-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Export CSV
+                                </button>
+                                <button
+                                    @click="exportData('xlsx')"
+                                    class="w-full flex items-center px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-150"
+                                >
+                                    <svg class="w-4 h-4 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    Export XLSX
+                                </button>
+                            </div>
+                        </Transition>
+                    </div>
+
+                    <Link
                         v-if="can('create dataset')"
-                        :href="route('dataset-translate.create')" 
+                        :href="route('dataset-translate.create')"
                         class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-sm rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-sm hover:shadow-md"
                     >
                         <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

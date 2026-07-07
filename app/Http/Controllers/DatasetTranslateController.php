@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Inertia\Inertia;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Font;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class DatasetTranslateController extends Controller implements HasMiddleware
 {
@@ -273,15 +277,104 @@ class DatasetTranslateController extends Controller implements HasMiddleware
      */
     public function export(Request $request)
     {
-        try {
-            // TODO: Implementasi export logic
-            // Bisa menggunakan package seperti maatwebsite/excel
-            
-            return back()->with('success', 'Dataset berhasil diexport.');
+        $format = $request->get('format', 'csv');
+        $search = $request->get('search');
 
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Gagal export dataset: ' . $e->getMessage()]);
+        $query = DatasetTranslate::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('bahasa_belitung', 'LIKE', '%' . $search . '%')
+                  ->orWhere('bahasa_indonesia', 'LIKE', '%' . $search . '%');
+            });
         }
+
+        $query->orderBy('bahasa_belitung', 'asc');
+        $datasets = $query->get(['id', 'bahasa_belitung', 'bahasa_indonesia', 'created_at']);
+
+        $filename = 'dataset-translate-' . now()->format('Ymd_His');
+
+        if ($format === 'xlsx') {
+            return $this->exportXlsx($datasets, $filename);
+        }
+
+        return $this->exportCsv($datasets, $filename);
+    }
+
+    private function exportCsv($datasets, string $filename)
+    {
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}.csv\"",
+        ];
+
+        $callback = function () use ($datasets) {
+            $handle = fopen('php://output', 'w');
+
+            // BOM for Excel UTF-8 compatibility
+            fputs($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, ['No', 'Bahasa Belitung', 'Bahasa Indonesia', 'Tanggal Dibuat']);
+
+            foreach ($datasets as $index => $item) {
+                fputcsv($handle, [
+                    $index + 1,
+                    $item->bahasa_belitung,
+                    $item->bahasa_indonesia,
+                    $item->created_at?->format('d/m/Y H:i'),
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    private function exportXlsx($datasets, string $filename)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Dataset Translate');
+
+        // Header row
+        $headers = ['No', 'Bahasa Belitung', 'Bahasa Indonesia', 'Tanggal Dibuat'];
+        foreach ($headers as $col => $label) {
+            $cell = chr(65 + $col) . '1';
+            $sheet->setCellValue($cell, $label);
+        }
+
+        // Style header
+        $sheet->getStyle('A1:D1')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4F46E5']],
+        ]);
+
+        // Data rows
+        foreach ($datasets as $index => $item) {
+            $row = $index + 2;
+            $sheet->setCellValue("A{$row}", $index + 1);
+            $sheet->setCellValue("B{$row}", $item->bahasa_belitung);
+            $sheet->setCellValue("C{$row}", $item->bahasa_indonesia);
+            $sheet->setCellValue("D{$row}", $item->created_at?->format('d/m/Y H:i'));
+        }
+
+        // Auto width
+        foreach (range('A', 'D') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        $headers = [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => "attachment; filename=\"{$filename}.xlsx\"",
+            'Cache-Control' => 'max-age=0',
+        ];
+
+        return response()->stream(function () use ($writer) {
+            $writer->save('php://output');
+        }, 200, $headers);
     }
 
     /**

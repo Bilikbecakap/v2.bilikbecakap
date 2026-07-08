@@ -39,29 +39,30 @@ const maxChars = 10000;
 const direction = computed(() => {
     const source = sourceLanguage.value;
     const target = targetLanguage.value;
-    
+
     if (source === 'id' && target === 'mb') return 'indonesia_to_belitung';
     if (source === 'mb' && target === 'id') return 'belitung_to_indonesia';
-    if (source === 'id' && target === 'en') return 'indonesia_to_english';
-    if (source === 'en' && target === 'id') return 'english_to_indonesia';
     if (source === 'mb' && target === 'en') return 'belitung_to_english';
     if (source === 'en' && target === 'mb') return 'english_to_belitung';
-    
+
     return 'indonesia_to_belitung';
 });
 
-// Filter available target languages
+// Filter available target languages — Indonesia ↔ English tidak didukung
 const availableTargetLanguages = computed(() => {
-    return languages.filter(lang => lang.code !== sourceLanguage.value);
+    return languages.filter(lang => {
+        if (lang.code === sourceLanguage.value) return false;
+        if (sourceLanguage.value === 'id' && lang.code === 'en') return false;
+        if (sourceLanguage.value === 'en' && lang.code === 'id') return false;
+        return true;
+    });
 });
 
 // Watch source language change
 watch(sourceLanguage, (newSource) => {
-    if (newSource === targetLanguage.value) {
-        const available = languages.find(lang => lang.code !== newSource);
-        if (available) {
-            targetLanguage.value = available.code;
-        }
+    const available = availableTargetLanguages.value;
+    if (!available.find(lang => lang.code === targetLanguage.value)) {
+        targetLanguage.value = available[0]?.code ?? 'mb';
     }
 });
 
@@ -124,7 +125,6 @@ const translate = async () => {
             body: JSON.stringify({
                 text: inputText.value,
                 direction: direction.value,
-                method: 'hybrid',
             }),
         });
 

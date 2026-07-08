@@ -25,6 +25,14 @@ const targetLanguage = ref('mb');
 const isTranslating = ref(false);
 const showCopySuccess = ref({ input: false, output: false });
 
+// Feedback state
+const showFeedbackBar = ref(false);
+const showFeedbackModal = ref(false);
+const feedbackSent = ref(false);
+const isSendingFeedback = ref(false);
+const feedbackForm = ref({ terjemahan_benar: '', keterangan: '' });
+const feedbackNotif = ref('');
+
 // OCR Modal state
 const showOcrModal = ref(false);
 const imagePreview = ref(null);
@@ -86,6 +94,72 @@ const swapLanguages = () => {
 const clearAll = () => {
     inputText.value = '';
     outputText.value = '';
+    showFeedbackBar.value = false;
+    feedbackSent.value = false;
+};
+
+// Send feedback
+const sendFeedback = async (tipe) => {
+    if (feedbackSent.value) return;
+
+    if (tipe === 'akurat') {
+        isSendingFeedback.value = true;
+        try {
+            await fetch(route('penerjemah.feedback'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: JSON.stringify({
+                    tipe: 'akurat',
+                    arah_terjemahan: direction.value,
+                    teks_input: inputText.value,
+                    terjemahan_asli: outputText.value,
+                }),
+            });
+            feedbackSent.value = true;
+            feedbackNotif.value = 'Terima kasih atas konfirmasi Anda!';
+        } finally {
+            isSendingFeedback.value = false;
+        }
+        return;
+    }
+
+    // tipe === 'kurang_tepat' — buka modal
+    feedbackForm.value = { terjemahan_benar: outputText.value, keterangan: '' };
+    showFeedbackModal.value = true;
+};
+
+const submitFeedbackModal = async () => {
+    isSendingFeedback.value = true;
+    try {
+        const response = await fetch(route('penerjemah.feedback'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({
+                tipe: 'kurang_tepat',
+                arah_terjemahan: direction.value,
+                teks_input: inputText.value,
+                terjemahan_asli: outputText.value,
+                terjemahan_benar: feedbackForm.value.terjemahan_benar || null,
+                keterangan: feedbackForm.value.keterangan || null,
+            }),
+        });
+        const data = await response.json();
+        if (data.success) {
+            showFeedbackModal.value = false;
+            feedbackSent.value = true;
+            feedbackNotif.value = 'Terima kasih! Masukan Anda sangat membantu.';
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        isSendingFeedback.value = false;
+    }
 };
 
 // Copy to clipboard
@@ -132,6 +206,10 @@ const translate = async () => {
 
         if (data.success) {
             outputText.value = data.data.translation;
+            showFeedbackBar.value = true;
+            feedbackSent.value = false;
+            feedbackForm.value = { terjemahan_benar: '', keterangan: '' };
+            feedbackNotif.value = '';
         } else {
             alert(data.message || 'Gagal menerjemahkan');
         }
@@ -384,6 +462,43 @@ const extractTextFromImage = async () => {
                                     <span>{{ isTranslating ? t('messages.translating') : t('messages.translate') }}</span>
                                 </button>
                             </div>
+
+                            <!-- Feedback Bar -->
+                            <Transition name="slide-down">
+                                <div v-if="showFeedbackBar" class="mt-5 pt-5 border-t border-gray-100">
+                                    <div v-if="!feedbackSent" class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                                        <p class="text-sm text-gray-600 font-medium">Apakah terjemahan ini sudah akurat?</p>
+                                        <div class="flex gap-2">
+                                            <button
+                                                @click="sendFeedback('akurat')"
+                                                :disabled="isSendingFeedback"
+                                                class="flex items-center gap-1.5 px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 hover:border-green-300 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+                                            >
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                                </svg>
+                                                Akurat
+                                            </button>
+                                            <button
+                                                @click="sendFeedback('kurang_tepat')"
+                                                :disabled="isSendingFeedback"
+                                                class="flex items-center gap-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 hover:border-red-300 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+                                            >
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+                                                </svg>
+                                                Kurang Tepat
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div v-else class="flex items-center justify-center gap-2 text-sm text-green-700">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {{ feedbackNotif }}
+                                    </div>
+                                </div>
+                            </Transition>
                         </div>
                     </div>
                 </div>
@@ -409,6 +524,70 @@ const extractTextFromImage = async () => {
                 </div>
             </div>
         </section>
+
+        <!-- Feedback Modal -->
+        <Transition name="modal">
+            <div v-if="showFeedbackModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showFeedbackModal = false">
+                <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full" @click.stop>
+                    <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                        <h3 class="text-xl font-bold text-[#002b44]">Laporkan Terjemahan Kurang Tepat</h3>
+                        <button @click="showFeedbackModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Teks Asli (Input)</label>
+                            <div class="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 text-sm text-gray-700">{{ inputText }}</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Terjemahan Sistem</label>
+                            <div class="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 text-sm text-gray-700">{{ outputText }}</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Terjemahan yang Benar <span class="text-gray-400 font-normal">(opsional)</span>
+                            </label>
+                            <textarea
+                                v-model="feedbackForm.terjemahan_benar"
+                                rows="3"
+                                class="w-full p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#54b0af] focus:border-transparent resize-none text-sm"
+                                placeholder="Masukkan terjemahan yang lebih tepat..."
+                            ></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Keterangan <span class="text-gray-400 font-normal">(opsional)</span>
+                            </label>
+                            <textarea
+                                v-model="feedbackForm.keterangan"
+                                rows="2"
+                                class="w-full p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#54b0af] focus:border-transparent resize-none text-sm"
+                                placeholder="Berikan penjelasan tambahan jika ada..."
+                            ></textarea>
+                        </div>
+                        <div class="flex gap-3 pt-2">
+                            <button
+                                @click="showFeedbackModal = false"
+                                class="flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                @click="submitFeedbackModal"
+                                :disabled="isSendingFeedback"
+                                class="flex-1 py-2.5 bg-[#54b0af] hover:bg-[#459a99] text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {{ isSendingFeedback ? 'Mengirim...' : 'Kirim Laporan' }}
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-400 text-center">Laporan dikirim tanpa perlu login. Terima kasih atas kontribusi Anda!</p>
+                    </div>
+                </div>
+            </div>
+        </Transition>
 
         <!-- OCR Modal -->
         <Transition name="modal">
@@ -498,5 +677,18 @@ const extractTextFromImage = async () => {
 .modal-enter-from, .modal-leave-to {
     opacity: 0;
     transform: scale(0.9);
+}
+
+/* Slide Down Animation (Feedback Bar) */
+.slide-down-enter-active, .slide-down-leave-active {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.slide-down-enter-from, .slide-down-leave-to {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    margin-top: 0;
 }
 </style>

@@ -34,6 +34,7 @@ use App\Http\Controllers\QuizQuestionController;
 use App\Http\Controllers\QuizAttemptController;
 use App\Http\Controllers\GambarGaleriController;
 use App\Http\Controllers\KomentarController;
+use App\Http\Controllers\FeedbackTerjemahanController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -75,6 +76,7 @@ Route::get('/pembelajaran/{slug}', [PembelajaranController::class, 'show'])->nam
 Route::get('/tentang', function () {return Inertia::render('Frontend/Tentang');})->name('tentang');
 Route::get('/aplikasi', function () {return Inertia::render('Frontend/Aplikasi');})->name('aplikasi');
 Route::post('/komentar', [KomentarController::class, 'store'])->name('komentar.store');
+Route::post('/penerjemah/feedback', [FeedbackTerjemahanController::class, 'store'])->name('penerjemah.feedback');
 Route::get('/artikel', [BlogController::class, 'daftar'])->name('artikel.index');
 Route::get('/artikel/{slug}', [BlogController::class, 'baca'])->name('artikel.show');
 
@@ -330,6 +332,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/galeri/{galeri}/edit', [GambarGaleriController::class, 'edit'])->name('galeri.edit');
         Route::put('/galeri/{galeri}', [GambarGaleriController::class, 'update'])->name('galeri.update');
         Route::delete('/galeri/{galeri}', [GambarGaleriController::class, 'destroy'])->name('galeri.destroy');
+
+        // Feedback Terjemahan Management
+        Route::get('/feedback-terjemahan', [FeedbackTerjemahanController::class, 'index'])->name('admin.feedback-terjemahan.index');
+        Route::delete('/feedback-terjemahan/{feedbackTerjemahan}', [FeedbackTerjemahanController::class, 'destroy'])->name('admin.feedback-terjemahan.destroy');
 
         //Komentar Management
         Route::get('/komentar', [KomentarController::class, 'index'])->name('komentar.index');

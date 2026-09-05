@@ -87,7 +87,7 @@ class AdminKamusController extends Controller implements HasMiddleware
     public function generateAudioMassal(Request $request)
     {
         $request->validate([
-            'voice' => 'nullable|in:id-ID-ArdiNeural,id-ID-GadisNeural',
+            'voice' => 'nullable|in:ms-MY-OsmanNeural,ms-MY-YasminNeural',
         ]);
 
         $sudahBerjalan = KamusAudioGenerationBatch::whereIn('status', ['queued', 'running'])->exists();
@@ -104,7 +104,7 @@ class AdminKamusController extends Controller implements HasMiddleware
             return back()->with('success', 'Semua kamus sudah memiliki audio.');
         }
 
-        $voice = $request->input('voice', 'id-ID-ArdiNeural');
+        $voice = $request->input('voice', 'ms-MY-OsmanNeural');
 
         $batch = KamusAudioGenerationBatch::create([
             'status'      => 'queued',

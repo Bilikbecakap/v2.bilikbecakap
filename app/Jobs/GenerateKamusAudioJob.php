@@ -20,7 +20,7 @@ class GenerateKamusAudioJob implements ShouldQueue
 
     public function __construct(
         public int $batchId,
-        public string $voice = 'id-ID-ArdiNeural',
+        public string $voice = 'ms-MY-OsmanNeural',
     ) {
     }
 

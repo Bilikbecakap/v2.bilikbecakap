@@ -11,6 +11,8 @@ Progress dilaporkan real-time lewat stdout, satu baris JSON per kata selesai:
 status salah satu dari: "success" | "skipped" (file sudah ada) | "failed: <pesan>"
 """
 
+from __future__ import annotations
+
 import argparse
 import asyncio
 import csv
@@ -56,7 +58,7 @@ async def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", required=True, help="CSV id,kata")
     parser.add_argument("--output", required=True, help="Folder output audio")
-    parser.add_argument("--voice", default="id-ID-ArdiNeural")
+    parser.add_argument("--voice", default="ms-MY-OsmanNeural")
     parser.add_argument("--rate", default="+0%")
     parser.add_argument("--pitch", default="+0Hz")
     parser.add_argument("--concurrency", type=int, default=5)

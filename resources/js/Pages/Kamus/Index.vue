@@ -183,7 +183,7 @@ const statusOptions = [
 
 // --- Generate Audio Massal ---
 const showGenerateModal = ref(false);
-const selectedVoice = ref('id-ID-ArdiNeural');
+const selectedVoice = ref('ms-MY-OsmanNeural');
 const generatingAudio = ref(false);
 const audioBatch = ref(props.latestAudioBatch || null);
 let audioPollTimer = null;
@@ -216,7 +216,7 @@ const startAudioPolling = () => {
 };
 
 const openGenerateModal = () => {
-    selectedVoice.value = 'id-ID-ArdiNeural';
+    selectedVoice.value = 'ms-MY-OsmanNeural';
     showGenerateModal.value = true;
 };
 
@@ -801,8 +801,8 @@ onUnmounted(() => {
                                     :disabled="generatingAudio"
                                     class="block w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200"
                                 >
-                                    <option value="id-ID-ArdiNeural">Ardi (Pria)</option>
-                                    <option value="id-ID-GadisNeural">Gadis (Wanita)</option>
+                                    <option value="ms-MY-OsmanNeural">Osman (Pria)</option>
+                                    <option value="ms-MY-YasminNeural">Yasmin (Wanita)</option>
                                 </select>
                             </div>
                         </div>

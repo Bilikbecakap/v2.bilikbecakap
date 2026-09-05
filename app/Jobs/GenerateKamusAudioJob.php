@@ -157,4 +157,19 @@ class GenerateKamusAudioJob implements ShouldQueue
 
         File::deleteDirectory($tmpDir);
     }
+
+    public function failed(\Throwable $exception): void
+    {
+        $batch = KamusAudioGenerationBatch::find($this->batchId);
+
+        if ($batch && $batch->status !== 'completed') {
+            $batch->update([
+                'status'        => 'failed',
+                'error_message' => substr($exception->getMessage(), 0, 2000),
+                'finished_at'   => now(),
+            ]);
+        }
+
+        File::deleteDirectory(storage_path('app/tmp/kamus-audio-gen-' . $this->batchId));
+    }
 }

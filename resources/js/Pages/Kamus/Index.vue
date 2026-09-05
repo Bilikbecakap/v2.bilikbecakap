@@ -2,7 +2,8 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePermissions } from '@/composables/usePermissions';
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
     kamus: Object,
@@ -12,7 +13,9 @@ const props = defineProps({
     status: String,
     hasValidationPermission: Boolean,
     hasFinalizePermission: Boolean,
-    currentUserId: Number
+    currentUserId: Number,
+    missingAudioCount: Number,
+    latestAudioBatch: Object
 });
 
 const { can } = usePermissions();
@@ -178,7 +181,72 @@ const statusOptions = [
     { value: '2', label: 'Tidak Aktif' }
 ];
 
+// --- Generate Audio Massal ---
+const showGenerateModal = ref(false);
+const selectedVoice = ref('id-ID-ArdiNeural');
+const generatingAudio = ref(false);
+const audioBatch = ref(props.latestAudioBatch || null);
+let audioPollTimer = null;
 
+const isBatchActive = (batch) => batch && ['queued', 'running'].includes(batch.status);
+
+const stopAudioPolling = () => {
+    if (audioPollTimer) {
+        clearInterval(audioPollTimer);
+        audioPollTimer = null;
+    }
+};
+
+const pollAudioStatus = async () => {
+    try {
+        const { data } = await axios.get(route('kamus.generate-audio.status'));
+        audioBatch.value = data.batch;
+        if (!isBatchActive(data.batch)) {
+            stopAudioPolling();
+            router.reload({ only: ['missingAudioCount', 'kamus'] });
+        }
+    } catch (error) {
+        console.error('Gagal mengambil status generate audio:', error);
+    }
+};
+
+const startAudioPolling = () => {
+    stopAudioPolling();
+    audioPollTimer = setInterval(pollAudioStatus, 4000);
+};
+
+const openGenerateModal = () => {
+    selectedVoice.value = 'id-ID-ArdiNeural';
+    showGenerateModal.value = true;
+};
+
+const confirmGenerateAudio = () => {
+    generatingAudio.value = true;
+    router.post(route('kamus.generate-audio'), { voice: selectedVoice.value }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            showGenerateModal.value = false;
+            router.reload({ only: ['latestAudioBatch'], onSuccess: (page) => {
+                audioBatch.value = page.props.latestAudioBatch;
+                if (isBatchActive(audioBatch.value)) startAudioPolling();
+            }});
+        },
+        onFinish: () => { generatingAudio.value = false; }
+    });
+};
+
+const audioBatchProgressPct = (batch) => {
+    if (!batch || !batch.total_words) return 0;
+    return Math.round((batch.processed / batch.total_words) * 100);
+};
+
+onMounted(() => {
+    if (isBatchActive(audioBatch.value)) startAudioPolling();
+});
+
+onUnmounted(() => {
+    stopAudioPolling();
+});
 </script>
 
 <template>
@@ -205,6 +273,20 @@ const statusOptions = [
                         </svg>
                         Ada kamus perlu ditinjau
                     </div>
+                    <!-- Generate Audio Massal -->
+                    <button
+                        v-if="can('finalisasi kamus')"
+                        @click="openGenerateModal"
+                        :disabled="isBatchActive(audioBatch) || missingAudioCount === 0"
+                        class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-medium text-sm rounded-xl hover:from-teal-700 hover:to-cyan-700 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-teal-600 disabled:hover:to-cyan-600"
+                        :title="missingAudioCount === 0 ? 'Semua kamus sudah memiliki audio' : 'Generate audio otomatis untuk kamus yang belum memiliki audio'"
+                    >
+                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8M9 9v2a3 3 0 006 0V9m0 0V5a3 3 0 00-6 0v4a3 3 0 003 3z" />
+                        </svg>
+                        Generate Audio Massal
+                        <span v-if="missingAudioCount > 0" class="ml-1.5 opacity-90">({{ missingAudioCount }} kosong)</span>
+                    </button>
                     <!-- Tambah Kamus -->
                     <Link
                         v-if="can('create kamus')"
@@ -218,6 +300,34 @@ const statusOptions = [
                     </Link>
                 </div>
             </div>
+        </div>
+
+        <!-- Progress Generate Audio Massal -->
+        <div
+            v-if="audioBatch && (isBatchActive(audioBatch) || audioBatch.status === 'failed')"
+            class="mb-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5"
+        >
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="text-sm font-semibold text-slate-800 dark:text-white flex items-center">
+                    <svg v-if="isBatchActive(audioBatch)" class="w-4 h-4 mr-2 text-teal-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    {{ audioBatch.status === 'queued' ? 'Menunggu di antrian...' : audioBatch.status === 'running' ? 'Sedang generate audio...' : 'Generate audio gagal' }}
+                </h4>
+                <span class="text-sm text-slate-500 dark:text-slate-400">{{ audioBatch.processed }} / {{ audioBatch.total_words }}</span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 mb-2">
+                <div class="bg-teal-600 h-2.5 rounded-full transition-all duration-500" :style="{ width: audioBatchProgressPct(audioBatch) + '%' }"></div>
+            </div>
+            <div class="flex gap-4 text-xs text-slate-500 dark:text-slate-400">
+                <span>Berhasil: {{ audioBatch.success_count }}</span>
+                <span>Dilewati: {{ audioBatch.skipped_count }}</span>
+                <span>Gagal: {{ audioBatch.failed_count }}</span>
+            </div>
+            <p v-if="audioBatch.status === 'failed' && audioBatch.error_message" class="mt-2 text-xs text-red-600 dark:text-red-400">
+                {{ audioBatch.error_message }}
+            </p>
         </div>
 
         <!-- Filter Section -->
@@ -645,6 +755,72 @@ const statusOptions = [
                             @click="showDeleteModal = false"
                             type="button"
                             class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-700 text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-150"
+                        >
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generate Audio Massal Modal -->
+        <div
+            v-if="showGenerateModal"
+            class="fixed inset-0 z-50 overflow-y-auto"
+            aria-labelledby="modal-title"
+            role="dialog"
+            aria-modal="true"
+        >
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div
+                    class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity"
+                    aria-hidden="true"
+                    @click="!generatingAudio && (showGenerateModal = false)"
+                ></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div class="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-teal-100 dark:bg-teal-900/20 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-teal-600 dark:text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8M9 9v2a3 3 0 006 0V9m0 0V5a3 3 0 00-6 0v4a3 3 0 003 3z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-slate-900 dark:text-slate-100" id="modal-title">
+                                Generate Audio Massal
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-slate-500 dark:text-slate-400">
+                                    Akan digenerate audio otomatis (text-to-speech) untuk <strong>{{ missingAudioCount }} kata</strong> yang belum memiliki audio. Kamus yang sudah ada audio tidak akan diubah. Proses berjalan di background dan bisa memakan waktu cukup lama.
+                                </p>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Suara</label>
+                                <select
+                                    v-model="selectedVoice"
+                                    :disabled="generatingAudio"
+                                    class="block w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200"
+                                >
+                                    <option value="id-ID-ArdiNeural">Ardi (Pria)</option>
+                                    <option value="id-ID-GadisNeural">Gadis (Wanita)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                        <button
+                            @click="confirmGenerateAudio"
+                            :disabled="generatingAudio"
+                            type="button"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-teal-600 text-base font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-150 disabled:opacity-50"
+                        >
+                            {{ generatingAudio ? 'Memulai...' : 'Mulai Generate' }}
+                        </button>
+                        <button
+                            @click="showGenerateModal = false"
+                            :disabled="generatingAudio"
+                            type="button"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-700 text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-150"
                         >
                             Batal
                         </button>

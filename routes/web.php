@@ -262,6 +262,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/kamus', [AdminKamusController::class, 'index'])->name('kamus.index');
         Route::get('/kamus/create', [AdminKamusController::class, 'create'])->name('kamus.create');
         Route::post('/kamus', [AdminKamusController::class, 'store'])->name('kamus.store');
+        Route::post('/kamus/generate-audio', [AdminKamusController::class, 'generateAudioMassal'])->name('kamus.generate-audio');
+        Route::get('/kamus/generate-audio/status', [AdminKamusController::class, 'audioGenerationStatus'])->name('kamus.generate-audio.status');
         Route::get('/kamus/{kamus}/edit', [AdminKamusController::class, 'edit'])->name('kamus.edit');
         Route::put('/kamus/{kamus}', [AdminKamusController::class, 'update'])->name('kamus.update');
         Route::delete('/kamus/{kamus}', [AdminKamusController::class, 'destroy'])->name('kamus.destroy');

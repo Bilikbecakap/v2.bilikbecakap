@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\GenerateKamusAudioJob;
 use App\Models\Kamus;
+use App\Models\KamusAudioGenerationBatch;
 use App\Models\KamusValidasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,11 +18,11 @@ class AdminKamusController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:view kamus', only: ['index']),
+            new Middleware('permission:view kamus', only: ['index', 'audioGenerationStatus']),
             new Middleware('permission:create kamus', only: ['create', 'store']),
             new Middleware('permission:edit kamus', only: ['edit', 'update']),
             new Middleware('permission:validasi kamus', only: ['validasiKamus']),
-            new Middleware('permission:finalisasi kamus', only: ['finalisasiKamus']),
+            new Middleware('permission:finalisasi kamus', only: ['finalisasiKamus', 'generateAudioMassal']),
         ];
     }
 
@@ -64,6 +66,10 @@ class AdminKamusController extends Controller implements HasMiddleware
 
         $kamus->setCollection($kamusData);
 
+        $missingAudioCount = Kamus::where(function ($q) {
+            $q->whereNull('audio')->orWhere('audio', '');
+        })->count();
+
         return Inertia::render('Kamus/Index', [
             'kamus'                   => $kamus,
             'search'                  => $request->search,
@@ -73,6 +79,54 @@ class AdminKamusController extends Controller implements HasMiddleware
             'hasValidationPermission' => $hasValidationPermission,
             'hasFinalizePermission'   => $hasFinalizePermission,
             'currentUserId'           => $currentUserId,
+            'missingAudioCount'       => $missingAudioCount,
+            'latestAudioBatch'        => KamusAudioGenerationBatch::latest()->first(),
+        ]);
+    }
+
+    public function generateAudioMassal(Request $request)
+    {
+        $request->validate([
+            'voice' => 'nullable|in:id-ID-ArdiNeural,id-ID-GadisNeural',
+        ]);
+
+        $sudahBerjalan = KamusAudioGenerationBatch::whereIn('status', ['queued', 'running'])->exists();
+
+        if ($sudahBerjalan) {
+            return back()->withErrors(['error' => 'Masih ada proses generate audio yang berjalan. Tunggu sampai selesai sebelum memulai yang baru.']);
+        }
+
+        $missingAudioCount = Kamus::where(function ($q) {
+            $q->whereNull('audio')->orWhere('audio', '');
+        })->count();
+
+        if ($missingAudioCount === 0) {
+            return back()->with('success', 'Semua kamus sudah memiliki audio.');
+        }
+
+        $voice = $request->input('voice', 'id-ID-ArdiNeural');
+
+        $batch = KamusAudioGenerationBatch::create([
+            'status'      => 'queued',
+            'total_words' => $missingAudioCount,
+            'voice'       => $voice,
+            'started_by' => auth()->id(),
+        ]);
+
+        GenerateKamusAudioJob::dispatch($batch->id, $voice);
+
+        activity()
+            ->causedBy(auth()->user())
+            ->withProperties(['batch_id' => $batch->id, 'total_words' => $missingAudioCount, 'voice' => $voice])
+            ->log('Memulai generate audio massal kamus');
+
+        return back()->with('success', "Proses generate audio dimulai untuk {$missingAudioCount} kata yang kosong. Pantau progress di halaman ini.");
+    }
+
+    public function audioGenerationStatus()
+    {
+        return response()->json([
+            'batch' => KamusAudioGenerationBatch::latest()->first(),
         ]);
     }
 

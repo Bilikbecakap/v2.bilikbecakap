@@ -26,14 +26,14 @@ class LandingPageController extends Controller
                 // Pilih konten sesuai bahasa
                 $judul = match($locale) {
                     'id' => $artikel->judul_indonesia ?? $artikel->judul_melayu ?? $artikel->judul_english,
-                    'ms' => $artikel->judul_melayu ?? $artikel->judul_indonesia ?? $artikel->judul_english,
+                    'mb' => $artikel->judul_melayu ?? $artikel->judul_indonesia ?? $artikel->judul_english,
                     'en' => $artikel->judul_english ?? $artikel->judul_indonesia ?? $artikel->judul_melayu,
                     default => $artikel->judul_indonesia
                 };
 
                 $konten = match($locale) {
                     'id' => $artikel->konten_indonesia ?? $artikel->konten_melayu ?? $artikel->konten_english,
-                    'ms' => $artikel->konten_melayu ?? $artikel->konten_indonesia ?? $artikel->konten_english,
+                    'mb' => $artikel->konten_melayu ?? $artikel->konten_indonesia ?? $artikel->konten_english,
                     'en' => $artikel->konten_english ?? $artikel->konten_indonesia ?? $artikel->konten_melayu,
                     default => $artikel->konten_indonesia
                 };

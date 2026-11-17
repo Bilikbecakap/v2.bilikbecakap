@@ -210,6 +210,7 @@ return [
     'jangan ragu' => 'Jan Ragu Idang Menghubungi Kamek',
     'jangan ragu deskripsi' => 'Renyek tahu lebe banyak tentang Bilikbecakap? Atau memiliki pertanyaen? Kamek siap membantu! Hubungi kamek melalui formulir de bawah ini atau gunakan detel kuntak nok tesedie.',
     'support_by' => 'Didukung oleh',
+    'bagian_dari' => 'Bagian dari',
 
     'kuis titile' => 'Kuis Pembelajaran Bahase Melayu Belitong',
     'kuis deskripsi' => 'Terjemahkan teks antare Bahase Indonesia kan Bahase Melayu Belitong makai teknologi Kecerdasan Buatan.',

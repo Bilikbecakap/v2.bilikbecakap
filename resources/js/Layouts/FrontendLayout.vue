@@ -378,6 +378,23 @@ onUnmounted(() => {
             <slot />
         </main>
 
+        <!-- Didukung oleh -->
+        <section class="bg-[#002b44] border-b border-white/10 py-8">
+            <div class="container mx-auto px-6">
+                <p class="text-center text-gray-300 text-sm font-medium uppercase tracking-wider mb-6">
+                    {{ t("messages.support_by") }}
+                </p>
+                <div class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-6 lg:gap-10">
+                    <img src="/logo/kemenbud-putih.png" alt="Kementerian Kebudayaan RI" class="h-14 w-auto object-contain">
+                    <img src="/logo/danaindonesiana.PNG" alt="Dana Indonesiana" class="h-20 w-auto object-contain">
+                    <img src="/logo/lpdp.png" alt="LPDP" class="h-14 w-auto object-contain">
+                    <img src="/logo/kemendikbud.png" alt="Kemendikbud" class="h-14 w-auto object-contain">
+                    <img src="/logo/kemahbudaya.png" alt="Kemah Budaya" class="h-14 w-auto object-contain">
+                    <img src="/logo/beltim.png" alt="Belitung Timur" class="h-14 w-auto object-contain">
+                </div>
+            </div>
+        </section>
+
         <!-- Footer -->
         <footer class="bg-[#002b44] text-white pt-16 pb-8">
             <div class="container mx-auto px-6">
@@ -499,14 +516,13 @@ onUnmounted(() => {
                         </ul>
                     </div>
 
-                    <!-- Kolom 4: Support By -->
+                    <!-- Kolom 4: Bagian dari -->
                     <div>
-                        <h3 class="text-xl font-semibold mb-6">{{ t("messages.support_by") }}</h3>
-                        <div class="flex items-center gap-4">
-                            <img src="/logo/kemendikbud.png" alt="Support A" class="h-16 w-auto object-contain">
-                            <img src="/logo/kemahbudaya.png" alt="Support B" class="h-16 w-auto object-contain">
-                            <img src="/logo/beltim.png" alt="Support C" class="h-16 w-auto object-contain">
-                        </div>
+                        <h3 class="text-xl font-semibold mb-6">{{ t("messages.bagian_dari") }}</h3>
+                        <a href="https://basamudera.or.id/" target="_blank" rel="noopener noreferrer"
+                            class="text-gray-300 text-sm leading-relaxed hover:text-[#54b0af] transition-colors duration-200">
+                            Yayasan Basamudera Budaya Teknologi Indonesia
+                        </a>
                     </div>
                 </div>
 

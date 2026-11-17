@@ -223,6 +223,7 @@ return [
     'jangan ragu' => 'Jangan Ragu untuk Menghubungi Kami',
     'jangan ragu deskripsi' => 'Ingin tahu lebih banyak tentang Bilikbecakap? atau memiliki pertanyaan? Kami siap membantu! Hubungi kami melalui formulir di bawah ini atau gunakan detail kontak yang tersedia.',
     'support_by' => 'Didukung oleh',
+    'bagian_dari' => 'Bagian dari',
 
     'kuis titile' => 'Kuis Pembelajaran Bahasa Melayu Belitung',
     'kuis deskripsi' => 'Terjemahkan teks antara Bahasa Indonesia dan Bahasa Melayu Belitung menggunakan teknologi Kecerdasan Buatan.',

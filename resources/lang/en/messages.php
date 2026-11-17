@@ -211,6 +211,7 @@ return [
     'jangan ragu' => 'Don\'t Hesitate to Contact Us',
     'jangan ragu deskripsi' => 'Want to know more about Bilikbecakap? Or have any questions? We are ready to help! You can contact us through the form below or use the contact details provided.',
     'support_by' => 'Support by',
+    'bagian_dari' => 'Part of',
 
     'kuis titile' => 'Belitung Malay Language Learning Quiz',
     'kuis deskripsi' => 'Translate text between Indonesian and Belitung Malay using Artificial Intelligence technology.',

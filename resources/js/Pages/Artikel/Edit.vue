@@ -124,7 +124,7 @@ const autoTranslateToMelayu = async () => {
     tempDiv.innerHTML = form.konten_indonesia;
     const plainText = tempDiv.textContent || tempDiv.innerText || "";
 
-    const response = await fetch(route("translate.process"), {
+    const response = await fetch(route("penerjemah.process"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -134,7 +134,6 @@ const autoTranslateToMelayu = async () => {
       body: JSON.stringify({
         text: plainText,
         direction: "indonesia_to_belitung",
-        method: "hybrid",
       }),
     });
 
@@ -144,7 +143,7 @@ const autoTranslateToMelayu = async () => {
       form.konten_melayu = `<p>${data.data.translation}</p>`;
 
       if (!form.judul_melayu && form.judul_indonesia) {
-        const judulResponse = await fetch(route("translate.process"), {
+        const judulResponse = await fetch(route("penerjemah.process"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -155,7 +154,6 @@ const autoTranslateToMelayu = async () => {
           body: JSON.stringify({
             text: form.judul_indonesia,
             direction: "indonesia_to_belitung",
-            method: "hybrid",
           }),
         });
 

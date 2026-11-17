@@ -4,6 +4,7 @@ import { Head, Link, useForm } from "@inertiajs/vue3";
 import { ref, watch, computed } from "vue";
 import { usePermissions } from "@/composables/usePermissions";
 import QuillEditor from "@/Components/QuillEditor.vue";
+import { translateHtml, translateText } from "@/composables/useTranslateHtml";
 
 const { can } = usePermissions();
 
@@ -32,6 +33,7 @@ const form = useForm({
 const activeTab = ref("indonesia");
 const thumbnailPreview = ref(null);
 const isTranslating = ref(false);
+const translateProgress = ref("");
 
 // Notification state
 const notification = ref({
@@ -111,64 +113,33 @@ const autoTranslateToMelayu = async () => {
   isTranslating.value = true;
 
   try {
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = form.konten_indonesia;
-    const plainText = tempDiv.textContent || tempDiv.innerText || "";
+    form.konten_melayu = await translateHtml(
+      form.konten_indonesia,
+      "indonesia_to_belitung",
+      (done, total) => (translateProgress.value = `${done}/${total}`)
+    );
 
-    const response = await fetch(route("penerjemah.process"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "",
-      },
-      body: JSON.stringify({
-        text: plainText,
-        direction: "indonesia_to_belitung",
-      }),
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      form.konten_melayu = `<p>${data.data.translation}</p>`;
-
-      if (!form.judul_melayu && form.judul_indonesia) {
-        const judulResponse = await fetch(route("penerjemah.process"), {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            "X-CSRF-TOKEN":
-              document.querySelector('meta[name="csrf-token"]')?.content || "",
-          },
-          body: JSON.stringify({
-            text: form.judul_indonesia,
-            direction: "indonesia_to_belitung",
-          }),
-        });
-
-        const judulData = await judulResponse.json();
-        if (judulData.success) {
-          form.judul_melayu = judulData.data.translation;
-        }
+    if (!form.judul_melayu && form.judul_indonesia) {
+      try {
+        form.judul_melayu = await translateText(form.judul_indonesia, "indonesia_to_belitung");
+      } catch (e) {
+        // judul opsional, lanjutkan tanpa judul
       }
-
-      showNotification(
-        "success",
-        "🇲🇾 Berhasil Diterjemahkan ke Bahasa Melayu!",
-        `Judul: ${
-          form.judul_melayu ? "✅ Diterjemahkan" : "➖ Tidak ada"
-        }\nKonten: ✅ Berhasil diterjemahkan\n\n⚠️ Hasil AI mungkin tidak 100% akurat, silakan periksa kembali.`,
-        8000
-      );
-    } else {
-      showNotification("error", "Gagal Menerjemahkan", data.message, 5000);
     }
+
+    showNotification(
+      "success",
+      "🇲🇾 Berhasil Diterjemahkan ke Bahasa Melayu!",
+      `Judul: ${
+        form.judul_melayu ? "✅ Diterjemahkan" : "➖ Tidak ada"
+      }\nKonten: ✅ Berhasil diterjemahkan\n\n⚠️ Hasil AI mungkin tidak 100% akurat, silakan periksa kembali.`,
+      8000
+    );
   } catch (error) {
-    showNotification("error", "Error", "Terjadi kesalahan saat menerjemahkan", 5000);
+    showNotification("error", "Gagal Menerjemahkan", error.message || "Terjadi kesalahan saat menerjemahkan", 5000);
   } finally {
     isTranslating.value = false;
+    translateProgress.value = "";
   }
 };
 
@@ -531,7 +502,7 @@ watch(
                       d="M7 8h10m0 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v2m10 0v10a2 2 0 01-2 2H9a2 2 0 01-2-2V8m10 0H7"
                     />
                   </svg>
-                  {{ isTranslating ? "Menerjemahkan..." : "🤖 AI Translate" }}
+                  {{ isTranslating ? `Menerjemahkan... ${translateProgress}` : "🤖 AI Translate" }}
                 </button>
               </div>
               <QuillEditor

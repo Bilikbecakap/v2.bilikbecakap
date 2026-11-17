@@ -8,6 +8,7 @@
 import { ref, onMounted, watch, nextTick } from "vue";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
+import { looksLikeMarkdown, markdownToHtml } from "@/composables/markdownToHtml";
 
 const props = defineProps({
   modelValue: {
@@ -58,6 +59,9 @@ onMounted(() => {
     },
   });
 
+  // Paste teks markdown -> ubah ke format editor
+  quill.root.addEventListener("paste", handleMarkdownPaste, true);
+
   // Set initial content
   if (props.modelValue) {
     quill.root.innerHTML = props.modelValue;
@@ -79,6 +83,20 @@ onMounted(() => {
     addImageResizeHandlers();
   });
 });
+
+function handleMarkdownPaste(e) {
+  const text = e.clipboardData?.getData("text/plain");
+  if (!text || !looksLikeMarkdown(text)) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const range = quill.getSelection(true);
+  quill.deleteText(range.index, range.length, "user");
+  const lengthBefore = quill.getLength();
+  quill.clipboard.dangerouslyPasteHTML(range.index, markdownToHtml(text), "user");
+  quill.setSelection(range.index + quill.getLength() - lengthBefore, 0, "silent");
+}
 
 // Custom image handler
 function imageHandler() {
